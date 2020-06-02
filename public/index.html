@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Graphical Liquid Galaxy API</title>
+   </head>
+   
+   <script src = "/socket.io/socket.io.js"></script>
+   <script src="https://threejs.org/build/three.js"></script>
+   <script>
+      var socket = io();
+      var id;
+      var angleCamera;
+      var rotateCamera;
+      socket.on('idSet', function(data) {
+         id = data.id;
+         angleCamera = data.angle;
+         console.log(id + " " + angleCamera)
+         rotateCamera = true;
+      });
+
+      socket.on('whatTime', function() {
+        if(id==1){
+           socket.emit('currentTime', {pos:getCubePosition()});
+        }
+      });
+
+      socket.on('setCube', function(data) {
+         setCubePosition(data.pos);
+      });
+
+      socket.on('oneLessScreen', function(data) {
+         if(id > data.noUser) {
+            
+            var angleAbs = Math.abs(angleCamera); 
+            var lookingAt = (angleCamera/angleAbs);
+            if(id%2 == data.noUser%2){ 
+               angleAbs-=45;
+            }
+            angleCamera = angleAbs*lookingAt;
+            id--;
+            console.log(id + " " + angleCamera);
+            rotateCamera = true;
+         }
+      });
+   </script>
+   
+   <body>
+      <div id = "error-container"></div>
+      <script src="main.js"></script>
+   </body>
+</html>
