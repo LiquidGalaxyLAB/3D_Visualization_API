@@ -28,20 +28,67 @@
          setCubePosition(data.pos);
       });
 
-      socket.on('oneLessScreen', function(data) {
-         if(id > data.noUser) {
-            
+      socket.on('updateIDReorganiseSock', function(data) {
+         console.log("reorganise " + id)
+         if(id==2){
+            id = 1;
+            angleCamera = 0;
+         }
+         else if(id==1){
+            id = 3;
+            if(data.startRight){
+               angleCamera = 45;
+            }else{
+               angleCamera = -45
+            }
+         }
+         else if(id%2 == 0){
+            id = id-2;
             var angleAbs = Math.abs(angleCamera); 
             var lookingAt = (angleCamera/angleAbs);
-            if(id%2 == data.noUser%2){ 
-               angleAbs-=45;
-            }
+            angleAbs-=45;
             angleCamera = angleAbs*lookingAt;
-            id--;
-            console.log(id + " " + angleCamera);
+         }else{
+            if(data.noUser > id){
+               id += 2;
+               var angleAbs = Math.abs(angleCamera); 
+               var lookingAt = (angleCamera/angleAbs);
+               angleAbs+=45;
+               angleCamera = angleAbs*lookingAt;
+            }
+         }
+         rotateCamera = true;
+         console.log("reorganise " + id)
+         socket.emit('updateIDReorganise', data.id);
+      })
+
+      socket.on('updateIDMoveSock', function(data) {
+         console.log("move " + id)
+         if(data%2 == id%2 && id > data){
+            id -=2;
+            var angleAbs = Math.abs(angleCamera); 
+            var lookingAt = (angleCamera/angleAbs);
+            angleAbs-=45;
+            angleCamera = angleAbs*lookingAt;
             rotateCamera = true;
          }
-      });
+         console.log("move " + id)
+         socket.emit('updateIDMove', data);
+      })
+
+      socket.on('updateIDMirrorSock', function() {
+         console.log("mirror " + id)
+         if(id > 1){
+            if(id%2==1){
+               id--;
+            }else{
+               id++;
+            }
+         }
+         console.log("mirror " + id)
+         socket.emit('updateIDMirror');
+      })
+
    </script>
    
    <body>
