@@ -9,18 +9,19 @@ app.use(express.static('public'))
 app.get('/', function(req, res) {
    res.sendfile('index.html');
 });
-
+const angleToGo = 50;
 var noUsers = 0;
 var activeUser = 1;
 var angleNext = 0;
 var lookingRight = 1; 
 var startRight = true;
+var receivedConfirmation = []
 io.on('connection', function(socket) {
    noUsers++;
    var id = noUsers;
    console.log('Screen number ' + noUsers + ' connected');
    socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight});
-   if(noUsers%2 == 1){ angleNext+=45; }
+   if(noUsers%2 == 1){ angleNext+=angleToGo; }
    lookingRight = -lookingRight;
   
    if(noUsers>2){
@@ -28,7 +29,18 @@ io.on('connection', function(socket) {
    }
 
    socket.on('currentTime', function(data) {
+      receivedConfirmation.push(1);
       io.sockets.emit('setCube', data);
+   })
+
+   socket.on('confirmation', function(data) {
+      if(receivedConfirmation.indexOf(data) == -1){
+         receivedConfirmation.push(data);
+         if(receivedConfirmation.length == noUsers){
+            receivedConfirmation = []
+            io.sockets.emit('start', data);
+         }
+      }
    })
 
    socket.on('updateIDReorganise', function(data) {
@@ -67,7 +79,7 @@ io.on('connection', function(socket) {
       console.log(noUsers + " " + angleNext + " " + lookingRight);
       noUsers--;
       if(noUsers%2 ==0){ 
-         angleNext-=45; 
+         angleNext-=angleToGo; 
          if(id%2 == 1){
             lookingRight = -lookingRight;
          }
@@ -88,9 +100,7 @@ io.on('connection', function(socket) {
             io.sockets.emit('updateIDMirrorSock');
             startRight = !startRight
          }
-      
       }
-
       io.sockets.emit('whatTime');
    });
 });

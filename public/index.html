@@ -7,26 +7,41 @@
    <script src = "/socket.io/socket.io.js"></script>
    <script src="https://threejs.org/build/three.js"></script>
    <script>
+      const angleToGo = 50;
       var socket = io();
       var id;
       var angleCamera;
       var rotateCamera;
+      var stopIm;
       socket.on('idSet', function(data) {
          id = data.id;
          angleCamera = data.angle;
          console.log(id + " " + angleCamera)
          rotateCamera = true;
+         stopIm = false;
       });
 
       socket.on('whatTime', function() {
         if(id==1){
            socket.emit('currentTime', {pos:getCubePosition()});
+           stopIm = true
         }
       });
 
       socket.on('setCube', function(data) {
-         setCubePosition(data.pos);
+         console.log("setting positions");
+         if(id!=1){
+            setCubePosition(data.pos);
+            stopIm = true;
+            socket.emit('confirmation', id);
+         }
       });
+
+      socket.on('start', function(data) {
+         console.log("Start");
+         stopIm = false;
+      });
+
 
       socket.on('updateIDReorganiseSock', function(data) {
          console.log("reorganise " + id)
@@ -37,23 +52,23 @@
          else if(id==1){
             id = 3;
             if(data.startRight){
-               angleCamera = 45;
+               angleCamera = angleToGo;
             }else{
-               angleCamera = -45
+               angleCamera = -angleToGo
             }
          }
          else if(id%2 == 0){
             id = id-2;
             var angleAbs = Math.abs(angleCamera); 
             var lookingAt = (angleCamera/angleAbs);
-            angleAbs-=45;
+            angleAbs-=angleToGo;
             angleCamera = angleAbs*lookingAt;
          }else{
             if(data.noUser > id){
                id += 2;
                var angleAbs = Math.abs(angleCamera); 
                var lookingAt = (angleCamera/angleAbs);
-               angleAbs+=45;
+               angleAbs+=angleToGo;
                angleCamera = angleAbs*lookingAt;
             }
          }
@@ -68,7 +83,7 @@
             id -=2;
             var angleAbs = Math.abs(angleCamera); 
             var lookingAt = (angleCamera/angleAbs);
-            angleAbs-=45;
+            angleAbs-=angleToGo;
             angleCamera = angleAbs*lookingAt;
             rotateCamera = true;
          }

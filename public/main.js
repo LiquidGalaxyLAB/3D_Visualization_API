@@ -35,20 +35,22 @@ var angleBef = 0;
 var animate = function () {
     requestAnimationFrame( animate );
 
-    if(rotateCamera){
-        camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
-        camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
-        rotateCamera = false;
-        angleBef = angleCamera
+    if(!stopIm){
+        if(rotateCamera){
+            camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
+            camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
+            rotateCamera = false;
+            angleBef = angleCamera
+        }
+        cube.position.x += 0.05;
+        position = cube.position.clone();
+        position.project(camera);
+        if(cube.position.x>8){
+            cube.position.x = -cube.position.x;
+        }
+        
+        renderer.render( scene, camera );
     }
-    cube.position.x += 0.05;
-    position = cube.position.clone();
-    position.project(camera);
-    if(cube.position.x>8){
-        cube.position.x = -cube.position.x;
-    }
-    
-    renderer.render( scene, camera );
 };
 
 animate();
