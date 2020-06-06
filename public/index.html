@@ -29,7 +29,7 @@
       });
 
       socket.on('setCube', function(data) {
-         console.log("setting positions");
+         // console.log("setting positions");
          if(id!=1){
             setCubePosition(data.pos);
             stopIm = true;
@@ -37,14 +37,41 @@
          }
       });
 
+      socket.on('moveKeySock', function(data) {
+         stopIm = true;
+         if (data == 38) {
+            // up arrow
+            // console.log("Moving up");
+            moveCamera(0,0.5,0);
+         }
+         else if (data == 40) {
+            // down arrow
+            // console.log("Moving down");
+            moveCamera(0,-0.5,0);
+         }
+         else if (data == 37) {
+            // left arrow
+            // console.log("Moving left");
+            moveCamera(-0.5,0,0);
+         }
+         else if (data == 39) {
+            // right arrow
+            // console.log("Moving right");
+            moveCamera(0.5,0,0);
+         }
+         socket.emit('confirmation', id);
+      });
+
+      
+
       socket.on('start', function(data) {
-         console.log("Start");
+         // console.log("Start");
          stopIm = false;
       });
 
 
       socket.on('updateIDReorganiseSock', function(data) {
-         console.log("reorganise " + id)
+         // console.log("reorganise " + id)
          if(id==2){
             id = 1;
             angleCamera = 0;
@@ -73,12 +100,12 @@
             }
          }
          rotateCamera = true;
-         console.log("reorganise " + id)
+         // console.log("reorganise " + id)
          socket.emit('updateIDReorganise', data.id);
       })
 
       socket.on('updateIDMoveSock', function(data) {
-         console.log("move " + id)
+         // console.log("move " + id)
          if(data%2 == id%2 && id > data){
             id -=2;
             var angleAbs = Math.abs(angleCamera); 
@@ -87,12 +114,12 @@
             angleCamera = angleAbs*lookingAt;
             rotateCamera = true;
          }
-         console.log("move " + id)
+         // console.log("move " + id)
          socket.emit('updateIDMove', data);
       })
 
       socket.on('updateIDMirrorSock', function() {
-         console.log("mirror " + id)
+         // console.log("mirror " + id)
          if(id > 1){
             if(id%2==1){
                id--;
@@ -100,10 +127,15 @@
                id++;
             }
          }
-         console.log("mirror " + id)
+         // console.log("mirror " + id)
          socket.emit('updateIDMirror');
       })
 
+      document.onkeydown = function checkKey(e) {
+         e = e.keyCode;
+         // console.log("MOVING " + e);
+         socket.emit('moveKeySend', e);
+      }
    </script>
    
    <body>

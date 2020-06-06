@@ -43,6 +43,10 @@ io.on('connection', function(socket) {
       }
    })
 
+   socket.on('moveKeySend', function(data) {
+      io.sockets.emit('moveKeySock', data);
+   })
+
    socket.on('updateIDReorganise', function(data) {
       console.log("reorganise " + id)
       if(id==2){id = 1;}

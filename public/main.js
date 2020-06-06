@@ -1,3 +1,5 @@
+
+
 if(rotateCamera == null){
     rotateCamera = false
 }if(angleCamera == null){
@@ -72,4 +74,10 @@ function setCubePosition(position){
     cube.position.x = position.x;
     cube.position.y = position.y;
     cube.position.z = position.y;
+}
+
+function moveCamera(posx, posy, posz) {
+    camera.position.x += posx
+    camera.position.y += posy
+    camera.position.z += posz
 }
