@@ -7,16 +7,20 @@
    <script src = "/socket.io/socket.io.js"></script>
    <script src="https://threejs.org/build/three.js"></script>
    <script>
-      const angleToGo = 50;
+      const angleToGo = 45;
       var socket = io();
       var id;
       var angleCamera;
+      var positionCamera = [0,0,0];
       var rotateCamera;
       var stopIm;
       socket.on('idSet', function(data) {
          id = data.id;
          angleCamera = data.angle;
-         console.log(id + " " + angleCamera)
+         positionCamera[0] = data.x
+         moveCamera(positionCamera[0], 0,0);
+         console.log(id + " " + angleCamera + " " + data.x);
+         
          rotateCamera = true;
          stopIm = false;
       });
@@ -42,21 +46,25 @@
          if (data == 38) {
             // up arrow
             // console.log("Moving up");
+            positionCamera[1] += 0.5
             moveCamera(0,0.5,0);
          }
          else if (data == 40) {
             // down arrow
             // console.log("Moving down");
+            positionCamera[1] -= 0.5
             moveCamera(0,-0.5,0);
          }
          else if (data == 37) {
             // left arrow
             // console.log("Moving left");
+            positionCamera[0] -= 0.5
             moveCamera(-0.5,0,0);
          }
          else if (data == 39) {
             // right arrow
             // console.log("Moving right");
+            positionCamera[0] += 0.5
             moveCamera(0.5,0,0);
          }
          socket.emit('confirmation', id);
@@ -186,6 +194,13 @@
          rotateCameraX(data);
       });
       socket.on('rotateY', function(data) {
+         console.log("RotateY " + data);
+         var rotX = Math.cos(data) *  (0.1*(angleCamera/angleToGo));
+         var rotZ = Math.sin(data) *  (0.1*(angleCamera/angleToGo));
+         console.log(rotX + " " + rotZ);
+         moveCamera(positionCamera[0] - rotX, 0, positionCamera[2] -rotZ);
+         positionCamera[0] = rotX;
+         positionCamera[2] = rotZ;
          rotateCameraY(data);
       });
    </script>

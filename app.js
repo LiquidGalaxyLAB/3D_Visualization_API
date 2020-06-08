@@ -15,12 +15,12 @@ var activeUser = 1;
 var angleNext = 0;
 var lookingRight = 1; 
 var startRight = true;
-var receivedConfirmation = []
+var receivedConfirmation = [];
 io.on('connection', function(socket) {
    noUsers++;
    var id = noUsers;
    console.log('Screen number ' + noUsers + ' connected');
-   socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight});
+   socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, x: 0.1 * (-(angleNext*lookingRight)/angleToGo)});
    if(noUsers%2 == 1){ angleNext+=angleToGo; }
    lookingRight = -lookingRight;
   

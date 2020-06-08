@@ -14,7 +14,9 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
-
+var Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
+var X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
+var Z_AXIS_camera = new THREE.Vector3( 0, 0, 1 );
 
 scene.add( camera );
 camera.position.z = 5;
@@ -43,6 +45,7 @@ var animate = function () {
         if(rotateCamera){
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
+            X_AXIS_camera.applyAxisAngle(Y_AXIS, degreesToRadians(angleCamera));
             rotateCamera = false;
             angleBef = angleCamera
         }
