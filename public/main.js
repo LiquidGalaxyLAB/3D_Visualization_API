@@ -13,6 +13,8 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 
 var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
+var X_AXIS = new THREE.Vector3( 1, 0, 0 );
+
 
 scene.add( camera );
 camera.position.z = 5;
@@ -47,7 +49,7 @@ var animate = function () {
         cube.position.x += 0.05;
         position = cube.position.clone();
         position.project(camera);
-        if(cube.position.x>8){
+        if(cube.position.x>6){
             cube.position.x = -cube.position.x;
         }
         
@@ -75,9 +77,14 @@ function setCubePosition(position){
     cube.position.y = position.y;
     cube.position.z = position.y;
 }
-
 function moveCamera(posx, posy, posz) {
     camera.position.x += posx
     camera.position.y += posy
     camera.position.z += posz
+}
+function rotateCameraX(angle){
+    camera.rotateOnAxis( X_AXIS, degreesToRadians(angle) );
+}
+function rotateCameraY(angle){
+    camera.rotateOnAxis( Y_AXIS, degreesToRadians(angle) );
 }

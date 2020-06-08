@@ -9,7 +9,7 @@ app.use(express.static('public'))
 app.get('/', function(req, res) {
    res.sendfile('index.html');
 });
-const angleToGo = 50;
+const angleToGo = 45;
 var noUsers = 0;
 var activeUser = 1;
 var angleNext = 0;
@@ -45,6 +45,13 @@ io.on('connection', function(socket) {
 
    socket.on('moveKeySend', function(data) {
       io.sockets.emit('moveKeySock', data);
+   })
+
+   socket.on('rotateXServer', function(data) {
+      io.sockets.emit('rotateX', data);
+   })
+   socket.on('rotateYServer', function(data) {
+      io.sockets.emit('rotateY', data);
    })
 
    socket.on('updateIDReorganise', function(data) {

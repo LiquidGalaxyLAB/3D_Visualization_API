@@ -136,6 +136,58 @@
          // console.log("MOVING " + e);
          socket.emit('moveKeySend', e);
       }
+
+      var mouseDown;
+      var mouseXBef;
+      var mouseYBef;
+      var howMuchMoved;
+      document.onmousedown = function checkMouse(e) {
+        
+         if(e.which != 3){
+            console.log("mouse " + e.clientX);
+            mouseDown = true;
+            mouseXBef = e.clientX;
+            mouseYBef = e.clientY;
+         }
+         
+      }
+      document.onmouseup = function checkMouse() {
+         console.log("mouse up");
+         mouseDown = false
+      }
+      
+      document.onmousemove = function checkMouse(e) {
+         if(mouseDown){
+            var howMuch = 50;
+            var a = 3;
+            // console.log("mouse dragging " + e.clientX);
+            if(Math.abs(e.clientX - mouseXBef) >=howMuch){
+               // console.log("moving X");
+               if(mouseXBef>e.clientX){
+                  a = -a
+               }
+               socket.emit('rotateYServer', a);
+               // rotateCameraY(a);
+               mouseXBef = e.clientX;
+            }
+            if(Math.abs(e.clientY - mouseYBef) >=howMuch){
+               // console.log("moving Y");
+               if(mouseYBef>e.clientY){
+                  a = -a
+               }
+               socket.emit('rotateXServer', a);
+               // rotateCameraX(a);
+               mouseYBef = e.clientY;
+            }
+         }
+      }
+      socket.on('rotateX', function(data) {
+         console.log("RotateX " + data);
+         rotateCameraX(data);
+      });
+      socket.on('rotateY', function(data) {
+         rotateCameraY(data);
+      });
    </script>
    
    <body>
