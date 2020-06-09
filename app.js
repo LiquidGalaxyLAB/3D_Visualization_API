@@ -20,11 +20,17 @@ io.on('connection', function(socket) {
    noUsers++;
    var id = noUsers;
    console.log('Screen number ' + noUsers + ' connected');
-   socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, x: 0.1 * (-(angleNext*lookingRight)/angleToGo)});
+   socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
+                        x: 0.1 * (-(angleNext*lookingRight)/angleToGo),
+                        z: 0});
+                        // x: 0,
+                        // z: 0});
    if(noUsers%2 == 1){ angleNext+=angleToGo; }
    lookingRight = -lookingRight;
-  
-   if(noUsers>2){
+   // console.log("hey " + noUsers);
+
+   if(noUsers>1){
+      console.log("what time");
       io.sockets.emit('whatTime');
    }
 

@@ -1,4 +1,4 @@
-
+var vectorCamera = new THREE.Vector3( 0, 0, -1 );
 
 if(rotateCamera == null){
     rotateCamera = false
@@ -87,7 +87,13 @@ function moveCamera(posx, posy, posz) {
 }
 function rotateCameraX(angle){
     camera.rotateOnAxis( X_AXIS, degreesToRadians(angle) );
+    vectorCamera.applyAxisAngle(X_AXIS, angle);
 }
 function rotateCameraY(angle){
     camera.rotateOnAxis( Y_AXIS, degreesToRadians(angle) );
+    vectorCamera.applyAxisAngle(Y_AXIS, angle);
+}
+function rotateVectorInit(angle){
+    vectorCamera = new THREE.Vector3( 0, 0, -1 );
+    vectorCamera.applyAxisAngle(Y_AXIS, angle);
 }
