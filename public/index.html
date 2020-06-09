@@ -10,7 +10,7 @@
    <script src = "/socket.io/socket.io.js"></script>
    <script src="https://threejs.org/build/three.js"></script>
    <script>
-      const angleToGo = 45;
+      const angleToGo = 50;
       var socket = io();
       var id;
       var angleCamera;
@@ -35,21 +35,21 @@
 
       socket.on('whatTime', function() {
         if(id==1){
-           console.log("")
+         //   console.log("")
            socket.emit('currentTime', {pos:getCubePosition()});
            stopIm = true
         }
       });
 
       socket.on('start', function(data) {
-         console.log("Start ");
+         // console.log("Start ");
          // console.log(Date.now());
 
          stopIm = false;
       });
 
       socket.on('setCube', function(data) {
-         console.log("setting positions");
+         // console.log("setting positions");
          if(id!=1){
             setCubePosition(data.pos);
             stopIm = true;

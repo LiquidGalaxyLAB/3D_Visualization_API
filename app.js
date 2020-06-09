@@ -9,7 +9,7 @@ app.use(express.static('public'))
 app.get('/', function(req, res) {
    res.sendfile('index.html');
 });
-const angleToGo = 45;
+const angleToGo = 50;
 var noUsers = 0;
 var activeUser = 1;
 var angleNext = 0;
@@ -30,9 +30,11 @@ io.on('connection', function(socket) {
    // console.log("hey " + noUsers);
 
    if(noUsers>1){
-      console.log("what time");
       io.sockets.emit('whatTime');
    }
+   const interval = setInterval(function() {
+      io.sockets.emit('whatTime');
+    }, 5000);
 
    socket.on('currentTime', function(data) {
       receivedConfirmation.push(1);
