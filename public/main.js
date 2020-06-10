@@ -1,27 +1,18 @@
-var vectorCamera = new THREE.Vector3( 0, 0, -1 );
-
-if(rotateCamera == null){
-    rotateCamera = false
-}if(angleCamera == null){
-    angleCamera = false
-}
+console.log("hereeee")
+var vectorCamera;
+var firstTime = true;
 const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 const height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
+scene.add( camera );
 var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
 var Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
 var Z_AXIS_camera = new THREE.Vector3( 0, 0, 1 );
-
-scene.add( camera );
-camera.position.z = 5;
-
-
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -31,13 +22,33 @@ var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var cube = new THREE.Mesh( geometry, material );
 scene.add( cube );
 
-var position
-var copyCamera= camera.clone();
-position = cube.position.clone();
-position.project(camera);
-window.addEventListener( 'resize', onWindowResize, false );
-cube.position.x = 0;
+
+function init(){
+    console.log(firstTime);
+    if(!firstTime){
+        console.log("here");
+        scene.remove(camera);
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        scene.add( camera ); 
+        scene.remove( cube);
+        cube = new THREE.Mesh( geometry, material );
+        scene.add( cube ); 
+    }
+    firstTime = false;  
+     vectorCamera = new THREE.Vector3( 0, 0, -1 );
+
+    if(rotateCamera == null){
+        rotateCamera = false
+    }if(angleCamera == null){
+        angleCamera = false
+    }
+    
+    window.addEventListener( 'resize', onWindowResize, false );
+    cube.position.x = 0;
+    cube.position.z = -5;
+}
 var angleBef = 0;
+
 var animate = function () {
     requestAnimationFrame( animate );
 
@@ -50,8 +61,6 @@ var animate = function () {
             angleBef = angleCamera
         }
         cube.position.x += 0.05;
-        position = cube.position.clone();
-        position.project(camera);
         if(cube.position.x>6){
             cube.position.x = -cube.position.x;
         }
@@ -59,7 +68,6 @@ var animate = function () {
         renderer.render( scene, camera );
     }
 };
-
 animate();
 
 function onWindowResize() {
@@ -78,7 +86,13 @@ function getCubePosition(){
 function setCubePosition(position){
     cube.position.x = position.x;
     cube.position.y = position.y;
-    cube.position.z = position.y;
+    cube.position.z = position.z;
+}
+
+function setCamera(posx, posy, posz) {
+    camera.position.x = posx
+    camera.position.y = posy
+    camera.position.z = posz
 }
 function moveCamera(posx, posy, posz) {
     camera.position.x += posx

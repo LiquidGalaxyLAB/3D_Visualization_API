@@ -19,6 +19,7 @@
       var rotateCamera;
       var stopIm;
       socket.on('idSet', function(data) {
+         init();
          id = data.id;
          angleCamera = data.angle;
          positionCamera[0] = data.x;
@@ -26,7 +27,7 @@
          vectorCamera =[0,0,-1];
          rotateVectorInit(angleCamera);
          // console.log(vectorCamera);
-         moveCamera(positionCamera[0], 0, positionCamera[2]);
+         setCamera(positionCamera[0], 0, positionCamera[2]);
          console.log(id + " " + angleCamera + " " + data.x);
          
          rotateCamera = true;
@@ -35,22 +36,22 @@
 
       socket.on('whatTime', function() {
         if(id==1){
-         //   console.log("")
+         //   console.log("sending position ")
            socket.emit('currentTime', {pos:getCubePosition()});
            stopIm = true
         }
       });
 
       socket.on('start', function(data) {
-         // console.log("Start ");
+         console.log("Start ");
          // console.log(Date.now());
 
          stopIm = false;
       });
 
       socket.on('setCube', function(data) {
-         // console.log("setting positions");
          if(id!=1){
+            // console.log("setting positions");
             setCubePosition(data.pos);
             stopIm = true;
             socket.emit('confirmation', id);

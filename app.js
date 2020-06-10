@@ -23,16 +23,16 @@ io.on('connection', function(socket) {
    socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
                         x: 0.1 * (-(angleNext*lookingRight)/angleToGo),
                         z: 0});
-                        // x: 0,
-                        // z: 0});
+
    if(noUsers%2 == 1){ angleNext+=angleToGo; }
    lookingRight = -lookingRight;
    // console.log("hey " + noUsers);
 
-   if(noUsers>1){
-      io.sockets.emit('whatTime');
-   }
+   // if(noUsers>1){
+   //    io.sockets.emit('whatTime');
+   // }
    const interval = setInterval(function() {
+      console.log("synchronising")
       io.sockets.emit('whatTime');
     }, 5000);
 
@@ -120,7 +120,7 @@ io.on('connection', function(socket) {
             startRight = !startRight
          }
       }
-      io.sockets.emit('whatTime');
+      // io.sockets.emit('whatTime');
    });
 });
 
