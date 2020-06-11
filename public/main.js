@@ -6,7 +6,6 @@ const height = window.innerHeight|| document.documentElement.clientHeight||  doc
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-scene.add( camera );
 var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
@@ -20,22 +19,18 @@ document.body.appendChild( renderer.domElement );
 var geometry = new THREE.BoxGeometry();
 var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
 
 
 function init(){
     console.log(firstTime);
     if(!firstTime){
-        console.log("here");
-        scene.remove(camera);
-        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        scene.add( camera ); 
-        scene.remove( cube);
-        cube = new THREE.Mesh( geometry, material );
-        scene.add( cube ); 
+        console.log("herr")
+        location.reload();
     }
     firstTime = false;  
      vectorCamera = new THREE.Vector3( 0, 0, -1 );
+     scene.add( camera );
+     scene.add( cube );
 
     if(rotateCamera == null){
         rotateCamera = false

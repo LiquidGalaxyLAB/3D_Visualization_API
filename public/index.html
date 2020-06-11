@@ -19,7 +19,7 @@
       var rotateCamera;
       var stopIm;
       socket.on('idSet', function(data) {
-         init();
+         
          id = data.id;
          angleCamera = data.angle;
          positionCamera[0] = data.x;
@@ -32,6 +32,7 @@
          
          rotateCamera = true;
          stopIm = false;
+         init();
       });
 
       socket.on('whatTime', function() {

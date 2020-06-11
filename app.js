@@ -8,6 +8,7 @@ app.use(express.static('public'))
 
 app.get('/', function(req, res) {
    res.sendfile('index.html');
+   res.redirect('http://localhost:3000/');
 });
 const angleToGo = 50;
 var noUsers = 0;
@@ -32,7 +33,7 @@ io.on('connection', function(socket) {
    //    io.sockets.emit('whatTime');
    // }
    const interval = setInterval(function() {
-      console.log("synchronising")
+      // console.log("synchronising")
       io.sockets.emit('whatTime');
     }, 5000);
 
