@@ -9,6 +9,8 @@ var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHe
 var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
+var Z_AXIS = new THREE.Vector3( 0, 0, 1 );
+
 var Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
 var Z_AXIS_camera = new THREE.Vector3( 0, 0, 1 );
@@ -28,7 +30,6 @@ function init(){
         location.reload();
     }
     firstTime = false;  
-     vectorCamera = new THREE.Vector3( 0, 0, -1 );
      scene.add( camera );
      scene.add( cube );
 
@@ -41,6 +42,8 @@ function init(){
     window.addEventListener( 'resize', onWindowResize, false );
     cube.position.x = 0;
     cube.position.z = -5;
+    cube.position.y = 0;
+    // cube.rotateZ(20*(Math.PI/180))
 }
 var angleBef = 0;
 
@@ -56,8 +59,11 @@ var animate = function () {
             angleBef = angleCamera
         }
         cube.position.x += 0.05;
+        // cube.position.y += 0.01;
+
         if(cube.position.x>6){
             cube.position.x = -cube.position.x;
+            cube.position.y = -cube.position.y;
         }
         
         renderer.render( scene, camera );
@@ -75,6 +81,11 @@ function degreesToRadians(degrees){
   var pi = Math.PI;
   return degrees * (pi/180);
 }
+function radiansToDegrees(radians){
+    var pi = Math.PI;
+    return radians * (180/pi);
+  }
+
 function getCubePosition(){
     return cube.position;
 }
@@ -102,7 +113,16 @@ function rotateCameraY(angle){
     camera.rotateOnAxis( Y_AXIS, degreesToRadians(angle) );
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
 }
+function rotateCameraZ(angle){
+    camera.rotateOnAxis( Z_AXIS, degreesToRadians(angle) );
+    vectorCamera.applyAxisAngle(Z_AXIS, angle);
+}
 function rotateVectorInit(angle){
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
+}
+function changeAngleCurrentToOriginalCamera(angle){
+    vectorCamera = new THREE.Vector3( 0, 0, -1 );
+    vectorCamera.applyAxisAngle(Y_AXIS, degreesToRadians(angle));
+    camera.lookAt(vectorCamera);
 }
