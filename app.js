@@ -38,14 +38,15 @@ io.on('connection', function(socket) {
     }, 5000);
 
    socket.on('currentTime', function(data) {
-      receivedConfirmation.push(1);
+      // console.log("receive one " + receivedConfirmation)
       io.sockets.emit('setCube', data);
    })
 
    socket.on('confirmation', function(data) {
+      // console.log("confirmation " + receivedConfirmation + " " + data)
       if(receivedConfirmation.indexOf(data) == -1){
          receivedConfirmation.push(data);
-         if(receivedConfirmation.length == noUsers){
+         if(receivedConfirmation.length >= noUsers){
             receivedConfirmation = []
             io.sockets.emit('start', data);
          }

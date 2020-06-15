@@ -53,12 +53,12 @@
       });
 
       socket.on('setCube', function(data) {
-         if(id!=1){
+         // if(d!=1){
             // console.log("setting positions");
             setCubePosition(data.pos);
             stopIm = true;
             socket.emit('confirmation', id);
-         }
+         // }
       });
 
       var angleTilted = 0;

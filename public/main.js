@@ -122,6 +122,7 @@ function rotateVectorInit(angle){
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
 }
 function changeAngleCurrentToOriginalCamera(angle){
+    console.log(angle);
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, degreesToRadians(angle));
     camera.lookAt(vectorCamera);
