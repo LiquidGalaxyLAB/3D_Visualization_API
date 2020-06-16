@@ -1,4 +1,3 @@
-console.log("hereeee")
 var vectorCamera;
 var firstTime = true;
 const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -44,13 +43,15 @@ function init(){
     cube.position.z = -5;
     cube.position.y = 0;
     // cube.rotateZ(20*(Math.PI/180))
+    howLong = 0;
 }
 var angleBef = 0;
-
+var count;
 var animate = function () {
     requestAnimationFrame( animate );
 
     if(!stopIm){
+        count = new Date().getTime();
         if(rotateCamera){
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
@@ -59,7 +60,6 @@ var animate = function () {
             angleBef = angleCamera
         }
         cube.position.x += 0.05;
-        // cube.position.y += 0.01;
 
         if(cube.position.x>6){
             cube.position.x = -cube.position.x;
@@ -67,6 +67,12 @@ var animate = function () {
         }
         
         renderer.render( scene, camera );
+        howLong += new Date().getTime() - count;
+        if(waiting != null && howLong-20 >= waiting){
+            stopIm = true;
+            waiting = null;
+            socket.emit('confirmation', id);
+        }
     }
 };
 animate();

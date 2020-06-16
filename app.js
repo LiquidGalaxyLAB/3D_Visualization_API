@@ -27,11 +27,7 @@ io.on('connection', function(socket) {
 
    if(noUsers%2 == 1){ angleNext+=angleToGo; }
    lookingRight = -lookingRight;
-   // console.log("hey " + noUsers);
-
-   // if(noUsers>1){
-   //    io.sockets.emit('whatTime');
-   // }
+   
    const interval = setInterval(function() {
       // console.log("synchronising")
       io.sockets.emit('whatTime');

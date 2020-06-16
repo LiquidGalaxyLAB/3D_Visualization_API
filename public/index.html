@@ -19,6 +19,8 @@
       var positionCameraOr = [0,0,0];
       var rotateCamera;
       var stopIm;
+      var howLong = 0;
+      var waiting = null;
       socket.on('idSet', function(data) {
          
          id = data.id;
@@ -40,25 +42,28 @@
       socket.on('whatTime', function() {
         if(id==1){
          //   console.log("sending position ")
-           socket.emit('currentTime', {pos:getCubePosition()});
+           socket.emit('currentTime', {pos:getCubePosition(), timer:howLong});
            stopIm = true
+           console.log(howLong);
         }
       });
 
       socket.on('start', function(data) {
          // console.log("Start ");
-         // console.log(Date.now());
-
          stopIm = false;
       });
 
       socket.on('setCube', function(data) {
-         // if(d!=1){
+         if(id!=1){
             // console.log("setting positions");
             setCubePosition(data.pos);
-            stopIm = true;
-            socket.emit('confirmation', id);
-         // }
+            waiting = data.timer;
+            console.log(waiting);
+            console.log(howLong);
+
+            // stopIm = true;
+            // socket.emit('confirmation', id);
+         }
       });
 
       var angleTilted = 0;
