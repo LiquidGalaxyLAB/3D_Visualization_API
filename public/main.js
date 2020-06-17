@@ -31,6 +31,7 @@ function init(){
     firstTime = false;  
      scene.add( camera );
      scene.add( cube );
+     console.log(scene.getObjectById(cube.id));
 
     if(rotateCamera == null){
         rotateCamera = false
@@ -46,12 +47,10 @@ function init(){
     howLong = 0;
 }
 var angleBef = 0;
-var count;
 var animate = function () {
     requestAnimationFrame( animate );
 
     if(!stopIm){
-        count = new Date().getTime();
         if(rotateCamera){
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
@@ -59,23 +58,47 @@ var animate = function () {
             rotateCamera = false;
             angleBef = angleCamera
         }
-        cube.position.x += 0.05;
+        // cube.position.x += 0.05;
+
+        translate(cube, cube.position.x+0.05, cube.position.y, cube.position.z);
 
         if(cube.position.x>6){
-            cube.position.x = -cube.position.x;
-            cube.position.y = -cube.position.y;
+            // cube.position.x = -cube.position.x;
+            translate(cube, -cube.position.x, cube.position.y, cube.position.z);
         }
         
         renderer.render( scene, camera );
-        howLong += new Date().getTime() - count;
-        if(waiting != null && howLong-20 >= waiting){
-            stopIm = true;
-            waiting = null;
-            socket.emit('confirmation', id);
-        }
     }
 };
 animate();
+
+function translate(object, translateX, translateY, translateZ){
+    object.position.x = translateX;
+    object.position.y = translateY;
+    object.position.z = translateZ;
+    if(id == 1 && objectTransform.indexOf(object.id) == -1){
+        objectTransform.push(object.id);
+        // console.log(objectTransform)
+    }
+}
+
+function getTranslations(){
+    var toSend = [];
+    for(const id of  objectTransform){
+        // console.log(id);
+        // console.log(scene.getObjectById(id));
+        toSend.push({id: id, pos: scene.getObjectById(id).position});
+    }
+    console.log(toSend)
+    return toSend;
+}
+
+function setTranslations(array){
+    // console.log("setting translation")
+    for(const object of  array){
+        scene.getObjectById(object.id).position = object.pos;
+    }
+}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
