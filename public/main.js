@@ -21,6 +21,9 @@ var geometry = new THREE.BoxGeometry();
 var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
 var cube = new THREE.Mesh( geometry, material );
 
+var geometryCyl = new THREE.CylinderGeometry( 1, 1, 4, 32 );
+var materialCyl = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+var cylinder = new THREE.Mesh( geometryCyl, materialCyl );
 
 function init(){
     console.log(firstTime);
@@ -31,7 +34,8 @@ function init(){
     firstTime = false;  
      scene.add( camera );
      scene.add( cube );
-     console.log(scene.getObjectById(cube.id));
+     scene.add( cylinder );
+
 
     if(rotateCamera == null){
         rotateCamera = false
@@ -43,6 +47,9 @@ function init(){
     cube.position.x = 0;
     cube.position.z = -5;
     cube.position.y = 0;
+    cylinder.position.x = 0;
+    cylinder.position.z = -10;
+    cylinder.position.y = 0;
     // cube.rotateZ(20*(Math.PI/180))
     howLong = 0;
 }
@@ -60,7 +67,17 @@ var animate = function () {
         }
         // cube.position.x += 0.05;
 
-        translate(cube, cube.position.x+0.05, cube.position.y, cube.position.z);
+        translate(cube, cube.position.x+0.02, cube.position.y, cube.position.z);
+        // console.log(stopIm)
+        rotate(cylinder, cylinder.rotation.x+ degreesToRadians(2), cylinder.rotation.y, cylinder.rotation.z);
+        // rotate(cylinder, degreesToRadians(90), 0, 0);
+        translate(cylinder, cylinder.position.x-0.05, cylinder.position.y, cylinder.position.z);
+        
+
+        if(cylinder.position.x<-10){
+            // cube.position.x = -cube.position.x;
+            translate(cylinder, -cylinder.position.x, cylinder.position.y, cylinder.position.z);
+        }
 
         if(cube.position.x>6){
             // cube.position.x = -cube.position.x;
@@ -82,23 +99,50 @@ function translate(object, translateX, translateY, translateZ){
     }
 }
 
+function rotate(object, angleX, angleY, angleZ){
+    // console.log(object.rotation)
+    object.rotation.x = angleX;
+    object.rotation.y = angleY;
+    object.rotation.z = angleZ;
+        
+    if(id == 1 && objectTransform.indexOf(object.id) == -1){
+        objectTransform.push(object.id);
+        // console.log(object.rotation)
+        // console.log(scene.getObjectById(object.id).rotation)
+    }
+}
+
 function getTranslations(){
     var toSend = [];
     for(const id of  objectTransform){
         // console.log(id);
         // console.log(scene.getObjectById(id));
-        toSend.push({id: id, pos: scene.getObjectById(id).position});
+        toSend.push({id: id, pos: scene.getObjectById(id).position, rot: scene.getObjectById(id).rotation});
     }
-    console.log(toSend)
+    // console.log(toSend)
     return toSend;
 }
 
 function setTranslations(array){
     // console.log("setting translation")
-    for(const object of  array){
-        scene.getObjectById(object.id).position = object.pos;
+    for(const object of array){
+        var obj = scene.getObjectById(object.id);
+        // console.log(object.rot)
+        // console.log(scene.getObjectById(object.id).position)
+        // console.log(obj.rotation)
+
+        obj.position.x = object.pos.x;
+        obj.position.y = object.pos.y;
+        obj.position.z = object.pos.z;
+
+        obj.rotation.x = object.rot._x;
+        obj.rotation.y = object.rot._y;
+        obj.rotation.z = object.rot._z;
+        // console.log(scene.getObjectById(object.id).position)
+        // console.log(obj.rotation)
     }
 }
+
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;

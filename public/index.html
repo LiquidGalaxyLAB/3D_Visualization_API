@@ -54,9 +54,9 @@
 
       socket.on('setCube', function(data) {
             // console.log("setting positions");
+            stopIm = true;
             setCubePosition(data.pos);
             setTranslations(data.trans);
-            stopIm = true;
             socket.emit('confirmation', id);
       });
 
