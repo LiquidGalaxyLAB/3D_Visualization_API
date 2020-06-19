@@ -68,6 +68,7 @@ var animate = function () {
         // cube.position.x += 0.05;
 
         translate(cube, cube.position.x+0.02, cube.position.y, cube.position.z);
+        scale(cube, cube.scale.x, cube.scale.y+0.02, cube.scale.z);
         // console.log(stopIm)
         rotate(cylinder, cylinder.rotation.x+ degreesToRadians(2), cylinder.rotation.y, cylinder.rotation.z);
         // rotate(cylinder, degreesToRadians(90), 0, 0);
@@ -82,6 +83,9 @@ var animate = function () {
         if(cube.position.x>6){
             // cube.position.x = -cube.position.x;
             translate(cube, -cube.position.x, cube.position.y, cube.position.z);
+        }if(cube.scale.y>6){
+            // cube.position.x = -cube.position.x;
+            scale(cube, cube.scale.x, -cube.scale.y, cube.scale.z);
         }
         
         renderer.render( scene, camera );
@@ -112,12 +116,25 @@ function rotate(object, angleX, angleY, angleZ){
     }
 }
 
+function scale(object, scaleX, scaleY, scaleZ){
+    // console.log(object.rotation)
+    object.scale.x = scaleX;
+    object.scale.y = scaleY;
+    object.scale.z = scaleZ;
+        
+    if(id == 1 && objectTransform.indexOf(object.id) == -1){
+        objectTransform.push(object.id);
+        // console.log(object.rotation)
+        // console.log(scene.getObjectById(object.id).rotation)
+    }
+}
+
 function getTranslations(){
     var toSend = [];
     for(const id of  objectTransform){
         // console.log(id);
         // console.log(scene.getObjectById(id));
-        toSend.push({id: id, pos: scene.getObjectById(id).position, rot: scene.getObjectById(id).rotation});
+        toSend.push({id: id, pos: scene.getObjectById(id).position, rot: scene.getObjectById(id).rotation, sca: scene.getObjectById(id).scale});
     }
     // console.log(toSend)
     return toSend;
@@ -138,6 +155,10 @@ function setTranslations(array){
         obj.rotation.x = object.rot._x;
         obj.rotation.y = object.rot._y;
         obj.rotation.z = object.rot._z;
+
+        obj.scale.x = object.sca.x;
+        obj.scale.y = object.sca.y;
+        obj.scale.z = object.sca.z;
         // console.log(scene.getObjectById(object.id).position)
         // console.log(obj.rotation)
     }
