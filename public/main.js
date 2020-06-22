@@ -18,9 +18,47 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
+var lights = [];
+lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
+
+lights[ 0 ].position.set( 0, 10, 0 );
+lights[ 1 ].position.set( 10, 20, 10 );
+lights[ 2 ].position.set( - 10, - 20, - 10 );
+
+scene.add( lights[ 0 ] );
+scene.add( lights[ 1 ] );
+scene.add( lights[ 2 ] );
+
 var geometry = new THREE.BoxGeometry();
-var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+var material = new THREE.MeshPhongMaterial( { color: 0x156289, emissive: 0xff2200, side: THREE.DoubleSide, flatShading: true } );
 var cube = new THREE.Mesh( geometry, material );
+
+var materialLine = new THREE.LineBasicMaterial({
+    color: 0x0000ff
+});
+
+var points = [];
+var length = 20; var step = 1; var cornerZ = length/2; var cornerX = -(length/2); howManyCells = 20/0.2; var heightGrid = -2;
+for(var i=0; i< howManyCells; i = i+2){
+    points.push( new THREE.Vector3( cornerX + (0.2*i), heightGrid, cornerZ ) );
+    points.push( new THREE.Vector3( cornerX + (0.2*i), heightGrid, cornerZ - length ) );
+    points.push( new THREE.Vector3( cornerX + (0.2*(i+1)), heightGrid, cornerZ - length ) );
+    points.push( new THREE.Vector3( cornerX + (0.2*(i+1)), heightGrid, cornerZ ) );
+}
+points.push( new THREE.Vector3( cornerX + (0.2*howManyCells), heightGrid, cornerZ ) );
+for(var i=0; i< howManyCells; i = i+2){
+    points.push( new THREE.Vector3( cornerX +length, heightGrid, cornerZ - length + (0.2*i) ) );
+    points.push( new THREE.Vector3( cornerX , heightGrid, cornerZ - length + (0.2*i)) );
+    points.push( new THREE.Vector3( cornerX, heightGrid, cornerZ - length + (0.2*(i+1))) );
+    points.push( new THREE.Vector3( cornerX + length, heightGrid, cornerZ - length + (0.2*(i+1))) );
+}
+
+
+var geometryLine = new THREE.BufferGeometry().setFromPoints( points );
+
+var line = new THREE.Line( geometryLine, materialLine );
 
 
 function init(){
@@ -32,6 +70,7 @@ function init(){
     firstTime = false;  
      scene.add( camera );
      scene.add( cube );
+     scene.add(line)
 
     if(rotateCamera == null){
         rotateCamera = false
