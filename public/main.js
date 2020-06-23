@@ -6,14 +6,13 @@ const height = window.innerHeight|| document.documentElement.clientHeight||  doc
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-var camera_pivot = new THREE.Object3D()
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
 var Z_AXIS = new THREE.Vector3( 0, 0, 1 );
 
 var Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
-var Z_AXIS_camera = new THREE.Vector3( 0, 0, 1 );
+var Z_AXIS_camera = new THREE.Vector3( 0, 0, -1 );
 var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
@@ -102,7 +101,6 @@ var animate = function () {
 
         if(cube.position.x>6){
             cube.position.x = -cube.position.x;
-            cube.position.y = -cube.position.y;
         }
         
         renderer.render( scene, camera );
@@ -144,18 +142,64 @@ function moveCamera(posx, posy, posz) {
     camera.position.y += posy
     camera.position.z += posz
 }
-function rotateCameraX(angle){
-    camera.rotateOnAxis( X_AXIS, degreesToRadians(angle) );
-    vectorCamera.applyAxisAngle(X_AXIS, angle);
+
+var newPos
+function rotateCameraX(angle, curPosition, centerPosition){
+    angle = degreesToRadians(angle)
+    camera.rotateOnAxis( X_AXIS_camera, angle );
+    vectorCamera.applyAxisAngle(X_AXIS_camera, angle);
+    Y_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
+    Z_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
+    console.log(X_AXIS_camera);
+    console.log(Y_AXIS_camera);
+    console.log(Z_AXIS_camera);
+
+    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
+    console.log(newPos)
+    newPos.applyAxisAngle(X_AXIS_camera, angle);
+    console.log(newPos)
+
+    camera.position.x = newPos.x + centerPosition[0]
+    camera.position.y = newPos.y + centerPosition[1]
+    camera.position.z = newPos.z + centerPosition[2]
 }
-function rotateCameraY(angle){
-    camera.rotateOnAxis( Y_AXIS, degreesToRadians(angle) );
-    vectorCamera.applyAxisAngle(Y_AXIS, angle);
+function rotateCameraY(angle, curPosition, centerPosition){
+    angle = degreesToRadians(angle)
+    camera.rotateOnAxis( Y_AXIS_camera, angle );
+    vectorCamera.applyAxisAngle(Y_AXIS_camera, angle);
+    X_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
+    Z_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
+    console.log(X_AXIS_camera);
+    console.log(Y_AXIS_camera);
+    console.log(Z_AXIS_camera);
+
+    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
+    console.log(newPos)
+    newPos.applyAxisAngle(Y_AXIS_camera, angle);
+    console.log(newPos)
+    camera.position.x = newPos.x + centerPosition[0]
+    camera.position.y = newPos.y + centerPosition[1]
+    camera.position.z = newPos.z + centerPosition[2]
 }
-function rotateCameraZ(angle){
-    camera.rotateOnAxis( Z_AXIS, degreesToRadians(angle) );
-    vectorCamera.applyAxisAngle(Z_AXIS, angle);
+function rotateCameraZ(angle, curPosition, centerPosition){
+    angle = degreesToRadians(angle)
+    camera.rotateOnAxis( Z_AXIS_camera, angle );
+    vectorCamera.applyAxisAngle(Z_AXIS_camera, angle);
+    X_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
+    Y_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
+    console.log(X_AXIS_camera);
+    console.log(Y_AXIS_camera);
+    console.log(Z_AXIS_camera);
+
+    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
+    console.log(newPos)
+    newPos.applyAxisAngle(Z_AXIS_camera, angle);
+    console.log(newPos)
+    camera.position.x = newPos.x + centerPosition[0]
+    camera.position.y = newPos.y + centerPosition[1]
+    camera.position.z = newPos.z + centerPosition[2]
 }
+
 function rotateVectorInit(angle){
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
@@ -165,4 +209,7 @@ function changeAngleCurrentToOriginalCamera(angle){
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, degreesToRadians(angle));
     camera.lookAt(vectorCamera);
+    Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
+    X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
+    Z_AXIS_camera = new THREE.Vector3( 0, 0, -1 );
 }
