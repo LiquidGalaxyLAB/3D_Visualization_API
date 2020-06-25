@@ -32,7 +32,9 @@ scene.add( lights[ 2 ] );
 
 var geometry = new THREE.BoxGeometry();
 var material = new THREE.MeshPhongMaterial( { color: 0x156289, emissive: 0xff2200, side: THREE.DoubleSide, flatShading: true } );
-var cube = new THREE.Mesh( geometry, material );
+var cube1 = new THREE.Mesh( geometry, material );
+var cube2 = new THREE.Mesh( geometry, material );
+var cube3 = new THREE.Mesh( geometry, material );
 
 var materialLine = new THREE.LineBasicMaterial({
     color: 0x0000ff
@@ -68,7 +70,10 @@ function init(){
     }
     firstTime = false;  
      scene.add( camera );
-     scene.add( cube );
+     scene.add( cube1 );
+     scene.add( cube2 );
+     scene.add( cube3 );
+
      scene.add(line)
 
     if(rotateCamera == null){
@@ -78,9 +83,15 @@ function init(){
     }
     
     window.addEventListener( 'resize', onWindowResize, false );
-    cube.position.x = 0;
-    cube.position.z = -5;
-    cube.position.y = 0;
+    cube1.position.x = 0;
+    cube1.position.z = -5;
+    cube1.position.y = 0;
+    cube2.position.x = 6;
+    cube2.position.z = -5;
+    cube2.position.y = 0;
+    cube3.position.x = -6;
+    cube3.position.z = -5;
+    cube3.position.y = 0;
     // cube.rotateZ(20*(Math.PI/180))
 }
 var angleBef = 0;
@@ -92,21 +103,41 @@ var animate = function () {
         if(rotateCamera){
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
             camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
-            X_AXIS_camera.applyAxisAngle(Y_AXIS, degreesToRadians(angleCamera));
+            // X_AXIS_camera.applyAxisAngle(Y_AXIS, degreesToRadians(angleCamera));
             rotateCamera = false;
             angleBef = angleCamera
         }
-        cube.position.x += 0.05;
-        // cube.position.y += 0.01;
+        // cube.position.x += 0.05;
+        // // cube.position.y += 0.01;
 
-        if(cube.position.x>6){
-            cube.position.x = -cube.position.x;
-        }
+        // if(cube.position.x>6){
+        //     cube.position.x = -cube.position.x;
+        // }
+        // translateX();
         
         renderer.render( scene, camera );
     }
 };
 animate();
+
+var copyX
+function translateX(){
+    copyX = X_AXIS_camera.clone();
+    copyX.setLength(0.05);
+
+    // console.log(copyX);
+    cube.position.x += copyX.x;
+    cube.position.y += copyX.y;
+    cube.position.z += copyX.z;
+
+    copyX.setLength(6);
+    if(cube.position.x > copyX.x){
+        // console.log(copyX)
+        cube.position.x -= copyX.x*2;
+        cube.position.y -= copyX.y*2;
+        cube.position.z -= copyX.z*2;
+    }
+}
 
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -124,12 +155,12 @@ function radiansToDegrees(radians){
   }
 
 function getCubePosition(){
-    return cube.position;
+    return cube1.position;
 }
 function setCubePosition(position){
-    cube.position.x = position.x;
-    cube.position.y = position.y;
-    cube.position.z = position.z;
+    cube1.position.x = position.x;
+    cube1.position.y = position.y;
+    cube1.position.z = position.z;
 }
 
 function setCamera(posx, posy, posz) {
@@ -144,72 +175,188 @@ function moveCamera(posx, posy, posz) {
 }
 
 var newPos
+var newPosCopy;
+var children;
+var i;
+var rotationSoFarX = 0; var rotationSoFarY = 0; var rotationSoFarZ = 0; 
+var historyRotations = []
 function rotateCameraX(angle, curPosition, centerPosition){
     angle = degreesToRadians(angle)
-    camera.rotateOnAxis( X_AXIS_camera, angle );
+    historyRotations.push({x: angle})
+    rotationSoFarX+=angle;
+
+    children = scene.children;
+    // console.log(children[0].position);
+    for(i = 0; i< children.length; i++){
+        if((children[i] instanceof THREE.Camera) == false){
+            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
+            newPosCopy = newPos.clone();
+            newPos.applyAxisAngle(X_AXIS_camera, angle);
+
+            children[i].position.x += newPos.x - newPosCopy.x;
+            children[i].position.y += newPos.y - newPosCopy.y;
+            children[i].position.z += newPos.z - newPosCopy.z;
+
+            children[i].rotateOnAxis( X_AXIS_camera, angle );
+        }
+    }
+    // console.log(children[0].position);
+    
+    positionCamera[0] += newPos.x - newPosCopy.x;
+    positionCamera[1] += newPos.y - newPosCopy.y;
+    positionCamera[2] += newPos.z - newPosCopy.z;
+
     vectorCamera.applyAxisAngle(X_AXIS_camera, angle);
     Y_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
     Z_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
-    console.log(X_AXIS_camera);
-    console.log(Y_AXIS_camera);
-    console.log(Z_AXIS_camera);
-
-    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
-    console.log(newPos)
-    newPos.applyAxisAngle(X_AXIS_camera, angle);
-    console.log(newPos)
-
-    camera.position.x = newPos.x + centerPosition[0]
-    camera.position.y = newPos.y + centerPosition[1]
-    camera.position.z = newPos.z + centerPosition[2]
 }
 function rotateCameraY(angle, curPosition, centerPosition){
     angle = degreesToRadians(angle)
-    camera.rotateOnAxis( Y_AXIS_camera, angle );
+    rotationSoFarY+=angle;
+    historyRotations.push({y: angle})
+
+    children = scene.children;
+    for(i = 0; i< children.length; i++){
+        if((children[i] instanceof THREE.Camera) == false){
+            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
+            newPosCopy = newPos.clone();
+            newPos.applyAxisAngle(Y_AXIS_camera, angle);
+
+            children[i].position.x += newPos.x - newPosCopy.x;
+            children[i].position.y += newPos.y - newPosCopy.y;
+            children[i].position.z += newPos.z - newPosCopy.z;
+
+            children[i].rotateOnAxis( Y_AXIS_camera, angle );
+        }
+    }
+
+    positionCamera[0] += newPos.x - newPosCopy.x;
+    positionCamera[1] += newPos.y - newPosCopy.y;
+    positionCamera[2] += newPos.z - newPosCopy.z;
+
     vectorCamera.applyAxisAngle(Y_AXIS_camera, angle);
     X_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
     Z_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
-    console.log(X_AXIS_camera);
-    console.log(Y_AXIS_camera);
-    console.log(Z_AXIS_camera);
-
-    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
-    console.log(newPos)
-    newPos.applyAxisAngle(Y_AXIS_camera, angle);
-    console.log(newPos)
-    camera.position.x = newPos.x + centerPosition[0]
-    camera.position.y = newPos.y + centerPosition[1]
-    camera.position.z = newPos.z + centerPosition[2]
 }
 function rotateCameraZ(angle, curPosition, centerPosition){
     angle = degreesToRadians(angle)
-    camera.rotateOnAxis( Z_AXIS_camera, angle );
+    rotationSoFarZ+=angle;
+    historyRotations.push({z: angle})
+
+    children = scene.children;
+    // console.log(children[0].position);
+    for(i = 0; i< children.length; i++){
+        if((children[i] instanceof THREE.Camera) == false){
+            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
+            newPosCopy = newPos.clone();
+            newPos.applyAxisAngle(Z_AXIS_camera, angle);
+
+            children[i].position.x += newPos.x - newPosCopy.x;
+            children[i].position.y += newPos.y - newPosCopy.y;
+            children[i].position.z += newPos.z - newPosCopy.z;
+
+            children[i].rotateOnAxis( Z_AXIS_camera, angle );
+        }
+    }
+    // console.log(children[0].position);
+
+    positionCamera[0] += newPos.x - newPosCopy.x;
+    positionCamera[1] += newPos.y - newPosCopy.y;
+    positionCamera[2] += newPos.z - newPosCopy.z;
+
     vectorCamera.applyAxisAngle(Z_AXIS_camera, angle);
     X_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
     Y_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
-    console.log(X_AXIS_camera);
-    console.log(Y_AXIS_camera);
-    console.log(Z_AXIS_camera);
-
-    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
-    console.log(newPos)
-    newPos.applyAxisAngle(Z_AXIS_camera, angle);
-    console.log(newPos)
-    camera.position.x = newPos.x + centerPosition[0]
-    camera.position.y = newPos.y + centerPosition[1]
-    camera.position.z = newPos.z + centerPosition[2]
+    // console.log(X_AXIS_camera);
+    // console.log(Y_AXIS_camera);
+    // console.log(Z_AXIS_camera);
 }
 
 function rotateVectorInit(angle){
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
 }
-function changeAngleCurrentToOriginalCamera(angle){
-    console.log(angle);
+
+var angleTwoBefore; var copyX_axis_camera;  var copyY_axis_camera;  var copyZ_axis_camera; 
+function changeAngleCurrentToOriginalCamera(angle, curPosition, centerPosition){
+    // console.log(angle);
+    // console.log(vectorCamera)
     vectorCamera = new THREE.Vector3( 0, 0, -1 );
     vectorCamera.applyAxisAngle(Y_AXIS, degreesToRadians(angle));
-    camera.lookAt(vectorCamera);
+
+    newPos = new THREE.Vector3(curPosition[0] - centerPosition[0], curPosition[1] - centerPosition[1], curPosition[2] - centerPosition[2]);
+    
+    newPosCopy = newPos.clone();
+    newPosCopy.projectOnPlane(Y_AXIS);
+    newPosCopy.setLength(newPos.length());
+    // newPos.lookAt(vectorCamera);
+
+    children = scene.children;
+    console.log(children[0]);
+    // console.log(X_AXIS_camera)
+    // console.log(X_AXIS)
+
+    // console.log(X_AXIS_camera.angleTo(X_AXIS))
+    console.log(historyRotations);
+    for(i = 0; i< children.length; i++){
+        if((children[i] instanceof THREE.Camera) == false){
+
+            reverseRotation(children[i], centerPosition)
+        }
+    }
+    console.log(children[0]);
+    console.log(copyX_axis_camera);
+    console.log(copyY_axis_camera);
+    console.log(copyZ_axis_camera);
+    rotationSoFarX = 0;
+    rotationSoFarY = 0;
+    rotationSoFarZ = 0;
+    historyRotations = [];
     Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
     X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
     Z_AXIS_camera = new THREE.Vector3( 0, 0, -1 );
+}
+
+var tempVector;
+var angleToReverse;
+var j
+function reverseRotation(object, centerPosition){
+    // console.log(object);
+    copyX_axis_camera = X_AXIS_camera.clone();
+    copyY_axis_camera = Y_AXIS_camera.clone();
+    copyZ_axis_camera = Z_AXIS_camera.clone();
+
+    for(j = historyRotations.length-1; j>= 0; j = j-1){
+        // console.log(historyRotations[j].x);
+        if(historyRotations[j].x != null){
+            tempVector = copyX_axis_camera.clone();
+            angleToReverse = -historyRotations[j].x;
+
+            copyY_axis_camera.applyAxisAngle(copyX_axis_camera, angleToReverse);
+            copyZ_axis_camera.applyAxisAngle(copyX_axis_camera, angleToReverse);
+        }else if(historyRotations[j].y != null){
+            tempVector = copyY_axis_camera.clone();
+            angleToReverse = -historyRotations[j].y
+
+            copyX_axis_camera.applyAxisAngle(copyY_axis_camera, angleToReverse);
+            copyZ_axis_camera.applyAxisAngle(copyY_axis_camera, angleToReverse);
+        }else if(historyRotations[j].z != null){
+            tempVector = copyZ_axis_camera.clone();
+            angleToReverse = -historyRotations[j].z
+
+            copyX_axis_camera.applyAxisAngle(copyZ_axis_camera, angleToReverse);
+            copyY_axis_camera.applyAxisAngle(copyZ_axis_camera, angleToReverse);
+        }
+
+        object.rotateOnAxis( tempVector , angleToReverse);
+
+        newPos = new THREE.Vector3(object.position.x - centerPosition[0], object.position.y - centerPosition[1], object.position.z - centerPosition[2]);
+        newPosCopy = newPos.clone();
+        newPosCopy.applyAxisAngle(tempVector, angleToReverse);
+
+        object.position.x -= newPos.x - newPosCopy.x;
+        object.position.y -= newPos.y - newPosCopy.y;
+        object.position.z -= newPos.z - newPosCopy.z;
+        
+    }
 }

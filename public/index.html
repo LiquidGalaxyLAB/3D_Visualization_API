@@ -101,12 +101,14 @@
             center_camera_id1[2] +=0.5
          }else if(data == 82){
             // r key --> reset
+            angleCamera = angleCameraOr;
+            changeAngleCurrentToOriginalCamera(angleCamera, positionCamera, center_camera_id1);
             positionCamera[0] = positionCameraOr[0];
             positionCamera[1] = positionCameraOr[1];
             positionCamera[2] = positionCameraOr[2];
-            angleCamera = angleCameraOr;
+            
             setCamera(positionCamera[0], positionCamera[1], positionCamera[2]);
-            changeAngleCurrentToOriginalCamera(angleCamera);
+            
             center_camera_id1 = [0,0,0]
          }else if(data == 81){
             // q key -->rotate around Z axis
