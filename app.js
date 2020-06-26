@@ -11,6 +11,7 @@ app.get('/', function(req, res) {
    res.redirect('http://localhost:3000/');
 });
 const angleToGo = 50;
+const separation = 0.1
 var noUsers = 0;
 var activeUser = 1;
 var angleNext = 0;
@@ -22,7 +23,7 @@ io.on('connection', function(socket) {
    var id = noUsers;
    console.log('Screen number ' + noUsers + ' connected');
    socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
-                        x: 0.1 * (-(angleNext*lookingRight)/angleToGo),
+                        x: separation * (-(angleNext*lookingRight)/angleToGo),
                         z: 0});
 
    if(noUsers%2 == 1){ angleNext+=angleToGo; }

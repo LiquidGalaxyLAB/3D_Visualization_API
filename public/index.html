@@ -20,6 +20,8 @@
       var rotateCamera;
       var stopIm;
       var objectTransform = [];
+      var center_camera_id1 = [0,0,0];
+
       socket.on('idSet', function(data) {
          
          id = data.id;
@@ -64,66 +66,64 @@
 
       socket.on('moveKeySock', function(data) {
          // stopIm = true;
+         // console.log(data)
          if (data == 38) {
             // up arrow
-            // console.log("Moving up");
-            positionCamera[1] += 0.5
-            moveCamera(0,0.5,0);
+            rotateCameraX(-3, center_camera_id1);
          }else if (data == 40) {
             // down arrow
-            // console.log("Moving down");
-            positionCamera[1] -= 0.5
-            moveCamera(0,-0.5,0);
+            rotateCameraX(3, center_camera_id1);
          }else if (data == 65) {
             // a key --> moving left
             positionCamera[0] -= 0.5
             moveCamera(-0.5,0,0);
+            center_camera_id1[0] -=0.5
          }else if (data == 68) {
             // d key --> moving right
             positionCamera[0] += 0.5
             moveCamera(0.5,0,0);
+            center_camera_id1[0] +=0.5
          }else if (data == 87) {
             // w key --> moving forward
             positionCamera[2] -= 0.5
             moveCamera(0,0,-0.5);
+            center_camera_id1[2] -=0.5
          }else if (data == 83) {
-            // sw key --> moving backwards
+            // s key --> moving backwards
             positionCamera[2] += 0.5
             moveCamera(0,0,0.5);
+            center_camera_id1[2] +=0.5
          }else if(data == 82){
             // r key --> reset
+            angleCamera = angleCameraOr;
+            changeAngleCurrentToOriginalCamera(angleCamera, center_camera_id1);
             positionCamera[0] = positionCameraOr[0];
             positionCamera[1] = positionCameraOr[1];
             positionCamera[2] = positionCameraOr[2];
-            angleCamera = angleCameraOr;
+            
             setCamera(positionCamera[0], positionCamera[1], positionCamera[2]);
-            changeAngleCurrentToOriginalCamera(angleCamera);
+            
+            center_camera_id1 = [0,0,0]
          }else if(data == 81){
-            // q key -->rotate around Z axis
-            angleTilted += 3;
-
-            var rotX = (Math.cos(degreesToRadians(angleTilted)) *  (0.1*(angleCamera/angleToGo)));
-            var rotY = Math.sin(degreesToRadians(angleTilted)) *  (6*(angleCamera/angleToGo));
-            // console.log(rotX + " " + rotY);
-
-            // console.log((positionCamera[0] - rotX) + " " + (positionCamera[1] -rotY));
-            moveCamera(positionCamera[0] - rotX, positionCamera[1] -rotY, 0);
-
-            positionCamera[0] = rotX;
-            positionCamera[1] = rotY;
-            rotateCameraZ(3);
-
+            rotateCameraZ(3, center_camera_id1);
          }else if(data == 69){
-            // e key -->rotate around Z axis
-            angleTilted -= 3;
-            var rotX = (Math.cos(degreesToRadians(angleTilted)) *  (0.1*(angleCamera/angleToGo)));
-            var rotY = Math.sin(degreesToRadians(angleTilted)) *  (6*(angleCamera/angleToGo));
-            // console.log(rotX + " " + rotY);
-            // console.log((positionCamera[0] - rotX) + " " + (positionCamera[1] -rotY));
-            moveCamera(positionCamera[0] - rotX, positionCamera[1] -rotY, 0);
-            positionCamera[0] = rotX;
-            positionCamera[1] = rotY;
-            rotateCameraZ(-3);
+            rotateCameraZ(-3, center_camera_id1);
+         }else if(data == 37){
+            rotateCameraY(-3, center_camera_id1);
+         }else if(data == 39){
+            rotateCameraY(3, center_camera_id1);
+         }else if (data == 32) {
+            // space bar
+            // console.log("Moving up");
+            positionCamera[1] += 0.5
+            moveCamera(0,0.5,0);
+            center_camera_id1[1] +=0.5
+         }else if (data == 88) {
+            // down arrow
+            // console.log("Moving down");
+            positionCamera[1] -= 0.5
+            moveCamera(0,-0.5,0);
+            center_camera_id1[1] -=0.5
          }
          // socket.emit('confirmation', id);
       });
@@ -224,7 +224,7 @@
                if(mouseXBef>e.clientX){
                   a = -a
                }
-               socket.emit('rotateYServer', a);
+               // socket.emit('rotateYServer', a);
                // rotateCameraY(a);
                mouseXBef = e.clientX;
             }
@@ -233,7 +233,7 @@
                if(mouseYBef>e.clientY){
                   a = -a
                }
-               socket.emit('rotateXServer', a);
+               // socket.emit('rotateXServer', a);
                // rotateCameraX(a);
                mouseYBef = e.clientY;
             }
@@ -241,17 +241,20 @@
       }
       socket.on('rotateX', function(data) {
          // console.log("RotateX " + data);
-         rotateCameraX(data);
+         rotateCameraX(data, positionCamera, center_camera_id1);
+         // console.log("rotateX " + positionCamera);
       });
       socket.on('rotateY', function(data) {
          // console.log("RotateY " + data);
-         var rotX = Math.cos(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
-         var rotZ = Math.sin(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
-         // console.log(rotX + " " + rotZ);
-         moveCamera(positionCamera[0] - rotX, 0, positionCamera[2] -rotZ);
-         positionCamera[0] = rotX;
-         positionCamera[2] = rotZ;
-         rotateCameraY(data);
+         // var rotX = Math.cos(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
+         // var rotZ = Math.sin(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
+         // // console.log(rotX + " " + rotZ);
+         // moveCamera(positionCamera[0] - rotX, 0, positionCamera[2] -rotZ);
+         // positionCamera[0] = rotX;
+         // positionCamera[2] = rotZ;
+         // rotateCameraY(data);
+         rotateCameraY(data, positionCamera, center_camera_id1);
+         // console.log("rotateY " + positionCamera)
       });
    </script>
    
