@@ -7,7 +7,7 @@ var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
-var Z_AXIS = new THREE.Vector3( 0, 0, 1 );
+var Z_AXIS = new THREE.Vector3( 0, 0, -1 );
 
 var Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
@@ -57,12 +57,32 @@ for(var i=0; i< howManyCells; i = i+2){
 
 
 var geometryLine = new THREE.BufferGeometry().setFromPoints( points );
-
 var line = new THREE.Line( geometryLine, materialLine );
+
+var materialAxis = new THREE.LineBasicMaterial({
+    color: 0x00ffff
+});
+var geometryAxis = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(-10,-1.8, 0 ), new THREE.Vector3(10,-1.8, 0 )] );
+var axis = new THREE.Line( geometryAxis, materialAxis );
 
 var geometryCyl = new THREE.CylinderGeometry( 1, 1, 4, 32 );
 var materialCyl = new THREE.MeshBasicMaterial( {color: 0xffff00} );
 var cylinder = new THREE.Mesh( geometryCyl, materialCyl );
+
+cube1.position.x = 0;
+cube1.position.z = -5;
+cube1.position.y = 0;
+cube2.position.x = 6;
+cube2.position.z = -5;
+cube2.position.y = 0;
+cube3.position.x = -6;
+cube3.position.z = -5;
+cube3.position.y = 0;
+cylinder.position.x = 0;
+cylinder.position.z = -10;
+cylinder.position.y = 0;
+
+axis.position.z = -10;
 
 function init(){
     console.log(firstTime);
@@ -76,7 +96,8 @@ function init(){
      scene.add( cube2 );
      scene.add( cube3 );
      scene.add( cylinder );
-     scene.add(line)
+     scene.add(line);
+     scene.add(axis);
 
     if(rotateCamera == null){
         rotateCamera = false
@@ -85,24 +106,15 @@ function init(){
     }
     
     window.addEventListener( 'resize', onWindowResize, false );
-    cube1.position.x = 0;
-    cube1.position.z = -5;
-    cube1.position.y = 0;
-    cube2.position.x = 6;
-    cube2.position.z = -5;
-    cube2.position.y = 0;
-    cube3.position.x = -6;
-    cube3.position.z = -5;
-    cube3.position.y = 0;
-    cylinder.position.x = 0;
-    cylinder.position.z = -10;
-    cylinder.position.y = 0;
+    
     // cube.rotateZ(20*(Math.PI/180))
     howLong = 0;
 }
 
-var historyRotations = []
+var historyTransformation = [];
 var originalPositionObject = {};
+var originalRotationObject = {};
+
 var angleBef = 0;
 var animate = function () {
     requestAnimationFrame( animate );
@@ -120,7 +132,7 @@ var animate = function () {
         // translate(cube, cube.position.x+0.02, cube.position.y, cube.position.z);
         // scale(cube, cube.scale.x, cube.scale.y+0.02, cube.scale.z);
         // // console.log(stopIm)
-        rotate(cylinder, cylinder.rotation.x+ degreesToRadians(2), cylinder.rotation.y, cylinder.rotation.z);
+        // rotate(cylinder, cylinder.rotation.x+ degreesToRadians(2), cylinder.rotation.y, cylinder.rotation.z);
         var position = getOriginalPositionObject(cylinder)
         translate(cylinder, position.x+0.05, position.y, position.z);
         // addTranslation(cylinder, 0.05, 0, 0);
@@ -130,16 +142,7 @@ var animate = function () {
             var position = getOriginalPositionObject(cylinder)
             translate(cylinder, -position.x, position.y, position.z);
             // addTranslation(cylinder, -10, 0, 0);
-        }
-
-        // if(cube.position.x>6){
-        //     // cube.position.x = -cube.position.x;
-        //     translate(cube, -cube.position.x, cube.position.y, cube.position.z);
-        // }if(cube.scale.y>6){
-        //     // cube.position.x = -cube.position.x;
-        //     scale(cube, cube.scale.x, -cube.scale.y, cube.scale.z);
-        // }
-        
+        } 
         renderer.render( scene, camera );
     }
 };
@@ -147,36 +150,12 @@ animate();
 
 var toTranslation
 function translate(object, translateX, translateY, translateZ){
-
-    copyX = X_AXIS_camera.clone();
-    copyX.setLength(translateX - originalPositionObject[object.id]);
-    copyY = Y_AXIS_camera.clone();
-    copyY.setLength(translateY - originalPositionObject[object.id]);
-    copyZ = Z_AXIS_camera.clone();
-    copyZ.negate();
-    copyZ.setLength(translateZ - originalPositionObject[object.id]);
-
-    // object.position.x = translateX;
-    // object.position.y = translateY;
-    // object.position.z = translateZ;
-    // if(translateY == null){
-    //     console.log(translateY)
-    // }
-    // console.log(translateY)
-    originalPositionObject[object.id] = {x: translateX, y: translateY, z: translateZ}
-    // console.log(originalPositionObject)
-    // // console.log([translateX, translateY, translateZ])
-    // toTranslation = executeRotation([translateX, translateY, translateZ]); 
-    // // console.log(toTranslation)
-    // object.position.x = toTranslation[0];
-    // object.position.y = toTranslation[1];
-    // object.position.z = toTranslation[2];
-
-
-    // console.log([copyX, copyY, copyZ]);
-    object.position.x += copyX.x + copyY.x + copyZ.x;
-    object.position.y += copyX.y + copyY.y + copyZ.y;
-    object.position.z += copyX.z + copyY.z + copyZ.z;
+    originalPositionObject[object.id] = {x: translateX, y: translateY, z: translateZ};
+    
+    toTranslation = executeTranslation([translateX, translateY, translateZ]); 
+    object.position.x = toTranslation[0];
+    object.position.y = toTranslation[1];
+    object.position.z = toTranslation[2];
 
     if(id == 1 && objectTransform.indexOf(object.id) == -1){
         objectTransform.push(object.id);
@@ -188,10 +167,7 @@ var copyX; var copyY; var copyZ;
 function addTranslation(object, translateX, translateY, translateZ){
     // console.log(originalPositionObject[object.id]);
     if(originalPositionObject[object.id] == null){
-        object.position.x += translateX;
-        object.position.y += translateY;
-        object.position.z += translateZ;
-        originalPositionObject[object.id] = object.position;
+        originalPositionObject[object.id] = {x: translateX+object.position.x, y: translateY+object.position.y, z: translateZ+object.position.z};
 
     }else{
         originalPositionObject[object.id].x += translateX;
@@ -248,7 +224,7 @@ function scale(object, scaleX, scaleY, scaleZ){
 function getTranslations(){
     var toSend = [];
     for(const id of  objectTransform){
-        toSend.push({id: id, pos: scene.getObjectById(id).position, rot: scene.getObjectById(id).rotation, sca: scene.getObjectById(id).scale});
+        toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: scene.getObjectById(id).rotation, sca: scene.getObjectById(id).scale});
     }
     return toSend;
 }
@@ -258,13 +234,7 @@ function setTranslations(array){
         var obj = scene.getObjectById(object.id);
 
         originalPositionObject[object.id] = object.pos
-        // if(object.pos.y ==null){
-        //     console.log(object.pos)
-        // }
-        toTranslation = executeRotation([object.pos.x, object.pos.y, object.pos.z]); 
-        // if(toTranslation[1] ==null){
-        //     console.log(toTranslation)
-        // }
+        toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
         obj.position.x = toTranslation[0];
         obj.position.y = toTranslation[1];
         obj.position.z = toTranslation[2];
@@ -284,46 +254,43 @@ var angleToReverse;
 var k;
 var newPos = new THREE.Vector3();
 var checkinggggg;
-function executeRotation(positionToTranslate){
+function executeTranslation(positionToTranslate){
     // console.log(object);
     copyX_axis = X_AXIS.clone();
     copyY_axis = Y_AXIS.clone();
     copyZ_axis = Z_AXIS.clone();
-    copyZ_axis.negate();
-    // console.log(positionToTranslate)
-    for(k = 0; k <  historyRotations.length; k++){
-        // console.log(historyRotations[j].x);
-        if(historyRotations[k].x != null){
-            tempVector = copyX_axis.clone();
-            angleToReverse = historyRotations[k].x;
+    for(k = 0; k <  historyTransformation.length; k++){
+        if(historyTransformation[k].trans != null){
+            if(historyTransformation[k].trans.x != null){
+                positionToTranslate[0] += historyTransformation[k].trans.x;
+            } if(historyTransformation[k].trans.y != null){
+                // console.log("herereeere")
 
-            copyY_axis.applyAxisAngle(copyX_axis, angleToReverse);
-            copyZ_axis.applyAxisAngle(copyX_axis, angleToReverse);
-        }else if(historyRotations[k].y != null){
-            tempVector = copyY_axis.clone();
-            angleToReverse = historyRotations[k].y
-
-            copyX_axis.applyAxisAngle(copyY_axis, angleToReverse);
-            copyZ_axis.applyAxisAngle(copyY_axis, angleToReverse);
-        }else if(historyRotations[k].z != null){
-            tempVector = copyZ_axis.clone();
-            angleToReverse = historyRotations[k].z
-
-            copyX_axis.applyAxisAngle(copyZ_axis, angleToReverse);
-            copyY_axis.applyAxisAngle(copyZ_axis, angleToReverse);
+                positionToTranslate[1] += historyTransformation[k].trans.y;
+            } if(historyTransformation[k].trans.z != null){
+                positionToTranslate[2] += historyTransformation[k].trans.z;
+            }
+        }else if(historyTransformation[k].rot != null){
+            if(historyTransformation[k].rot.x != null){
+                tempVector = copyX_axis.clone();
+                angleToReverse = historyTransformation[k].rot.x;
+            }else if(historyTransformation[k].rot.y != null){
+                tempVector = copyY_axis.clone();
+                angleToReverse = historyTransformation[k].rot.y
+            }else if(historyTransformation[k].rot.z != null){
+                tempVector = copyZ_axis.clone();
+                angleToReverse = historyTransformation[k].rot.z
+            }
+    
+            newPos.set(positionToTranslate[0] , positionToTranslate[1] , positionToTranslate[2] );
+            newPos.applyAxisAngle(tempVector, angleToReverse);
+    
+            positionToTranslate[0] = newPos.x;
+            positionToTranslate[1] = newPos.y;
+            positionToTranslate[2] = newPos.z;
         }
-
-        newPos.set(positionToTranslate[0] - center_camera_id1[0], positionToTranslate[1] - center_camera_id1[1], positionToTranslate[2] - center_camera_id1[2]);
-        newPosCopy = newPos.clone();
-        newPosCopy.applyAxisAngle(tempVector, angleToReverse);
-
-        positionToTranslate[0] += newPosCopy.x - newPos.x;
-        positionToTranslate[1] += newPosCopy.y - newPos.y;
-        positionToTranslate[2] += newPosCopy.z - newPos.z;
-        // console.log(k)
         
     }
-    checkinggggg = positionToTranslate;
     return positionToTranslate;
 }
 
@@ -371,142 +338,186 @@ function getOriginalPositionObject(object){
     }
 }
 
+function getOriginalRotationObject(object){
+    if(originalRotationObject[object.id] != null){
+        return originalRotationObject[object.id];
+    }else{
+        return object.rotation;
+    }
+}
+
+function translateCamera(positionX, positionY, positionZ){
+    // console.log(historyTransformation);
+
+    if(historyTransformation.length && historyTransformation[historyTransformation.length-1].trans != null){
+        if(positionX!=0){
+            if(historyTransformation[historyTransformation.length-1].trans.x != null){
+                historyTransformation[historyTransformation.length-1].trans.x -= positionX;
+            }else{
+                historyTransformation[historyTransformation.length-1].trans.x = -positionX;
+            }
+        }
+        if(positionY!=0){
+            if(historyTransformation[historyTransformation.length-1].trans.y != null){
+                historyTransformation[historyTransformation.length-1].trans.y -= positionY;
+            }else{
+                historyTransformation[historyTransformation.length-1].trans.y = -positionY;
+            }
+        }
+        if(positionZ!=0){
+            if(historyTransformation[historyTransformation.length-1].trans.z != null){
+                historyTransformation[historyTransformation.length-1].trans.z -= positionZ;
+            }else{
+                historyTransformation[historyTransformation.length-1].trans.z = -positionZ;
+            }
+        }
+    }else{
+        if(positionX!=0){
+            console.log("x")
+            historyTransformation.push({trans: {x: -positionX}})
+        }
+        if(positionY!=0){
+            console.log("y")
+            historyTransformation.push({trans: {y: -positionY}})
+        }
+        if(positionZ!=0){
+            console.log("z")
+            historyTransformation.push({trans: {z: -positionZ}})
+        }
+    }
+    // console.log(historyTransformation);
+
+    children = scene.children;
+
+    for(i = 0; i< children.length; i++){
+        if((children[i] instanceof THREE.Camera) == false){
+
+            if(originalPositionObject[children[i].id] == null){
+                originalPositionObject[children[i].id] = {x: children[i].position.x, y: children[i].position.y, z: children[i].position.z};
+            }
+            
+            children[i].position.x -= positionX;
+            children[i].position.y -= positionY;
+            children[i].position.z -= positionZ;
+        }
+    }
+
+
+}
+
 var newPos
 var newPosCopy;
 var children;
 var i;
-function rotateCameraX(angle, centerPosition){
+function rotateCameraX(angle){
     angle = degreesToRadians(angle);
-    var setOriginal = false;
-    if(historyRotations.length){
-        if(historyRotations[historyRotations.length-1].x != null){
-            historyRotations[historyRotations.length-1].x +=angle
-            if(historyRotations[historyRotations.length-1].x == 0){
-                historyRotations.length = historyRotations.length - 1;
-            }
-        }else{
-            historyRotations.push({x: angle})
+    if(historyTransformation.length && historyTransformation[historyTransformation.length-1].rot != null && 
+        historyTransformation[historyTransformation.length-1].rot.x != null){
+            historyTransformation[historyTransformation.length-1].rot.x +=angle
+        if(historyTransformation[historyTransformation.length-1].rot.x == 0){
+            historyTransformation.length = historyTransformation.length - 1;
         }
     }else{
-        setOriginal = true;
-        historyRotations.push({x: angle})
+        historyTransformation.push({rot: {x: angle}})
     }
 
     children = scene.children;
     // console.log(children);
     for(i = 0; i< children.length; i++){
-
-        if(setOriginal && originalPositionObject[children[i].id] == null){
-            originalPositionObject[children[i].id] = children[i].position
-        }
-
         if((children[i] instanceof THREE.Camera) == false){
-            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
-            newPosCopy = newPos.clone();
-            newPos.applyAxisAngle(X_AXIS_camera, angle);
+            if(originalPositionObject[children[i].id] == null){
+                originalPositionObject[children[i].id] = {x: children[i].position.x, y: children[i].position.y, z: children[i].position.z};
+            }
+            if(originalRotationObject[children[i].id] == null){
+                originalRotationObject[children[i].id] = {x: children[i].rotation.x, y: children[i].rotation.y, z: children[i].rotation.z};
+            }
+            newPos = new THREE.Vector3(children[i].position.x, children[i].position.y, children[i].position.z);
 
-            children[i].position.x += newPos.x - newPosCopy.x;
-            children[i].position.y += newPos.y - newPosCopy.y;
-            children[i].position.z += newPos.z - newPosCopy.z;
+            newPos.applyAxisAngle(X_AXIS, angle);
+            children[i].position.x = newPos.x;
+            children[i].position.y = newPos.y;
+            children[i].position.z = newPos.z;
 
-            children[i].rotateOnAxis( X_AXIS_camera, angle );
+            children[i].rotateOnWorldAxis( X_AXIS, angle );
         }
-        // console.log(originalPositionObject[21])
-
     }
-    // console.log(originalPositionObject);
-    // console.log(children[0].position);
-    
-    positionCamera[0] += newPos.x - newPosCopy.x;
-    positionCamera[1] += newPos.y - newPosCopy.y;
-    positionCamera[2] += newPos.z - newPosCopy.z;
 
     vectorCamera.applyAxisAngle(X_AXIS_camera, angle);
     Y_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
     Z_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
 }
-function rotateCameraY(angle, centerPosition){
-    angle = degreesToRadians(angle)
-    var setOriginal = false;
-    if(historyRotations.length){
-        if(historyRotations[historyRotations.length-1].y != null){
-            historyRotations[historyRotations.length-1].y +=angle
-            if(historyRotations[historyRotations.length-1].y == 0){
-                historyRotations.length = historyRotations.length - 1;
-            }
-        }else{
-            historyRotations.push({y: angle})
+
+function rotateCameraY(angle){
+    angle = degreesToRadians(angle);
+    if(historyTransformation.length && historyTransformation[historyTransformation.length-1].rot != null && 
+        historyTransformation[historyTransformation.length-1].rot.y != null){
+            historyTransformation[historyTransformation.length-1].rot.y +=angle
+        if(historyTransformation[historyTransformation.length-1].rot.y == 0){
+            historyTransformation.length = historyTransformation.length - 1;
         }
     }else{
-        setOriginal = true;
-        historyRotations.push({y: angle})
+        historyTransformation.push({rot: {y: angle}})
     }
 
     children = scene.children;
     for(i = 0; i< children.length; i++){
-        if(setOriginal){
-            originalPositionObject[children[i].id] = children[i].position
-        }
 
         if((children[i] instanceof THREE.Camera) == false){
-            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
-            newPosCopy = newPos.clone();
-            newPos.applyAxisAngle(Y_AXIS_camera, angle);
+            if(originalPositionObject[children[i].id] == null){
+                originalPositionObject[children[i].id] = {x: children[i].position.x, y: children[i].position.y, z: children[i].position.z};
+            }
+            if(originalRotationObject[children[i].id] == null){
+                originalRotationObject[children[i].id] = {x: children[i].rotation.x, y: children[i].rotation.y, z: children[i].rotation.z};
+            }
 
-            children[i].position.x += newPos.x - newPosCopy.x;
-            children[i].position.y += newPos.y - newPosCopy.y;
-            children[i].position.z += newPos.z - newPosCopy.z;
+            newPos = new THREE.Vector3(children[i].position.x, children[i].position.y, children[i].position.z);
+            newPos.applyAxisAngle(Y_AXIS, angle);
+            children[i].position.x = newPos.x;
+            children[i].position.y = newPos.y;
+            children[i].position.z = newPos.z;
 
-            children[i].rotateOnAxis( Y_AXIS_camera, angle );
+            children[i].rotateOnWorldAxis( Y_AXIS, angle );
+
         }
     }
-
-    positionCamera[0] += newPos.x - newPosCopy.x;
-    positionCamera[1] += newPos.y - newPosCopy.y;
-    positionCamera[2] += newPos.z - newPosCopy.z;
 
     vectorCamera.applyAxisAngle(Y_AXIS_camera, angle);
     X_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
     Z_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
 }
-function rotateCameraZ(angle, centerPosition){
-    angle = degreesToRadians(angle);2
-    var setOriginal = false;
-    if(historyRotations.length){
-        if(historyRotations[historyRotations.length-1].z != null){
-            historyRotations[historyRotations.length-1].z +=angle
-            if(historyRotations[historyRotations.length-1].z == 0){
-                historyRotations.length = historyRotations.length - 1;
-            }
-        }else{
-            historyRotations.push({z: angle})
+
+function rotateCameraZ(angle){
+    angle = degreesToRadians(angle);
+    if(historyTransformation.length && historyTransformation[historyTransformation.length-1].rot != null && 
+        historyTransformation[historyTransformation.length-1].rot.z != null){
+            historyTransformation[historyTransformation.length-1].rot.z +=angle
+        if(historyTransformation[historyTransformation.length-1].rot.z == 0){
+            historyTransformation.length = historyTransformation.length - 1;
         }
     }else{
-        setOriginal = true;
-        historyRotations.push({z: angle})
+        historyTransformation.push({rot: {z: angle}})
     }
+
     children = scene.children;
     // console.log(children[0].position);
     for(i = 0; i< children.length; i++){
-        if(setOriginal){
-            originalPositionObject[children[i].id] = children[i].position
-        }
         if((children[i] instanceof THREE.Camera) == false){
-            newPos = new THREE.Vector3(children[i].position.x - centerPosition[0], children[i].position.y - centerPosition[1], children[i].position.z - centerPosition[2]);
-            newPosCopy = newPos.clone();
-            newPos.applyAxisAngle(Z_AXIS_camera, angle);
+            if(originalPositionObject[children[i].id] == null){
+                originalPositionObject[children[i].id] = {x: children[i].position.x, y: children[i].position.y, z: children[i].position.z};
+            }
+            if(originalRotationObject[children[i].id] == null){
+                originalRotationObject[children[i].id] = {x: children[i].rotation.x, y: children[i].rotation.y, z: children[i].rotation.z};
+            }
+            newPos = new THREE.Vector3(children[i].position.x, children[i].position.y, children[i].position.z);
+            newPos.applyAxisAngle(Z_AXIS, angle);
 
-            children[i].position.x += newPos.x - newPosCopy.x;
-            children[i].position.y += newPos.y - newPosCopy.y;
-            children[i].position.z += newPos.z - newPosCopy.z;
+            children[i].position.x = newPos.x;
+            children[i].position.y = newPos.y;
+            children[i].position.z = newPos.z;
 
-            children[i].rotateOnAxis( Z_AXIS_camera, angle );
+            children[i].rotateOnWorldAxis ( Z_AXIS, angle );
         }
     }
-
-    positionCamera[0] += newPos.x - newPosCopy.x;
-    positionCamera[1] += newPos.y - newPosCopy.y;
-    positionCamera[2] += newPos.z - newPosCopy.z;
 
     vectorCamera.applyAxisAngle(Z_AXIS_camera, angle);
     X_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
@@ -524,68 +535,21 @@ function changeAngleCurrentToOriginalCamera(angle, centerPosition){
     vectorCamera.applyAxisAngle(Y_AXIS, degreesToRadians(angle));
 
     children = scene.children;
-    // console.log(children[0]);
-    
-    // console.log(historyRotations);
     for(i = 0; i< children.length; i++){
         if((children[i] instanceof THREE.Camera) == false){
-
-            reverseRotation(children[i], centerPosition)
+            children[i].rotation.x = getOriginalRotationObject(children[i]).x;
+            children[i].rotation.y = getOriginalRotationObject(children[i]).y;
+            children[i].rotation.z = getOriginalRotationObject(children[i]).z;
+            children[i].position.x = getOriginalPositionObject(children[i]).x;
+            children[i].position.y = getOriginalPositionObject(children[i]).y;
+            children[i].position.z = getOriginalPositionObject(children[i]).z;
         }
     }
-    // console.log(children[0]);
-    // console.log(copyX_axis_camera);
-    // console.log(copyY_axis_camera);
-    // console.log(copyZ_axis_camera);
     rotationSoFarX = 0;
     rotationSoFarY = 0;
     rotationSoFarZ = 0;
-    historyRotations = [];
+    historyTransformation = [];
     Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
     X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
     Z_AXIS_camera = new THREE.Vector3( 0, 0, -1 );
-}
-
-var tempVector;
-var angleToReverse;
-var j
-function reverseRotation(object, centerPosition){
-    // console.log(object);
-    copyX_axis_camera = X_AXIS_camera.clone();
-    copyY_axis_camera = Y_AXIS_camera.clone();
-    copyZ_axis_camera = Z_AXIS_camera.clone();
-
-    for(j = historyRotations.length-1; j>= 0; j = j-1){
-        // console.log(historyRotations[j].x);
-        if(historyRotations[j].x != null){
-            tempVector = copyX_axis_camera.clone();
-            angleToReverse = -historyRotations[j].x;
-
-            copyY_axis_camera.applyAxisAngle(copyX_axis_camera, angleToReverse);
-            copyZ_axis_camera.applyAxisAngle(copyX_axis_camera, angleToReverse);
-        }else if(historyRotations[j].y != null){
-            tempVector = copyY_axis_camera.clone();
-            angleToReverse = -historyRotations[j].y
-
-            copyX_axis_camera.applyAxisAngle(copyY_axis_camera, angleToReverse);
-            copyZ_axis_camera.applyAxisAngle(copyY_axis_camera, angleToReverse);
-        }else if(historyRotations[j].z != null){
-            tempVector = copyZ_axis_camera.clone();
-            angleToReverse = -historyRotations[j].z
-
-            copyX_axis_camera.applyAxisAngle(copyZ_axis_camera, angleToReverse);
-            copyY_axis_camera.applyAxisAngle(copyZ_axis_camera, angleToReverse);
-        }
-
-        object.rotateOnAxis( tempVector , angleToReverse);
-
-        newPos = new THREE.Vector3(object.position.x - centerPosition[0], object.position.y - centerPosition[1], object.position.z - centerPosition[2]);
-        newPosCopy = newPos.clone();
-        newPosCopy.applyAxisAngle(tempVector, angleToReverse);
-
-        object.position.x -= newPos.x - newPosCopy.x;
-        object.position.y -= newPos.y - newPosCopy.y;
-        object.position.z -= newPos.z - newPosCopy.z;
-        
-    }
 }
