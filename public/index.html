@@ -10,7 +10,7 @@
    <script src = "/socket.io/socket.io.js"></script>
    <script src="https://threejs.org/build/three.js"></script>
    <script>
-      const angleToGo = 50;
+      const angleToGo = 55;
       var socket = io();
       var id;
       var angleCamera;
@@ -20,10 +20,11 @@
       var rotateCamera;
       var stopIm;
       var objectTransform = [];
-      var center_camera_id1 = [0,0,0];
 
+      const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      const height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
       socket.on('idSet', function(data) {
-         
+         console.log(width)
          id = data.id;
          angleCamera = data.angle;
          angleCameraOr = data.angle;
@@ -38,6 +39,10 @@
          rotateCamera = true;
          stopIm = false;
          init();
+      });
+
+      socket.on('getWindowSize', function() {
+         socket.emit('windowSize', {width: width, height: height});
       });
 
       socket.on('whatTime', function() {
@@ -75,39 +80,21 @@
             rotateCameraX(3);
          }else if (data == 65) {
             // a key --> moving left
-            // positionCamera[0] -= 0.5
-            // moveCamera(-0.5,0,0);
-            center_camera_id1[0] -=0.5
             translateCamera(-0.5, 0, 0)
          }else if (data == 68) {
             // d key --> moving right
-            // positionCamera[0] += 0.5
-            // moveCamera(0.5,0,0);
-            center_camera_id1[0] +=0.5
             translateCamera(0.5, 0, 0)
          }else if (data == 87) {
             // w key --> moving forward
-            // positionCamera[2] -= 0.5
-            // moveCamera(0,0,-0.5);
-            center_camera_id1[2] -=0.5
             translateCamera(0, 0, -0.5)
          }else if (data == 83) {
             // s key --> moving backwards
-            // positionCamera[2] += 0.5
-            // moveCamera(0,0,0.5);
             center_camera_id1[2] +=0.5
             translateCamera(0, 0, 0.5)
          }else if(data == 82){
             // r key --> reset
             angleCamera = angleCameraOr;
             changeAngleCurrentToOriginalCamera(angleCamera);
-            // positionCamera[0] = positionCameraOr[0];
-            // positionCamera[1] = positionCameraOr[1];
-            // positionCamera[2] = positionCameraOr[2];
-            
-            // setCamera(positionCamera[0], positionCamera[1], positionCamera[2]);
-            
-            center_camera_id1 = [0,0,0]
          }else if(data == 81){
             //q key
             rotateCameraZ(3);
@@ -122,15 +109,9 @@
             rotateCameraY(3);
          }else if (data == 32) {
             // space bar
-            // positionCamera[1] += 0.5
-            // moveCamera(0,0.5,0);
-            center_camera_id1[1] +=0.5
             translateCamera(0, 0.5, 0)
          }else if (data == 88) {
             // down arrow
-            // positionCamera[1] -= 0.5
-            // moveCamera(0,-0.5,0);
-            center_camera_id1[1] -=0.5
             translateCamera(0, -0.5, 0)
          }
          // socket.emit('confirmation', id);
@@ -247,23 +228,6 @@
             }
          }
       }
-      socket.on('rotateX', function(data) {
-         // console.log("RotateX " + data);
-         rotateCameraX(data, center_camera_id1);
-         // console.log("rotateX " + positionCamera);
-      });
-      socket.on('rotateY', function(data) {
-         // console.log("RotateY " + data);
-         // var rotX = Math.cos(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
-         // var rotZ = Math.sin(degreesToRadians(data)) *  (0.1*(angleCamera/angleToGo));
-         // // console.log(rotX + " " + rotZ);
-         // moveCamera(positionCamera[0] - rotX, 0, positionCamera[2] -rotZ);
-         // positionCamera[0] = rotX;
-         // positionCamera[2] = rotZ;
-         // rotateCameraY(data);
-         rotateCameraY(data, center_camera_id1);
-         // console.log("rotateY " + positionCamera)
-      });
    </script>
    
    <body>

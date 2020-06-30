@@ -10,7 +10,7 @@ app.get('/', function(req, res) {
    res.sendfile('index.html');
    res.redirect('http://localhost:3000/');
 });
-const angleToGo = 50;
+var angleToGo;
 const separation = 0.1
 var noUsers = 0;
 var activeUser = 1;
@@ -21,18 +21,25 @@ var receivedConfirmation = [];
 io.on('connection', function(socket) {
    noUsers++;
    var id = noUsers;
-   console.log('Screen number ' + noUsers + ' connected');
-   socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
-                        x: separation * (-(angleNext*lookingRight)/angleToGo),
-                        z: 0});
-
-   if(noUsers%2 == 1){ angleNext+=angleToGo; }
-   lookingRight = -lookingRight;
    
-   const interval = setInterval(function() {
-      // console.log("synchronising")
-      io.sockets.emit('whatTime');
-    }, 5000);
+   socket.emit('getWindowSize');
+
+   socket.on('windowSize', function(data) {
+      angleToGo = (data.width - 500)/12.0357 + 54;
+      console.log(lookingRight)
+      console.log('Screen number ' + noUsers + ' connected');
+      socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
+                           x: separation * (-(angleNext*lookingRight)/angleToGo),
+                           z: 0});
+
+      if(noUsers%2 == 1){ angleNext+=angleToGo; }
+      lookingRight = -lookingRight;
+      
+      const interval = setInterval(function() {
+         // console.log("synchronising")
+         io.sockets.emit('whatTime');
+      }, 5000);
+   })
 
    socket.on('currentTime', function(data) {
       // console.log("receive one " + receivedConfirmation)
@@ -52,13 +59,6 @@ io.on('connection', function(socket) {
 
    socket.on('moveKeySend', function(data) {
       io.sockets.emit('moveKeySock', data);
-   })
-
-   socket.on('rotateXServer', function(data) {
-      io.sockets.emit('rotateX', data);
-   })
-   socket.on('rotateYServer', function(data) {
-      io.sockets.emit('rotateY', data);
    })
 
    socket.on('updateIDReorganise', function(data) {

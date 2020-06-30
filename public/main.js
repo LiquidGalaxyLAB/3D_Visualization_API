@@ -1,7 +1,5 @@
 var vectorCamera;
 var firstTime = true;
-const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-const height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
 
 var scene = new THREE.Scene();
 var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -109,6 +107,11 @@ function init(){
     
     // cube.rotateZ(20*(Math.PI/180))
     howLong = 0;
+
+    rotationSoFarX = 0;
+    rotationSoFarY = 0;
+    rotationSoFarZ = 0;
+    console.log(camera.getFilmWidth());
 }
 
 var historyTransformation = [];
@@ -127,21 +130,16 @@ var animate = function () {
             rotateCamera = false;
             angleBef = angleCamera
         }
-        // cube.position.x += 0.05;
-
-        // translate(cube, cube.position.x+0.02, cube.position.y, cube.position.z);
-        // scale(cube, cube.scale.x, cube.scale.y+0.02, cube.scale.z);
-        // // console.log(stopIm)
-        // rotate(cylinder, cylinder.rotation.x+ degreesToRadians(2), cylinder.rotation.y, cylinder.rotation.z);
+        
+        var rotation = getOriginalRotationObject(cylinder)
+        rotate(cylinder, rotation.x+ degreesToRadians(2), rotation.y, rotation.z);
         var position = getOriginalPositionObject(cylinder)
-        translate(cylinder, position.x+0.05, position.y, position.z);
-        // addTranslation(cylinder, 0.05, 0, 0);
+        addTranslation(cylinder, 0.05, 0, 0);
         
 
         if(getOriginalPositionObject(cylinder).x > 10){
             var position = getOriginalPositionObject(cylinder)
             translate(cylinder, -position.x, position.y, position.z);
-            // addTranslation(cylinder, -10, 0, 0);
         } 
         renderer.render( scene, camera );
     }
@@ -159,72 +157,44 @@ function translate(object, translateX, translateY, translateZ){
 
     if(id == 1 && objectTransform.indexOf(object.id) == -1){
         objectTransform.push(object.id);
-        // console.log(objectTransform)
     }
 }
 
-var copyX; var copyY; var copyZ; 
 function addTranslation(object, translateX, translateY, translateZ){
-    // console.log(originalPositionObject[object.id]);
-    if(originalPositionObject[object.id] == null){
-        originalPositionObject[object.id] = {x: translateX+object.position.x, y: translateY+object.position.y, z: translateZ+object.position.z};
-
-    }else{
-        originalPositionObject[object.id].x += translateX;
-        originalPositionObject[object.id].y += translateY;
-        originalPositionObject[object.id].z += translateZ;
-
-        copyX = X_AXIS_camera.clone();
-        copyX.setLength(translateX);
-        copyY = Y_AXIS_camera.clone();
-        copyY.setLength(translateY);
-        copyZ = Z_AXIS_camera.clone();
-        copyZ.negate();
-        copyZ.setLength(translateZ);
-
-        // console.log([copyX, copyY, copyZ]);
-        object.position.x += copyX.x + copyY.x + copyZ.x;
-        object.position.y += copyX.y + copyY.y + copyZ.y;
-        object.position.z += copyX.z + copyY.z + copyZ.z;
-    }
-    if(id == 1 && objectTransform.indexOf(object.id) == -1){
-        objectTransform.push(object.id);
-        // console.log(objectTransform)
-    }
-    
+    var position = getOriginalPositionObject(cylinder)
+    translate(object, position.x+translateX, position.y+translateY, position.z+translateZ);
 }
 
 
 function rotate(object, angleX, angleY, angleZ){
-    // console.log(object.rotation)
-    object.rotation.x = angleX;
-    object.rotation.y = angleY;
-    object.rotation.z = angleZ;
+    originalRotationObject[object.id] = {x: angleX, y: angleY, z: angleZ};
+
+    executeRotation(object, angleX, angleY, angleZ);
         
     if(id == 1 && objectTransform.indexOf(object.id) == -1){
         objectTransform.push(object.id);
-        // console.log(object.rotation)
-        // console.log(scene.getObjectById(object.id).rotation)
     }
 }
 
+function addRotation(object, angleX, angleY, angleZ){
+    var rotation = getOriginalRotationObject(object)
+    rotate(object, rotation.x+ angleX, rotation.y + angleY, rotation.z + angleZ);
+}
+
 function scale(object, scaleX, scaleY, scaleZ){
-    // console.log(object.rotation)
     object.scale.x = scaleX;
     object.scale.y = scaleY;
     object.scale.z = scaleZ;
         
     if(id == 1 && objectTransform.indexOf(object.id) == -1){
         objectTransform.push(object.id);
-        // console.log(object.rotation)
-        // console.log(scene.getObjectById(object.id).rotation)
     }
 }
 
 function getTranslations(){
     var toSend = [];
     for(const id of  objectTransform){
-        toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: scene.getObjectById(id).rotation, sca: scene.getObjectById(id).scale});
+        toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale});
     }
     return toSend;
 }
@@ -239,9 +209,8 @@ function setTranslations(array){
         obj.position.y = toTranslation[1];
         obj.position.z = toTranslation[2];
 
-        obj.rotation.x = object.rot._x;
-        obj.rotation.y = object.rot._y;
-        obj.rotation.z = object.rot._z;
+        originalRotationObject[object.id] = object.rot
+        executeRotation(obj, object.rot._x, object.rot._y, object.rot._z);
 
         obj.scale.x = object.sca.x;
         obj.scale.y = object.sca.y;
@@ -253,7 +222,6 @@ var tempVector;
 var angleToReverse;
 var k;
 var newPos = new THREE.Vector3();
-var checkinggggg;
 function executeTranslation(positionToTranslate){
     // console.log(object);
     copyX_axis = X_AXIS.clone();
@@ -292,6 +260,24 @@ function executeTranslation(positionToTranslate){
         
     }
     return positionToTranslate;
+}
+
+function executeRotation(object, angleX, angleY, angleZ){
+    object.rotation.x = angleX;
+    object.rotation.y = angleY;
+    object.rotation.z = angleZ;
+    for(k = 0; k <  historyTransformation.length; k++){
+        if(historyTransformation[k].rot != null){
+            if(historyTransformation[k].rot.x != null){
+                object.rotateOnWorldAxis(X_AXIS, historyTransformation[k].rot.x)
+            }else if(historyTransformation[k].rot.y != null){
+                object.rotateOnWorldAxis(Y_AXIS, historyTransformation[k].rot.y)
+            }else if(historyTransformation[k].rot.z != null){
+                object.rotateOnWorldAxis(Z_AXIS, historyTransformation[k].rot.z);
+            }
+        }
+        
+    }
 }
 
 
@@ -406,9 +392,9 @@ function translateCamera(positionX, positionY, positionZ){
 }
 
 var newPos
-var newPosCopy;
 var children;
 var i;
+var rotationSoFarX; var rotationSoFarY; var rotationSoFarZ; 
 function rotateCameraX(angle){
     angle = degreesToRadians(angle);
     if(historyTransformation.length && historyTransformation[historyTransformation.length-1].rot != null && 
@@ -440,11 +426,16 @@ function rotateCameraX(angle){
 
             children[i].rotateOnWorldAxis( X_AXIS, angle );
         }
+        if(i==0){
+            rotationSoFarX = children[i].rotation.x;
+            rotationSoFarY = children[i].rotation.y;
+            rotationSoFarZ = children[i].rotation.z;
+        }
     }
 
-    vectorCamera.applyAxisAngle(X_AXIS_camera, angle);
-    Y_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
-    Z_AXIS_camera.applyAxisAngle(X_AXIS_camera, angle);
+    vectorCamera.applyAxisAngle(X_AXIS, angle);
+    Y_AXIS_camera.applyAxisAngle(X_AXIS, angle);
+    Z_AXIS_camera.applyAxisAngle(X_AXIS , angle);
 }
 
 function rotateCameraY(angle){
@@ -479,11 +470,16 @@ function rotateCameraY(angle){
             children[i].rotateOnWorldAxis( Y_AXIS, angle );
 
         }
+        if(i==0){
+            rotationSoFarX = children[i].rotation.x;
+            rotationSoFarY = children[i].rotation.y;
+            rotationSoFarZ = children[i].rotation.z;
+        }
     }
 
-    vectorCamera.applyAxisAngle(Y_AXIS_camera, angle);
-    X_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
-    Z_AXIS_camera.applyAxisAngle(Y_AXIS_camera, angle);
+    vectorCamera.applyAxisAngle(Y_AXIS, angle);
+    X_AXIS_camera.applyAxisAngle(Y_AXIS, angle);
+    Z_AXIS_camera.applyAxisAngle(Y_AXIS, angle);
 }
 
 function rotateCameraZ(angle){
@@ -517,11 +513,16 @@ function rotateCameraZ(angle){
 
             children[i].rotateOnWorldAxis ( Z_AXIS, angle );
         }
+        if(i==0){
+            rotationSoFarX = children[i].rotation.x;
+            rotationSoFarY = children[i].rotation.y;
+            rotationSoFarZ = children[i].rotation.z;
+        }
     }
 
-    vectorCamera.applyAxisAngle(Z_AXIS_camera, angle);
-    X_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
-    Y_AXIS_camera.applyAxisAngle(Z_AXIS_camera, angle);
+    vectorCamera.applyAxisAngle(Z_AXIS, angle);
+    X_AXIS_camera.applyAxisAngle(Z_AXIS, angle);
+    Y_AXIS_camera.applyAxisAngle(Z_AXIS, angle);
 }
 
 function rotateVectorInit(angle){
