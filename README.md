@@ -26,6 +26,17 @@ nodemon app.js
 ```
 And then you can open a browser and go to http://localhost:3000/
 
+## Key instructions
+* w → moves forwards (translate camera negatively on the Z axis)
+* s → moves backwards (translate camera positively on the Z axis)
+* a → moves left (translate camera negatively on the X axis)
+* d → moves right (translate camera positively on the X axis)
+* space bar → moves up (translate camera positively on the Y axis)
+* x →  moves down (translate camera negatively on the Y axis)
+* left/right key → rotates around Y axis
+* up/down key → rotates around X axis
+* q/e → rotates arounds Z axis
+
 ## Built With
 
 * [Socket.io](https://socket.io/) - Library for web sockets
