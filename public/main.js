@@ -112,6 +112,10 @@ function init(){
     rotationSoFarY = 0;
     rotationSoFarZ = 0;
     console.log(camera.getFilmWidth());
+    var vector4 = renderer.getCurrentViewport(new THREE.Vector4());
+    renderer.setViewport(vector4.setComponent(3, 700));
+    console.log(renderer.getCurrentViewport(vector4))
+
 }
 
 var historyTransformation = [];
