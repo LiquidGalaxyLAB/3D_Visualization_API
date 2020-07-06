@@ -83,9 +83,8 @@ cylinder.position.y = 0;
 axis.position.z = -10;
 
 function init(){
-    console.log(firstTime);
     if(!firstTime){
-        console.log("herr")
+        socket.emit('disconnect');
         location.reload();
     }
     firstTime = false;  
@@ -107,11 +106,7 @@ function init(){
     
     // cube.rotateZ(20*(Math.PI/180))
     howLong = 0;
-
-    rotationSoFarX = 0;
-    rotationSoFarY = 0;
-    rotationSoFarZ = 0;
-    console.log(camera.getFilmWidth());
+    // console.log(camera.getFilmWidth());
 }
 
 var historyTransformation = [];
@@ -394,7 +389,6 @@ function translateCamera(positionX, positionY, positionZ){
 var newPos
 var children;
 var i;
-var rotationSoFarX; var rotationSoFarY; var rotationSoFarZ; 
 function rotateCameraX(angle){
     angle = degreesToRadians(angle);
     if(historyTransformation.length && historyTransformation[historyTransformation.length-1].rot != null && 
@@ -425,11 +419,6 @@ function rotateCameraX(angle){
             children[i].position.z = newPos.z;
 
             children[i].rotateOnWorldAxis( X_AXIS, angle );
-        }
-        if(i==0){
-            rotationSoFarX = children[i].rotation.x;
-            rotationSoFarY = children[i].rotation.y;
-            rotationSoFarZ = children[i].rotation.z;
         }
     }
 
@@ -470,11 +459,6 @@ function rotateCameraY(angle){
             children[i].rotateOnWorldAxis( Y_AXIS, angle );
 
         }
-        if(i==0){
-            rotationSoFarX = children[i].rotation.x;
-            rotationSoFarY = children[i].rotation.y;
-            rotationSoFarZ = children[i].rotation.z;
-        }
     }
 
     vectorCamera.applyAxisAngle(Y_AXIS, angle);
@@ -513,11 +497,6 @@ function rotateCameraZ(angle){
 
             children[i].rotateOnWorldAxis ( Z_AXIS, angle );
         }
-        if(i==0){
-            rotationSoFarX = children[i].rotation.x;
-            rotationSoFarY = children[i].rotation.y;
-            rotationSoFarZ = children[i].rotation.z;
-        }
     }
 
     vectorCamera.applyAxisAngle(Z_AXIS, angle);
@@ -546,9 +525,6 @@ function changeAngleCurrentToOriginalCamera(angle, centerPosition){
             children[i].position.z = getOriginalPositionObject(children[i]).z;
         }
     }
-    rotationSoFarX = 0;
-    rotationSoFarY = 0;
-    rotationSoFarZ = 0;
     historyTransformation = [];
     Y_AXIS_camera = new THREE.Vector3( 0, 1, 0 );
     X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );

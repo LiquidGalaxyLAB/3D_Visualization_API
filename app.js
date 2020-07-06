@@ -19,16 +19,18 @@ var lookingRight = 1;
 var startRight = true;
 var receivedConfirmation = [];
 io.on('connection', function(socket) {
-   noUsers++;
-   var id = noUsers;
+   var id;
    
    socket.emit('getWindowSize');
 
    socket.on('windowSize', function(data) {
+      noUsers++;
+      id = noUsers;
+
       angleToGo = (data.width - 500)/12.0357 + 54;
-      console.log(lookingRight)
-      console.log('Screen number ' + noUsers + ' connected');
-      socket.emit('idSet', {id: noUsers, active: noUsers==activeUser, angle: angleNext*lookingRight, 
+      // console.log(lookingRight)
+      console.log('Screen number ' + noUsers + ' connected with id ' + id);
+      socket.emit('idSet', {id: id, active: id==activeUser, angle: angleNext*lookingRight, 
                            x: separation * (-(angleNext*lookingRight)/angleToGo),
                            z: 0});
 
@@ -93,8 +95,8 @@ io.on('connection', function(socket) {
    })
 
    socket.on('disconnect', (reason) => {
-      console.log('Screen number ' + id + ' disconnected');
-      console.log(noUsers + " " + angleNext + " " + lookingRight);
+      console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
+      // console.log(noUsers + " " + angleNext + " " + lookingRight);
       noUsers--;
       if(noUsers%2 ==0){ 
          angleNext-=angleToGo; 
