@@ -554,3 +554,8 @@ function changeAngleCurrentToOriginalCamera(angle, centerPosition){
     X_AXIS_camera = new THREE.Vector3( 1, 0, 0 );
     Z_AXIS_camera = new THREE.Vector3( 0, 0, -1 );
 }
+
+function showHelp() {
+    var help = document.getElementById('help-message');
+    help.style.display = help.style.display == 'block' ? 'none' : 'block';
+}
