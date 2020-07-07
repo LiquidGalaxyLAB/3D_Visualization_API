@@ -22,6 +22,7 @@ In order to run the project, the steps are:
 
 ```
 npm install
+npm install -g nodemon
 nodemon app.js
 ```
 And then you can open a browser and go to http://localhost:3000/
