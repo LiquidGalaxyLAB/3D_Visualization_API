@@ -36,6 +36,7 @@ And then you can open a browser and go to http://localhost:3000/
 * left/right key → rotates around Y axis
 * up/down key → rotates around X axis
 * q/e → rotates arounds Z axis
+* h → shows help message
 
 ## Built With
 
