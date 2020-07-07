@@ -21,8 +21,8 @@
       var stopIm;
       var objectTransform = [];
 
-      const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-      const height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
+      var width ;
+      var height;
       socket.on('idSet', function(data) {
          // console.log(width)
          id = data.id;
@@ -41,7 +41,26 @@
          init();
       });
 
+      socket.on('idReset', function(data) {
+         // console.log(width)
+         id = data.id;
+         angleCamera = data.angle;
+         angleCameraOr = data.angle;
+         positionCamera[0] = data.x;
+         positionCamera[2] = data.z;
+         positionCameraOr[0] = data.x;
+         positionCameraOr[2] = data.z;
+         rotateVectorInit(angleCamera);
+         setCamera(positionCamera[0], 0, positionCamera[2]);
+         console.log(id + " " + angleCamera + " " + data.x);
+         
+         rotateCamera = true;
+         stopIm = false;
+      });
+
       socket.on('getWindowSize', function() {
+         width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+         height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
          socket.emit('windowSize', {width: width, height: height});
       });
 

@@ -28,19 +28,38 @@ io.on('connection', function(socket) {
       id = noUsers;
 
       angleToGo = (data.width - 500)/12.0357 + 54;
+      var angleThisSocket = Math.floor((id/2))*angleToGo;
+      if(id%2 == 0){
+         angleThisSocket = -angleThisSocket;
+      }
       // console.log(lookingRight)
       console.log('Screen number ' + noUsers + ' connected with id ' + id);
-      socket.emit('idSet', {id: id, active: id==activeUser, angle: angleNext*lookingRight, 
-                           x: separation * (-(angleNext*lookingRight)/angleToGo),
+      socket.emit('idReset', {id: id, active: id==activeUser, angle: angleThisSocket, 
+                           x: separation * (-(angleThisSocket)/angleToGo),
                            z: 0});
 
-      if(noUsers%2 == 1){ angleNext+=angleToGo; }
-      lookingRight = -lookingRight;
+      // if(noUsers%2 == 1){ angleNext+=angleToGo; }
+      // lookingRight = -lookingRight;
       
       const interval = setInterval(function() {
          // console.log("synchronising")
          io.sockets.emit('whatTime');
       }, 5000);
+   })
+
+   socket.on('windowResize', function(data) {
+
+      angleToGo = (data.width - 500)/12.0357 + 54;
+      var angleThisSocket = Math.floor((id/2))*angleToGo;
+      if(id%2 == 0){
+         angleThisSocket = -angleThisSocket;
+      }
+      // console.log(lookingRight)
+      console.log(angleToGo + " " + (id%2) + " " + Math.floor((id/2)) + " " +angleThisSocket);
+      socket.emit('idReset', {id: id, active: id==activeUser, angle: angleThisSocket, 
+                           x: separation * (-(angleThisSocket)/angleToGo),
+                           z: 0});
+
    })
 
    socket.on('currentTime', function(data) {

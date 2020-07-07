@@ -277,9 +277,12 @@ function executeRotation(object, angleX, angleY, angleZ){
 
 
 function onWindowResize() {
+    width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );
+    socket.emit('windowResize', {width: width, height: height});
 }
 
 function degreesToRadians(degrees){
