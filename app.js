@@ -10,6 +10,9 @@ app.get('/', function(req, res) {
    res.sendfile('index.html');
    res.redirect('http://localhost:3000/');
 });
+app.get('/test', function(req, res) {
+   res.send({json: 'sample'});
+});
 var angleToGo;
 const separation = 0.1
 var noUsers = 0;
@@ -34,7 +37,7 @@ io.on('connection', function(socket) {
       }
       // console.log(lookingRight)
       console.log('Screen number ' + noUsers + ' connected with id ' + id);
-      socket.emit('idReset', {id: id, active: id==activeUser, angle: angleThisSocket, 
+      socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
                            x: separation * (-(angleThisSocket)/angleToGo),
                            z: 0});
 
