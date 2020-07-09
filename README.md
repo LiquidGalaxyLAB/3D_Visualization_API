@@ -28,6 +28,19 @@ If there is problems running the last command try typing npm install -g nodemon
 
 And then you can open a browser and go to http://localhost:3000/
 
+#### Installing in different machines
+
+You need all machines to be connected to the same network. You will still need to install the dependencies:
+```
+npm install
+```
+
+However you only need to run one server, so for the central screen run :
+```
+nodemon app.js
+```
+And in that machine, you can open a browser and go to http://localhost:3000/. For the rest of screens, just open the browser and go to the same link but with the IP Address instead of localhost, which can be found on top of the browser (might need to scroll a little bit)
+
 ## Controls
 * w → moves forwards (translate camera negatively on the Z axis)
 * s → moves backwards (translate camera positively on the Z axis)
