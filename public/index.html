@@ -6,10 +6,20 @@
          body { margin:0; }  
      </style> 
    </head>
-   
+   <label id="ipAddress"> Hii</label>
    <script src = "/socket.io/socket.io.js"></script>
    <script src="https://threejs.org/build/three.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
    <script>
+      
+
+      // $(document).ready(function(){
+      //    $("button").click(function(){
+      //       $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function(data) {
+      //          console.log(JSON.stringify(data, null, 2));
+      //       });
+      //    });
+      // });
       const angleToGo = 55;
       var socket = io();
       var id;
@@ -34,8 +44,9 @@
          positionCameraOr[2] = data.z;
          rotateVectorInit(angleCamera);
          setCamera(positionCamera[0], 0, positionCamera[2]);
-         console.log(id + " " + angleCamera + " " + data.x);
+         console.log(id + " " + angleCamera + " " + data.x + " " + data.ip);
          
+         document.getElementById('ipAddress').innerHTML = data.ip;
          rotateCamera = true;
          stopIm = false;
          init();
@@ -94,6 +105,7 @@
          if (data == 38) {
             // up arrow
             rotateCameraX(-3);
+            
          }else if (data == 40) {
             // down arrow
             rotateCameraX(3);
@@ -196,9 +208,11 @@
          socket.emit('updateIDMirror');
       })
 
+      var ip;
       document.onkeydown = function checkKey(e) {
          e = e.keyCode;
          // console.log("MOVING " + e);
+         
          socket.emit('moveKeySend', e);
       }
 

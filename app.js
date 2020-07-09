@@ -27,19 +27,46 @@ io.on('connection', function(socket) {
    socket.emit('getWindowSize');
 
    socket.on('windowSize', function(data) {
+
       noUsers++;
       id = noUsers;
 
-      angleToGo = (data.width - 500)/12.0357 + 54;
-      var angleThisSocket = Math.floor((id/2))*angleToGo;
-      if(id%2 == 0){
-         angleThisSocket = -angleThisSocket;
-      }
-      // console.log(lookingRight)
-      console.log('Screen number ' + noUsers + ' connected with id ' + id);
-      socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
-                           x: separation * (-(angleThisSocket)/angleToGo),
-                           z: 0});
+      var os = require('os');
+      var ifaces = os.networkInterfaces();
+
+      Object.keys(ifaces).forEach(function (ifname) {
+         var alias = 0;
+
+         ifaces[ifname].forEach(function (iface) {
+            if ('IPv4' !== iface.family || iface.internal !== false) {
+               // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+               return;
+            }
+
+            if (alias >= 1) {
+               // this single interface has multiple ipv4 addresses
+               console.log(ifname + ':' + alias, iface.address);
+
+            } else {
+               // this interface has only one ipv4 adress
+               console.log('hey', ifname, iface.address);
+
+               angleToGo = (data.width - 500)/12.0357 + 54;
+               var angleThisSocket = Math.floor((id/2))*angleToGo;
+               if(id%2 == 0){
+                  angleThisSocket = -angleThisSocket;
+               }
+               // console.log(lookingRight)
+               console.log('Screen number ' + noUsers + ' connected with id ' + id);
+               socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
+                                    x: separation * (-(angleThisSocket)/angleToGo),
+                                    z: 0, ip: iface.address});
+            }
+            ++alias;
+         });
+      });
+
+      
 
       // if(noUsers%2 == 1){ angleNext+=angleToGo; }
       // lookingRight = -lookingRight;
