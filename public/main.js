@@ -556,6 +556,8 @@ function changeAngleCurrentToOriginalCamera(angle, centerPosition){
 }
 
 function showHelp() {
-    var help = document.getElementById('help-message');
-    help.style.display = help.style.display == 'block' ? 'none' : 'block';
+    if (id == 1) {
+        var help = document.getElementById('help-message');
+        help.style.display = help.style.display == 'block' ? 'none' : 'block';  
+    }
 }
