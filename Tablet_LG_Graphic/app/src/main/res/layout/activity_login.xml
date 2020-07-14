@@ -75,6 +75,18 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/connectTablet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tablet" />
+
+            <Button
+                android:id="@+id/Disconnect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Disconnect" />
+
 
         </LinearLayout>
     </ScrollView>
@@ -83,8 +95,7 @@
         android:id="@+id/controls"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:visibility="invisible">
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/up"

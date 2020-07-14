@@ -23,6 +23,7 @@ var startRight = true;
 var receivedConfirmation = [];
 io.on('connection', function(socket) {
    var id;
+   console.log('New Connection');
    
    socket.emit('getWindowSize');
 
@@ -31,6 +32,7 @@ io.on('connection', function(socket) {
       noUsers++;
       id = noUsers;
 
+      socket.join('Window');
       var os = require('os');
       var ifaces = os.networkInterfaces();
 
@@ -73,7 +75,7 @@ io.on('connection', function(socket) {
       
       const interval = setInterval(function() {
          // console.log("synchronising")
-         io.sockets.emit('whatTime');
+         io.sockets.to('Window').emit('whatTime');
       }, 5000);
    })
 
@@ -94,7 +96,7 @@ io.on('connection', function(socket) {
 
    socket.on('currentTime', function(data) {
       // console.log("receive one " + receivedConfirmation)
-      io.sockets.emit('setCube', data);
+      io.sockets.to('Window').emit('setCube', data);
    })
 
    socket.on('confirmation', function(data) {
@@ -103,13 +105,17 @@ io.on('connection', function(socket) {
          receivedConfirmation.push(data);
          if(receivedConfirmation.length >= noUsers){
             receivedConfirmation = []
-            io.sockets.emit('start', data);
+            io.sockets.to('Window').emit('start', data);
          }
       }
    })
 
    socket.on('moveKeySend', function(data) {
-      io.sockets.emit('moveKeySock', data);
+      io.sockets.to('Window').emit('moveKeySock', data);
+   })
+
+   socket.on('serverMoveUp', function() {
+      io.sockets.to('Window').emit('moveUp');
    })
 
    socket.on('updateIDReorganise', function(data) {
@@ -141,6 +147,11 @@ io.on('connection', function(socket) {
          }
       }
       console.log("mirror " + id)
+   })
+
+   socket.on('signalTablet', function() {
+      console.log("It's a tablet")
+      socket.join('Tablet');
    })
 
    socket.on('disconnect', (reason) => {

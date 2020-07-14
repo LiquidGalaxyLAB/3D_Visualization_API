@@ -99,6 +99,11 @@
 
       var angleTilted = 0;
 
+      socket.on('moveUp', function(data) {
+            // console.log("setting positions");
+            translateCamera(0, 0.5, 0)
+      });
+
       socket.on('moveKeySock', function(data) {
          // stopIm = true;
          // console.log(data)

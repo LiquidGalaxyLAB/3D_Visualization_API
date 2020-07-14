@@ -33,6 +33,10 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.net.URISyntaxException;
+
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -64,13 +68,24 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
     private LinearLayout mControlsView;
+    private Button mControlsUp;
+    private Button mControlsLeft;
+    private Button mControlsRight;
+    private Button mControlsDown;
+
+    private Socket mSocket;
+    {
+        try {
+            mSocket = IO.socket("http://192.168.1.63:3000/");
+        } catch (URISyntaxException e) {}
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        /*mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -83,11 +98,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
                 return false;
             }
-        });
+        });*/
 
         mControlsView = findViewById(R.id.controls);
 
+
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        Button mTabletButton = (Button) findViewById(R.id.connectTablet);
+        Button mDisconnectButton = (Button) findViewById(R.id.Disconnect);
+        mControlsUp = (Button) findViewById(R.id.up);
+        mControlsLeft = (Button) findViewById(R.id.left);
+        mControlsRight = (Button) findViewById(R.id.right);
+        mControlsDown = (Button) findViewById(R.id.down);
 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -95,10 +117,35 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 attemptLogin();
             }
         });
+        mDisconnectButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                disconnectTablet();
+            }
+        });
+
+        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                translateUp();
+            }
+        });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+    private void translateUp(){
+
+        mSocket.emit("serverMoveUp");
+        Log.i("SER", "move up");
+    }
+
+    private void disconnectTablet(){
+        mSocket.disconnect();
+        Log.i("SER", "Disconnected");
+    }
+
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -151,6 +198,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     private void attemptLogin() {
 
+        mSocket.connect();
+        Log.i("SER", "connected");
+
+        mSocket.emit("signalTablet", "hey" );
+        Log.i("SER", "Signal Tablet");
         if (mAuthTask != null) {
             return;
         }
@@ -194,7 +246,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             //showProgress(true);
             Log.i("SAM", "switching");
-            mControlsView.setVisibility(1);
+            //mControlsView.setVisibility(1);
             //setContentView(R.layout.main);
         }
     }
