@@ -18,18 +18,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +38,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class SettingIP extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -64,7 +59,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // UI references.
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
     private LinearLayout mControlsView;
@@ -84,21 +78,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
-        /*mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
-
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == EditorInfo.IME_ACTION_DONE || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });*/
 
         mControlsView = findViewById(R.id.controls);
 
@@ -123,11 +102,28 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 disconnectTablet();
             }
         });
-
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        mControlsUp.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 translateUp();
+            }
+        });
+        mControlsDown.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                translateDown();
+            }
+        });
+        mControlsRight.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                translateRight();
+            }
+        });
+        mControlsLeft.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                translateLeft();
             }
         });
 
@@ -136,9 +132,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private void translateUp(){
-
         mSocket.emit("serverMoveUp");
         Log.i("SER", "move up");
+    }
+    private void translateDown(){
+        mSocket.emit("serverMoveDown");
+        Log.i("SER", "move down");
+    }
+    private void translateLeft(){
+        mSocket.emit("serverMoveLeft");
+        Log.i("SER", "move left");
+    }
+    private void translateRight(){
+        mSocket.emit("serverMoveRight");
+        Log.i("SER", "move right");
     }
 
     private void disconnectTablet(){
@@ -203,52 +210,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mSocket.emit("signalTablet", "hey" );
         Log.i("SER", "Signal Tablet");
-        if (mAuthTask != null) {
-            return;
-        }
 
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        /*if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }*/
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        }
-        /*} else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }*/
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            //showProgress(true);
-            Log.i("SAM", "switching");
-            //mControlsView.setVisibility(1);
-            //setContentView(R.layout.main);
-        }
     }
 
     private boolean isEmailValid(String email) {
@@ -334,7 +296,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
+                new ArrayAdapter<>(SettingIP.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
@@ -395,9 +357,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
             }
         }
 

@@ -117,6 +117,40 @@ io.on('connection', function(socket) {
    socket.on('serverMoveUp', function() {
       io.sockets.to('Window').emit('moveUp');
    })
+   socket.on('serverMoveDown', function() {
+      io.sockets.to('Window').emit('moveDown');
+   })
+   socket.on('serverMoveLeft', function() {
+      io.sockets.to('Window').emit('moveLeft');
+   })
+   socket.on('serverMoveRight', function() {
+      io.sockets.to('Window').emit('moveRight');
+   })
+   socket.on('serverMoveBackwards', function() {
+      io.sockets.to('Window').emit('moveBackwards');
+   })
+   socket.on('serverMoveForward', function() {
+      io.sockets.to('Window').emit('moveForward');
+   })
+
+   socket.on('serverRotateZPos', function() {
+      io.sockets.to('Window').emit('rotateZPos');
+   })
+   socket.on('serverRotateZNeg', function() {
+      io.sockets.to('Window').emit('rotateZNeg');
+   })
+   socket.on('serverRotateYPos', function() {
+      io.sockets.to('Window').emit('rotateYPos');
+   })
+   socket.on('serverRotateYNeg', function() {
+      io.sockets.to('Window').emit('rotateYNeg');
+   })
+   socket.on('serverRotateXPos', function() {
+      io.sockets.to('Window').emit('rotateXPos');
+   })
+   socket.on('serverRotateXNeg', function() {
+      io.sockets.to('Window').emit('rotateXNeg');
+   })
 
    socket.on('updateIDReorganise', function(data) {
       console.log("reorganise " + id)
