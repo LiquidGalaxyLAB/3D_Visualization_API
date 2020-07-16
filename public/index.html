@@ -112,10 +112,10 @@
          translateCamera(0.5, 0, 0)
       });
       socket.on('moveForward', function(data) {
-         translateCamera(0, 0, 0.5)
+         translateCamera(0, 0,-0.5)
       });
       socket.on('moveBackwards', function(data) {
-         translateCamera(0, 0, -0.5)
+         translateCamera(0, 0, 0.5)
       });
 
       socket.on('rotateZPos', function(data) {
@@ -135,6 +135,11 @@
       });
       socket.on('rotateYNeg', function(data) {
          rotateCameraY(-3);
+      });
+
+      socket.on('resetCamera', function(data) {
+         angleCamera = angleCameraOr;
+         changeAngleCurrentToOriginalCamera(angleCamera);
       });
 
       socket.on('moveKeySock', function(data) {

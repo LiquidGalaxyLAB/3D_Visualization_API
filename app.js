@@ -152,6 +152,10 @@ io.on('connection', function(socket) {
       io.sockets.to('Window').emit('rotateXNeg');
    })
 
+   socket.on('serverResetCamera', function() {
+      io.sockets.to('Window').emit('resetCamera');
+   })
+
    socket.on('updateIDReorganise', function(data) {
       console.log("reorganise " + id)
       if(id==2){id = 1;}

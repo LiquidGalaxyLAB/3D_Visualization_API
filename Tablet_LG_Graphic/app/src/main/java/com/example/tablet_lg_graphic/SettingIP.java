@@ -1,134 +1,274 @@
 package com.example.tablet_lg_graphic;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.net.URISyntaxException;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
-import static android.Manifest.permission.READ_CONTACTS;
-
 /**
  * A login screen that offers login via email/password.
  */
-public class SettingIP extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class SettingIP extends AppCompatActivity  {
 
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
 
-    /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
     // UI references.
-    private AutoCompleteTextView mEmailView;
-    private View mProgressView;
-    private View mLoginFormView;
-    private LinearLayout mControlsView;
-    private Button mControlsUp;
-    private Button mControlsLeft;
-    private Button mControlsRight;
-    private Button mControlsDown;
-
+    private EditText ipAddress;
     private Socket mSocket;
-    {
-        try {
-            mSocket = IO.socket("http://192.168.1.63:3000/");
-        } catch (URISyntaxException e) {}
-    }
+    private Button transUp;
+    private Button transDown;
+    private Button transLeft;
+    private Button transRight;
+    private Button transForward;
+    private Button transBackwards;
+
+    private Button rotXPos;
+    private Button rotXNeg;
+    private Button rotYPos;
+    private Button rotYNeg;
+    private Button rotZPos;
+    private Button rotZNeg;
+
+    private Button goBack;
+    private Button reset;
+    private Button switchRotTrans;
+
+
+    private String ipAddressCode;
+    private Button mEmailSignInButton;
+    private boolean translationOn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.ip_setting);
 
-        mControlsView = findViewById(R.id.controls);
-
-
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        Button mTabletButton = (Button) findViewById(R.id.connectTablet);
-        Button mDisconnectButton = (Button) findViewById(R.id.Disconnect);
-        mControlsUp = (Button) findViewById(R.id.up);
-        mControlsLeft = (Button) findViewById(R.id.left);
-        mControlsRight = (Button) findViewById(R.id.right);
-        mControlsDown = (Button) findViewById(R.id.down);
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        ipAddress = (EditText) findViewById(R.id.ipAddress);
 
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
-            }
-        });
-        mDisconnectButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                disconnectTablet();
-            }
-        });
-        mControlsUp.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                translateUp();
-            }
-        });
-        mControlsDown.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                translateDown();
-            }
-        });
-        mControlsRight.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                translateRight();
-            }
-        });
-        mControlsLeft.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                translateLeft();
+                setIP();
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+
+    }
+
+    private void setIP() {
+        ipAddressCode = ipAddress.getText().toString();
+       if(checkIPValid(ipAddressCode)){
+           Log.i("APP","change layout " + ipAddressCode);
+           setContentView(R.layout.main);
+
+           translationOn = true;
+
+           transUp = (Button)  findViewById(R.id.upBut);
+           transDown = (Button)  findViewById(R.id.downBut);
+           transLeft = (Button)  findViewById(R.id.leftBut);
+           transRight = (Button)  findViewById(R.id.rightBut);
+           transForward = (Button)  findViewById(R.id.forwardBut);
+           transBackwards = (Button)  findViewById(R.id.backwardBut);
+
+           rotXPos = (Button)  findViewById(R.id.rotXPosBut);
+           rotXNeg = (Button)  findViewById(R.id.rotXNegBut);
+           rotYPos = (Button)  findViewById(R.id.rotYPosBut);
+           rotYNeg = (Button)  findViewById(R.id.rotYNegBut);
+           rotZPos = (Button)  findViewById(R.id.rotZPosBut);
+           rotZNeg = (Button)  findViewById(R.id.rotZNegBut);
+
+           goBack = (Button)  findViewById(R.id.back);
+           reset = (Button)  findViewById(R.id.reset);
+           switchRotTrans = (Button)  findViewById(R.id.switchTrans);
+           goBack.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   backToSetIP();
+               }
+           });
+           reset.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   resetCamera();
+               }
+           });
+           switchRotTrans.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   setSwitchRotTrans();
+               }
+           });
+
+           try {
+               mSocket = IO.socket("http://" + ipAddressCode + ":3000/");
+           } catch (URISyntaxException e) {}
+
+           mSocket.connect();
+           mSocket.emit("signalTablet");
+           transUp.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateUp();
+               }
+           });
+           transDown.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateDown();
+               }
+           });
+           transLeft.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateLeft();
+               }
+           });
+           transRight.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateRight();
+               }
+           });
+           transForward.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateForward();
+               }
+           });
+           transBackwards.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   translateBackwards();
+               }
+           });
+
+           rotXPos.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateXPos();
+               }
+           });
+           rotXNeg.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateXNeg();
+               }
+           });
+           rotYPos.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateYPos();
+               }
+           });
+           rotYNeg.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateYNeg();
+               }
+           });
+           rotZPos.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateZPos();
+               }
+           });
+           rotZNeg.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rotateZNeg();
+               }
+           });
+       }
+
+    }
+
+    private boolean checkIPValid(String ip){
+        if(ip.length() < 7){
+            return false;
+        }
+        int count = 0;
+        boolean lastDot = true;
+        for(int i = 0; i< ip.length(); i++){
+            if(ip.charAt(i) == '.'){
+                if(lastDot){
+                    return false;
+                }
+                count++;
+                lastDot = true;
+            }else if(!Character.isDigit(ip.charAt(i))){
+                return false;
+            }else{
+                lastDot = false;
+            }
+        }
+        if(count !=3){
+            return false;
+        }
+        return true;
+    }
+
+    private void backToSetIP(){
+        Log.i("APP","change layout");
+        disconnectTablet();
+        setContentView(R.layout.ip_setting);
+
+        mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        ipAddress = (EditText) findViewById(R.id.ipAddress);
+
+        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setIP();
+            }
+        });
+        ipAddress.setText(ipAddressCode);
+    }
+
+    private void setSwitchRotTrans(){
+        if(translationOn){
+            transUp.setVisibility(View.INVISIBLE);
+            transDown.setVisibility(View.INVISIBLE);
+            transLeft.setVisibility(View.INVISIBLE);
+            transRight.setVisibility(View.INVISIBLE);
+            transForward.setVisibility(View.INVISIBLE);
+            transBackwards.setVisibility(View.INVISIBLE);
+
+            rotXPos.setVisibility(View.VISIBLE);
+            rotXNeg.setVisibility(View.VISIBLE);
+            rotYPos.setVisibility(View.VISIBLE);
+            rotYNeg.setVisibility(View.VISIBLE);
+            rotZPos.setVisibility(View.VISIBLE);
+            rotZNeg.setVisibility(View.VISIBLE);
+
+            switchRotTrans.setText("Rotate");
+        }else{
+            transUp.setVisibility(View.VISIBLE);
+            transDown.setVisibility(View.VISIBLE);
+            transLeft.setVisibility(View.VISIBLE);
+            transRight.setVisibility(View.VISIBLE);
+            transForward.setVisibility(View.VISIBLE);
+            transBackwards.setVisibility(View.VISIBLE);
+
+            rotXPos.setVisibility(View.INVISIBLE);
+            rotXNeg.setVisibility(View.INVISIBLE);
+            rotYPos.setVisibility(View.INVISIBLE);
+            rotYNeg.setVisibility(View.INVISIBLE);
+            rotZPos.setVisibility(View.INVISIBLE);
+            rotZNeg.setVisibility(View.INVISIBLE);
+
+            switchRotTrans.setText("Translate");
+        }
+        translationOn = !translationOn;
     }
 
     private void translateUp(){
@@ -147,224 +287,47 @@ public class SettingIP extends AppCompatActivity implements LoaderCallbacks<Curs
         mSocket.emit("serverMoveRight");
         Log.i("SER", "move right");
     }
+    private void translateForward(){
+        mSocket.emit("serverMoveForward");
+        Log.i("SER", "move forward");
+    }
+    private void translateBackwards(){
+        mSocket.emit("serverMoveBackwards");
+        Log.i("SER", "move backwards");
+    }
+    private void resetCamera(){
+        mSocket.emit("serverResetCamera");
+        Log.i("SER", "reset camera");
+    }
+
+    private void rotateXPos(){
+        mSocket.emit("serverRotateXPos");
+        Log.i("SER", "rotate X Pos");
+    }
+    private void rotateXNeg(){
+        mSocket.emit("serverRotateXNeg");
+        Log.i("SER", "rotate X Neg");
+    }
+    private void rotateYPos(){
+        mSocket.emit("serverRotateYPos");
+        Log.i("SER", "rotate Y Pos");
+    }
+    private void rotateYNeg(){
+        mSocket.emit("serverRotateYNeg");
+        Log.i("SER", "rotate Y Neg");
+    }
+    private void rotateZPos(){
+        mSocket.emit("serverRotateZPos");
+        Log.i("SER", "rotate Z Pos");
+    }
+    private void rotateZNeg(){
+        mSocket.emit("serverRotateZNeg");
+        Log.i("SER", "rotate Z Neg");
+    }
 
     private void disconnectTablet(){
         mSocket.disconnect();
         Log.i("SER", "Disconnected");
-    }
-
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
-
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
-    private void attemptLogin() {
-
-        mSocket.connect();
-        Log.i("SER", "connected");
-
-        mSocket.emit("signalTablet", "hey" );
-        Log.i("SER", "Signal Tablet");
-
-    }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(SettingIP.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
-    }
-
-    /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
-     */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
-
-            // TODO: register the new account here.
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-            showProgress(false);
-
-            if (success) {
-                finish();
-            }
-        }
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-            showProgress(false);
-        }
     }
 }
 
