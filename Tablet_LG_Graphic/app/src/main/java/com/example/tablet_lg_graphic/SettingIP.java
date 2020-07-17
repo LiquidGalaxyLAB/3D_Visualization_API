@@ -55,6 +55,7 @@ public class SettingIP extends AppCompatActivity  {
         mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         ipAddress = (EditText) findViewById(R.id.ipAddress);
 
+        ipAddress.setText("192.168.1.63");
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -23,6 +23,7 @@ var startRight = true;
 var receivedConfirmation = [];
 io.on('connection', function(socket) {
    var id;
+   var isATablet = false;
    console.log('New Connection');
    
    socket.emit('getWindowSize');
@@ -53,7 +54,7 @@ io.on('connection', function(socket) {
                // this interface has only one ipv4 adress
                console.log('hey', ifname, iface.address);
 
-               angleToGo = (data.width - 500)/12.0357 + 54;
+               angleToGo = (data.width - 664)/4.0357 + 54;
                var angleThisSocket = Math.floor((id/2))*angleToGo;
                if(id%2 == 0){
                   angleThisSocket = -angleThisSocket;
@@ -188,38 +189,44 @@ io.on('connection', function(socket) {
    })
 
    socket.on('signalTablet', function() {
+      isATablet = true;
       console.log("It's a tablet")
       socket.join('Tablet');
    })
 
    socket.on('disconnect', (reason) => {
-      console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
-      // console.log(noUsers + " " + angleNext + " " + lookingRight);
-      noUsers--;
-      if(noUsers%2 ==0){ 
-         angleNext-=angleToGo; 
-         if(id%2 == 1){
+      console.log('Disconnection')
+      if(!isATablet){
+         console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
+      
+         // console.log(noUsers + " " + angleNext + " " + lookingRight);
+         noUsers--;
+         if(noUsers%2 ==0){ 
+            angleNext-=angleToGo; 
+            if(id%2 == 1){
+               lookingRight = -lookingRight;
+            }
+         }else{
             lookingRight = -lookingRight;
          }
-      }else{
-         lookingRight = -lookingRight;
-      }
-      console.log(noUsers + " " + angleNext + " " + lookingRight);
-
-      if(noUsers %2 == 1 && id%2 ==1){
-         io.sockets.emit('updateIDReorganise', id);
-         io.sockets.emit('updateIDReorganiseSock', {noUser:id, startRight:startRight});
-      }else{
-         io.sockets.emit('updateIDMove', id);
-         io.sockets.emit('updateIDMoveSock', id);
-
-         if(id%2==0 && noUsers%2==0){
-            io.sockets.emit('updateIDMirror');
-            io.sockets.emit('updateIDMirrorSock');
-            startRight = !startRight
+         console.log(noUsers + " " + angleNext + " " + lookingRight);
+   
+         if(noUsers %2 == 1 && id%2 ==1){
+            io.sockets.emit('updateIDReorganise', id);
+            io.sockets.emit('updateIDReorganiseSock', {noUser:id, startRight:startRight});
+         }else{
+            io.sockets.emit('updateIDMove', id);
+            io.sockets.emit('updateIDMoveSock', id);
+   
+            if(id%2==0 && noUsers%2==0){
+               io.sockets.emit('updateIDMirror');
+               io.sockets.emit('updateIDMirrorSock');
+               startRight = !startRight
+            }
          }
+         // io.sockets.emit('whatTime');
+      
       }
-      // io.sockets.emit('whatTime');
    });
 });
 
