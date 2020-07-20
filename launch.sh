@@ -1,0 +1,51 @@
+#!/bin/bash
+
+usage()
+{
+  echo "Usage: [-m] -i IP_ADDRESS -p PORT [-n NUMBER_SOCKETS] "
+  exit 2
+}
+
+set_variable()
+{
+  local varname=$1
+  shift
+  eval "$varname=\"$@\""
+}
+
+#########################
+# Main script starts here
+
+MASTER='f'
+NUMBER_SOCKETS=1
+while getopts 'mi:p:n:h:' c
+do
+  case $c in
+    m) set_variable MASTER 't' ;;
+    i) set_variable IP_ADDRESS $OPTARG ;;
+    p) set_variable PORT $OPTARG ;;
+    n) set_variable NUMBER_SOCKETS $OPTARG ;;
+    h|?) usage ;; esac
+done
+
+if [ "$MASTER" == "t" ]; then
+    nodemon app & sleep 1 
+fi
+
+DIMENSIONS=$(xdpyinfo | grep dimensions: | awk '{print $2}')
+WIDTH=$(echo $DIMENSIONS | sed -E 's/x.*//')
+HEIGHT=$(echo $DIMENSIONS | sed -E 's/.*x//')
+n=1
+while [ $n -le $NUMBER_SOCKETS ]
+do
+    POSITION=$((NUMBER_SOCKETS-n))
+    if [ $((n%2)) -eq 0 ];then
+        POSITION=$((NUMBER_SOCKETS+n-1))
+    fi
+    POSITION=$((POSITION/2))
+    echo $POSITION
+    POSITION=$((POSITION*(WIDTH/NUMBER_SOCKETS)))
+    echo $POSITION
+    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>" 
+    n=$((n+1))
+done

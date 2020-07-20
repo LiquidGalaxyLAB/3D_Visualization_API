@@ -54,7 +54,7 @@ io.on('connection', function(socket) {
                // this interface has only one ipv4 adress
                console.log('hey', ifname, iface.address);
 
-               angleToGo = (data.width - 664)/4.0357 + 54;
+               angleToGo = (data.width - 510)/4.0357 + 54;
                var angleThisSocket = Math.floor((id/2))*angleToGo;
                if(id%2 == 0){
                   angleThisSocket = -angleThisSocket;
