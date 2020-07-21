@@ -31,8 +31,8 @@ done
 if [ "$MASTER" == "t" ]; then
     nodemon app & sleep 1 
 fi
-
-DIMENSIONS=$(xdpyinfo | grep dimensions: | awk '{print $2}')
+echo "here"
+DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}')
 WIDTH=$(echo $DIMENSIONS | sed -E 's/x.*//')
 HEIGHT=$(echo $DIMENSIONS | sed -E 's/.*x//')
 n=1
@@ -43,9 +43,16 @@ do
         POSITION=$((NUMBER_SOCKETS+n-1))
     fi
     POSITION=$((POSITION/2))
-    echo $POSITION
     POSITION=$((POSITION*(WIDTH/NUMBER_SOCKETS)))
-    echo $POSITION
-    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>" 
+
+    unameOut="$(uname -s)"
+    case "${unameOut}" in
+        Linux*)     google-chrome "data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>";;
+        Darwin*)    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>";;
+        CYGWIN*)    "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>";;
+        MINGW*)     "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>";;
+        *)          echo "UNKNOWN:${unameOut}"
+    esac
+    # /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --app="data:text/html,<html><body><script>window.moveTo($POSITION,0);window.resizeTo($(($WIDTH/$NUMBER_SOCKETS)),$HEIGHT);window.location='http://$IP_ADDRESS:$PORT';</script></body></html>" 
     n=$((n+1))
 done

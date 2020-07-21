@@ -1,8 +1,10 @@
 package com.example.tablet_lg_graphic;
 
+import android.annotation.SuppressLint;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -13,6 +15,12 @@ import java.net.URISyntaxException;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 /**
  * A login screen that offers login via email/password.
@@ -329,6 +337,45 @@ public class SettingIP extends AppCompatActivity  {
     private void disconnectTablet(){
         mSocket.disconnect();
         Log.i("SER", "Disconnected");
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public void onClick11 (View v) {
+        new AsyncTask<Integer, Void, Void>(){
+            @Override
+            protected Void doInBackground(Integer... params) {
+                try {
+                    executeSSHcommand();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }.execute(1);
+    }
+
+    public void executeSSHcommand(){
+        String user = "pi";
+        String password = "raspberry";
+        String host = "192.168.0.1";
+        int port=22;
+        try{
+
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(user, host, port);
+            session.setPassword(password);
+            session.setConfig("StrictHostKeyChecking", "no");
+            session.setTimeout(10000);
+            session.connect();
+            ChannelExec channel = (ChannelExec)session.openChannel("exec");
+            channel.setCommand("omxd n");
+            channel.connect();
+            channel.disconnect();
+
+        }
+        catch(JSchException e){
+
+        }
     }
 }
 
