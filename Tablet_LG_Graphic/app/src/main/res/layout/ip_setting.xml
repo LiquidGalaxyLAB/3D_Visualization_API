@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/colorPrimary"
+            android:background="@color/off"
             android:textColor="@color/white"
             android:text="Launch" />
         <Button
@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/off"
+            android:background="@color/colorPrimary"
             android:textColor="@color/white"
             android:text="Connect" />
     </LinearLayout>
@@ -38,37 +38,62 @@
 
 
     <LinearLayout
-        android:id="@+id/email_login_form"
+        android:id="@+id/connect_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="visible"
+        android:orientation="vertical">
+        <CheckBox
+            android:id="@+id/connected_Wifi_connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wifi_checkbox_connect" />
+
+        <TextView
+            android:id="@+id/ip_connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="IP address" />
+
+        <EditText
+            android:id="@+id/ip"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/port_connect_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Port" />
+
+        <EditText
+            android:id="@+id/port_connect"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:inputType="number"
+            android:singleLine="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/launch_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/ipAddress"
+        <CheckBox
+            android:id="@+id/connected_Wifi_launch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_email"
-            android:maxLines="1"
-            android:singleLine="true" />
-
-        <Button
-            android:id="@+id/email_sign_in_button"
-            style="?android:textAppearanceSmall"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="@string/action_sign_in"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/launch_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="vertical">
+            android:text="@string/wifi_checkbox_launch" />
 
         <TextView
             android:id="@+id/textView"
@@ -111,6 +136,73 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:singleLine="true" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/launch_layout_machine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/machine_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:textSize="@dimen/title"
+            android:text="Info central machine" />
+
+        <CheckBox
+            android:id="@+id/connected_Wifi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wifi_checkbox" />
+
+        <TextView
+            android:id="@+id/machine_ip_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Machine public IP Address" />
+        <EditText
+            android:id="@+id/ip_address_machine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:hint="123.123.1.12"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/machine_hostname_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Machine hostname" />
+        <EditText
+            android:id="@+id/host_name_machine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:hint="Sample"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/machine_password_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Machine password" />
+        <EditText
+            android:id="@+id/password_machine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true" />
+
+
     </LinearLayout>
 
 
@@ -119,6 +211,15 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
         android:orientation="horizontal">
+        <Button
+            android:id="@+id/back"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/colorAccent"
+            android:textColor="@color/white"
+            android:visibility="invisible"
+            android:text="Back" />
         <Button
             android:id="@+id/next"
             android:layout_width="0dp"

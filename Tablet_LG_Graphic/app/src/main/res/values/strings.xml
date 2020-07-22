@@ -13,4 +13,10 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="wifi_checkbox">"Check if this device connected to the same wifi as the machine"
+    </string>
+    <string name="wifi_checkbox_launch">"Check if this device connected to the same wifi as the machine where the server will be run"
+    </string>
+    <string name="wifi_checkbox_connect">"Check if this device connected to the same wifi as the machine where the server is run"
+    </string>
 </resources>
