@@ -1,6 +1,8 @@
 package com.example.tablet_lg_graphic;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -12,31 +14,28 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiInfo;
 
 import java.net.URISyntaxException;
-import java.util.Formatter;
-import java.util.Locale;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.Volley;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Callable;
-import java.net.URL;
+import java.util.Properties;
+import java.util.Locale;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.io.BufferedReader;
-import java.io.BufferedInputStream;
+
 import java.io.IOException;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
-import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
@@ -53,22 +52,40 @@ public class SettingIP extends AppCompatActivity  {
     private int LAUNCH_INFO=2;
     private int STATE;
 
+    private static int MIN_PORT_NUMBER = 1;
+    private static int MAX_PORT_NUMBER = 9999;
+
     private int visibleColor = 0xFF008577;
     private int offColor = 0xFF4B4B4B;
     private Socket mSocket;
 
-    // UI references.
-    private EditText ipAddress;
-    private EditText port;
+    // All screens menu buttons
     private Button nextButton;
-    private Button backButton;
     private Button launch_state_button;
     private Button connect_state_button;
+
+    // Connect buttons
+    private EditText ipAddress;
+    private EditText port;
     private LinearLayout connect_layout;
-    private LinearLayout launch_layout;
-    private LinearLayout launch_layout_machine;
     private CheckBox connect_checkbox;
-    private TextView title_ip_connect;
+
+    // Launch buttons
+    private LinearLayout launch_layout;
+    private CheckBox launch_checkbox;
+    private EditText ipAddress_launch;
+    private EditText port_launch;
+    private EditText noMachines_edit;
+
+    // Launch info buttons
+    private Button backButton;
+    private LinearLayout launch_layout_machine;
+    private EditText ipAddress_launch_machine;
+    private EditText hostname_launch_machine;
+    private EditText password_launch_machine;
+    private CheckBox launch_checkbox_info;
+    private TextView title_launch_machine;
+    private TextView title_ip_launch_machine;
 
     private Button transUp;
     private Button transDown;
@@ -87,10 +104,13 @@ public class SettingIP extends AppCompatActivity  {
     private Button goBack;
     private Button reset;
     private Button switchRotTrans;
+    private ProgressBar loading;
 
 
     private String ipAddressCode;
     private String portCode;
+    private int noMachines;
+    private int howManyMachinesAsked;
 
     private boolean translationOn;
 
@@ -98,7 +118,6 @@ public class SettingIP extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ip_setting);
-        STATE=CONNECT;
 
         setMenuButtons();
     }
@@ -107,9 +126,11 @@ public class SettingIP extends AppCompatActivity  {
         if(STATE==CONNECT){
             Log.i("APP", "Switching to Launch");
             connect_layout.setVisibility(View.GONE);
+            launch_layout_machine.setVisibility(View.GONE);
             launch_layout.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(visibleColor);
             connect_state_button.setBackgroundColor(offColor);
+            backButton.setVisibility(View.GONE);
             STATE=LAUNCH;
         }
     }
@@ -133,40 +154,149 @@ public class SettingIP extends AppCompatActivity  {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void clickNext(){
         if(STATE==CONNECT){
+            ipAddressCode = ipAddress.getText().toString();
+            portCode = port.getText().toString();
             setIP();
         }else if(STATE==LAUNCH){
+            if(noMachines_edit.getText().toString().isEmpty()){
+                noMachines_edit.setError("Please fill");
+            }else if(ipAddress_launch.getText().toString().isEmpty()){
+                ipAddress_launch.setError("Please fill");
+            }else if(port_launch.getText().toString().isEmpty()){
+                port_launch.setError("Please fill");
+            }else{
+                ipAddressCode = ipAddress_launch.getText().toString();
+                portCode = port_launch.getText().toString();
+                noMachines = Integer.parseInt(noMachines_edit.getText().toString());
+                if(!checkIPValid(ipAddressCode)){
+                    ipAddress_launch.setError("Not valid");
+                }else{
+                    loading.setVisibility(View.VISIBLE);
+                    socketAvailable(ipAddressCode, portCode);
+                }
+            }
+        }else{
+            loading.setVisibility(View.VISIBLE);
+            launchServer(hostname_launch_machine.getText().toString(),
+                    password_launch_machine.getText().toString(),
+                    ipAddress_launch_machine.getText().toString());
+            //setIP();
+        }
+    }
+
+    private void nextMachineInfoFromLaunch(boolean available){
+        loading.setVisibility(View.GONE);
+        if(!available){
+            port_launch.setError("Port not available");
+        }else{
+            port_launch.setError("");
             launch_layout.setVisibility(View.GONE);
             launch_layout_machine.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.VISIBLE);
+            ipAddress_launch_machine.setVisibility(View.GONE);
+            ipAddress_launch_machine.setText(ipAddressCode);
+            launch_checkbox_info.setVisibility(View.GONE);
+            title_ip_launch_machine.setVisibility(View.GONE);
+            howManyMachinesAsked = 1;
+            STATE=LAUNCH_INFO;
+        }
+    }
+
+    private void nextMachineInfo(boolean loginWorked){
+        Log.i("APP", "Next machine " + loginWorked + " " + howManyMachinesAsked);
+        loading.setVisibility(View.GONE);
+        if(!loginWorked){
+            hostname_launch_machine.setError("Login failed");
+            password_launch_machine.setError("Login failed");
         }else{
-            launchServer();
-            setIP();
+            hostname_launch_machine.setError("");
+            password_launch_machine.setError("");
+            howManyMachinesAsked++;
+            if(howManyMachinesAsked < noMachines){
+                ipAddress_launch_machine.setVisibility(View.VISIBLE);
+                ipAddress_launch_machine.setText("");
+                launch_checkbox_info.setVisibility(View.VISIBLE);
+                hostname_launch_machine.setText("");
+                password_launch_machine.setText("");
+                if(howManyMachinesAsked%2 == 0){
+                    title_launch_machine.setText("Info " + howManyMachinesAsked/2 + " machine to the right ");
+                }else{
+                    title_launch_machine.setText("Info " + howManyMachinesAsked/2 + " machine to the left ");
+                }
+
+            }else {
+                Log.i("APP", "Going to set IP");
+                setIP();
+            }
+        }
+    }
+
+    private void clickBack(){
+        if(STATE==LAUNCH_INFO){
+            launch_layout_machine.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.INVISIBLE);
+            loading.setVisibility(View.GONE);
+            STATE=LAUNCH;
         }
     }
 
     private void wifiClicked(){
         if(STATE==CONNECT){
-            if(ipAddress.getText().toString().isEmpty()){
+            if(connect_checkbox.isChecked()){
+                String ipDevice = getPublicIPAddress();
                 Log.i("MET", getPublicIPAddress());
-                ipAddress.setText(getPublicIPAddress());
+                ipAddress.setText(ipDevice.substring(0,ipDevice.length()-2));
             }else{
                 ipAddress.setText("");
+            }
+        }else if(STATE==LAUNCH){
+            if(launch_checkbox.isChecked()){
+                String ipDevice = getPublicIPAddress();
+                Log.i("MET", getPublicIPAddress());
+                ipAddress_launch.setText(ipDevice.substring(0,ipDevice.length()-2));
+            }else{
+                ipAddress_launch.setText("");
             }
         }
     }
 
 
     private void setIP() {
-        ipAddressCode = ipAddress.getText().toString();
-        portCode = port.getText().toString();
-       if(checkIPValid(ipAddressCode)){
+        if(checkIPValid(ipAddressCode)){
            Log.i("APP","change layout " + ipAddressCode);
            setContentView(R.layout.main);
            setControlButtons();
-       }
+        }
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void socketAvailable(String ip, String port) {
+        String url ="http://"+ip+":"+port;
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        final boolean[] result = new boolean[1];
+        final boolean[] answered = {false};
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // Display the first 500 characters of the response string.
+                Log.i("SER", "A response");
+                nextMachineInfoFromLaunch(false);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i("SER", "No response");
+                nextMachineInfoFromLaunch(true);
+            }
+        });
+        queue.add(stringRequest);
     }
 
     private boolean checkIPValid(String ip){
@@ -239,9 +369,113 @@ public class SettingIP extends AppCompatActivity  {
         translationOn = !translationOn;
     }
 
-    private void launchServer(){
+    @SuppressLint("StaticFieldLeak")
+    private void launchServer(final String user, final String password, final String host){
+        Log.i("LAU", "Start launch");
+        final boolean[] resultSSH = new boolean[1];
+        new AsyncTask<Integer, Void, String>(){
+            @Override
+            protected String doInBackground(Integer... params) {
+                try {
+                    resultSSH[0] = executeSSHcommand( user,  password,  host);
+                    Log.i("LAU", "Result in " + resultSSH[0]);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String result){
+                Log.i("APP", "Moving to result");
+                nextMachineInfo(resultSSH[0]);
+            }
+        }.execute(1);
 
     }
+
+    private boolean executeSSHcommand(String user, String password, String host){
+        Log.i("LAU", "Start ssh");
+        JSch jsch = new JSch();
+        Session session = null;
+        try {
+            session = jsch.getSession(user, host, 22);
+            session.setPassword(password);
+
+            Log.i("LAU", "Just ssh");
+            // Avoid asking for key confirmation
+            Properties prop = new Properties();
+            prop.put("StrictHostKeyChecking", "no");
+            session.setConfig(prop);
+            session.connect();
+
+            Log.i("LAU", "Session connected");
+
+            ChannelExec channel = (ChannelExec)session.openChannel("exec");
+
+            channel.setCommand("cd LG/3D_Visualization_API/; ./launch.sh -m -i " + ipAddressCode + " -p " + portCode);
+
+            InputStream commandOutput = channel.getExtInputStream();
+
+            StringBuilder outputBuffer = new StringBuilder();
+            StringBuilder errorBuffer = new StringBuilder();
+
+            InputStream in = channel.getInputStream();
+            InputStream err = channel.getExtInputStream();
+
+            channel.connect();
+            Log.i("LAU", "Channel connected");
+
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    outputBuffer.append(new String(tmp, 0, i));
+                    Log.i("LAU", "getting output: " + outputBuffer.toString());
+                    if(outputBuffer.toString().contains("listening on ")){
+                        Log.i("LAU", "get output: " + outputBuffer.toString());
+                        break;
+                    }
+                }
+                while (err.available() > 0) {
+                    int i = err.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    errorBuffer.append(new String(tmp, 0, i));
+                }
+                if (channel.isClosed() || outputBuffer.toString().contains("listening on ")) {
+                    Log.i("LAU", "output state: " + outputBuffer.toString());
+                    if ((in.available() > 0) || (err.available() > 0) &&
+                            !outputBuffer.toString().contains("listening on ")){
+                        Log.i("LAU","continue: " + channel.getExitStatus());
+                        continue;
+                    }
+                    Log.i("LAU","exit-status: " + channel.getExitStatus());
+                    break;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ee) {
+                }
+            }
+
+            Log.i("LAU", "output: " + outputBuffer.toString());
+            Log.i("LAU", "error: " + errorBuffer.toString());
+
+            channel.disconnect();
+            if(!errorBuffer.toString().isEmpty()){
+                return false;
+            }
+        } catch (JSchException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return true;
+    }
+
     private void translateUp(){
         mSocket.emit("serverMoveUp");
         Log.i("SER", "move up");
@@ -301,79 +535,9 @@ public class SettingIP extends AppCompatActivity  {
         Log.i("SER", "Disconnected");
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private void onClick11 (View v) {
-        new AsyncTask<Integer, Void, Void>(){
-            @Override
-            protected Void doInBackground(Integer... params) {
-                try {
-                    executeSSHcommand();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }.execute(1);
-    }
 
-    private void executeSSHcommand(){
-        String user = "pi";
-        String password = "raspberry";
-        String host = "192.168.0.1";
-        int port=22;
-        try{
-
-            JSch jsch = new JSch();
-            Session session = jsch.getSession(user, host, port);
-            session.setPassword(password);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.setTimeout(10000);
-            session.connect();
-            ChannelExec channel = (ChannelExec)session.openChannel("exec");
-            channel.setCommand("omxd n");
-            channel.connect();
-            channel.disconnect();
-
-        }
-        catch(JSchException e){
-
-        }
-    }
 
     public String getPublicIPAddress(){
-        /*String value = null;
-        ExecutorService es = Executors.newSingleThreadExecutor();
-        Future<String> result = es.submit(new Callable<String>() {
-            public String call() throws Exception {
-                try {
-                    URL url = new URL("http://whatismyip.akamai.com/");
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    try {
-                        InputStream in = new BufferedInputStream(urlConnection.getInputStream());
-                        BufferedReader r = new BufferedReader(new InputStreamReader(in));
-                        StringBuilder total = new StringBuilder();
-                        String line;
-                        while ((line = r.readLine()) != null) {
-                            total.append(line).append('\n');
-                        }
-                        urlConnection.disconnect();
-                        return total.toString();
-                    }finally {
-                        urlConnection.disconnect();
-                    }
-                }catch (IOException e){
-                    Log.e("Public IP: ",e.getMessage());
-                }
-                return null;
-            }
-        });
-        try {
-            value = result.get();
-        } catch (Exception e) {
-            // failed
-        }
-        es.shutdown();
-        return value;*/
         WifiManager wifiMgr = (WifiManager) this.getApplicationContext().getSystemService(WIFI_SERVICE);
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         int ip = wifiInfo.getIpAddress();
@@ -386,30 +550,20 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     private void setMenuButtons(){
+        STATE=CONNECT;
+
         nextButton = (Button) findViewById(R.id.next);
-        backButton = (Button) findViewById(R.id.back);
         launch_state_button = (Button) findViewById(R.id.launch);
         connect_state_button = (Button) findViewById(R.id.connect);
-        connect_layout = (LinearLayout) findViewById(R.id.connect_layout);
-        launch_layout = (LinearLayout) findViewById(R.id.launch_layout);
-        launch_layout_machine = (LinearLayout) findViewById(R.id.launch_layout_machine);
-        connect_checkbox = (CheckBox) findViewById(R.id.connected_Wifi_connect);
-        title_ip_connect = (TextView) findViewById(R.id.ip_connect);
-
-        ipAddress = (EditText) findViewById(R.id.ip);
-        port = (EditText) findViewById(R.id.port);
+        loading = (ProgressBar) findViewById(R.id.progressBar);
+        launch_state_button.setBackgroundColor(offColor);
+        connect_state_button.setBackgroundColor(visibleColor);
 
         nextButton.setOnClickListener(new OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View view) {
                 clickNext();
-            }
-        });
-
-        launch_state_button.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                switchStateToLaunch();
             }
         });
         connect_state_button.setOnClickListener(new OnClickListener() {
@@ -418,10 +572,63 @@ public class SettingIP extends AppCompatActivity  {
                 switchStateToConnect();
             }
         });
+        launch_state_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchStateToLaunch();
+            }
+        });
+
+        //Connect layout
+        connect_layout = (LinearLayout) findViewById(R.id.connect_layout);
+        connect_checkbox = (CheckBox) findViewById(R.id.connected_Wifi_connect);
+        ipAddress = (EditText) findViewById(R.id.ip);
+        port = (EditText) findViewById(R.id.port);
+        connect_layout.setVisibility(View.VISIBLE);
+
         connect_checkbox.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 wifiClicked();
+            }
+        });
+
+        //Launch layout
+        launch_layout = (LinearLayout) findViewById(R.id.launch_layout);
+        launch_checkbox = (CheckBox) findViewById(R.id.connected_Wifi_launch);
+        ipAddress_launch = (EditText) findViewById(R.id.ip_launch);
+        port_launch = (EditText) findViewById(R.id.port);
+        noMachines_edit = (EditText) findViewById(R.id.noMachines);
+        launch_layout.setVisibility(View.GONE);
+
+        launch_checkbox.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wifiClicked();
+            }
+        });
+
+        //Launch info layout
+        launch_layout_machine = (LinearLayout) findViewById(R.id.launch_layout_machine);
+        launch_checkbox_info = (CheckBox) findViewById(R.id.connected_Wifi);
+        hostname_launch_machine = (EditText) findViewById(R.id.host_name_machine);
+        ipAddress_launch_machine = (EditText) findViewById(R.id.ip_address_machine);
+        password_launch_machine = (EditText) findViewById(R.id.password_machine);
+        backButton = (Button) findViewById(R.id.back);
+        title_launch_machine = (TextView) findViewById(R.id.machine_title);
+        title_ip_launch_machine = (TextView) findViewById(R.id.machine_ip_title);
+        launch_layout_machine.setVisibility(View.GONE);
+
+        launch_checkbox_info.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wifiClicked();
+            }
+        });
+        backButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickBack();
             }
         });
     }

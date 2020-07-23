@@ -16,20 +16,26 @@ set_variable()
 #########################
 # Main script starts here
 
+FORPATH=$(bash --login -c 'env' | grep '^PATH=*')
+export $FORPATH
+
 MASTER='f'
 NUMBER_SOCKETS=1
-while getopts 'mi:p:n:h:' c
+IP_ADDRESS="localhost"
+PORT="3000"
+while getopts 'mi:p:n:h' c
 do
   case $c in
     m) set_variable MASTER 't' ;;
     i) set_variable IP_ADDRESS $OPTARG ;;
     p) set_variable PORT $OPTARG ;;
     n) set_variable NUMBER_SOCKETS $OPTARG ;;
-    h|?) usage ;; esac
+    h) usage ;; esac
 done
 
+
 if [ "$MASTER" == "t" ]; then
-    nodemon app & sleep 1 
+  node app $PORT & sleep 1 
 fi
 echo "here"
 DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}')

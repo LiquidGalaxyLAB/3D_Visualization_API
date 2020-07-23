@@ -2,13 +2,13 @@ const express = require('express')
 const app = express()
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const process = require('process');
 
 app.use(express.static('public'))
 
-
 app.get('/', function(req, res) {
    res.sendfile('index.html');
-   res.redirect('http://localhost:3000/');
+   res.redirect('http://localhost:'+process.argv[2]+'/');
 });
 app.get('/test', function(req, res) {
    res.send({json: 'sample'});
@@ -230,6 +230,6 @@ io.on('connection', function(socket) {
    });
 });
 
-http.listen(3000, function() {
-   console.log('listening on localhost:3000');
+http.listen(process.argv[2], function() {
+   console.log('listening on localhost:'+process.argv[2]);
 });
