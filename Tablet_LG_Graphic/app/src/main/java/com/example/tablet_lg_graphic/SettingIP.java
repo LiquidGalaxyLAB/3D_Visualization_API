@@ -476,7 +476,7 @@ public class SettingIP extends AppCompatActivity  {
                     if (i < 0) break;
                     outputBuffer.append(new String(tmp, 0, i));
                     Log.i("LAU", "getting output: " + outputBuffer.toString());
-                    if(outputBuffer.toString().contains("listening on ")){
+                    if(outputBuffer.toString().contains("Screen number "+noMachines + " connected")){
                         Log.i("LAU", "get output: " + outputBuffer.toString());
                         break;
                     }
@@ -486,10 +486,10 @@ public class SettingIP extends AppCompatActivity  {
                     if (i < 0) break;
                     errorBuffer.append(new String(tmp, 0, i));
                 }
-                if (channel.isClosed() || outputBuffer.toString().contains("listening on ")) {
+                if (channel.isClosed() || outputBuffer.toString().contains("Screen number "+noMachines + " connected")) {
                     Log.i("LAU", "output state: " + outputBuffer.toString());
                     if ((in.available() > 0) || (err.available() > 0) &&
-                            !outputBuffer.toString().contains("listening on ")){
+                            !outputBuffer.toString().contains("Screen number "+noMachines + " connected")){
                         Log.i("LAU","continue: " + channel.getExitStatus());
                         continue;
                     }

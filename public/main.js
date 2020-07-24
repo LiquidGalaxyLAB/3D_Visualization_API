@@ -85,7 +85,7 @@ axis.position.z = -10;
 function init(){
     if(!firstTime){
         socket.emit('disconnect');
-        location.reload();
+        //location.reload();
     }
     firstTime = false;  
      scene.add( camera );
