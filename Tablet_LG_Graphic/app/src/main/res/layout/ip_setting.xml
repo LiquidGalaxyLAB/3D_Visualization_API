@@ -206,6 +206,19 @@
             android:inputType="textPassword"
             android:singleLine="true" />
 
+        <TextView
+            android:id="@+id/path_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Path to project" />
+        <EditText
+            android:id="@+id/path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true" />
+
 
     </LinearLayout>
 
@@ -222,7 +235,7 @@
             android:layout_weight="1"
             android:background="@color/colorAccent"
             android:textColor="@color/white"
-            android:visibility="visible"
+            android:visibility="invisible"
             android:text="Back" />
         <Button
             android:id="@+id/next"
