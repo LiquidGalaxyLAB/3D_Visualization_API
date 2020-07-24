@@ -101,6 +101,49 @@
 
       var angleTilted = 0;
 
+      socket.on('moveUp', function(data) {
+         translateCamera(0, 0.5, 0)
+      });
+      socket.on('moveDown', function(data) {
+         translateCamera(0, -0.5, 0)
+      });
+      socket.on('moveLeft', function(data) {
+         translateCamera(-0.5, 0, 0)
+      });
+      socket.on('moveRight', function(data) {
+         translateCamera(0.5, 0, 0)
+      });
+      socket.on('moveForward', function(data) {
+         translateCamera(0, 0,-0.5)
+      });
+      socket.on('moveBackwards', function(data) {
+         translateCamera(0, 0, 0.5)
+      });
+
+      socket.on('rotateZPos', function(data) {
+         rotateCameraZ(3);
+      });
+      socket.on('rotateZNeg', function(data) {
+         rotateCameraZ(-3);
+      });
+      socket.on('rotateXPos', function(data) {
+         rotateCameraX(3);
+      });
+      socket.on('rotateXNeg', function(data) {
+         rotateCameraX(-3);
+      });
+      socket.on('rotateYPos', function(data) {
+         rotateCameraY(3);
+      });
+      socket.on('rotateYNeg', function(data) {
+         rotateCameraY(-3);
+      });
+
+      socket.on('resetCamera', function(data) {
+         angleCamera = angleCameraOr;
+         changeAngleCurrentToOriginalCamera(angleCamera);
+      });
+
       socket.on('moveKeySock', function(data) {
          // stopIm = true;
          // console.log(data)

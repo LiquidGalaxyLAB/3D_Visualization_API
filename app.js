@@ -2,13 +2,13 @@ const express = require('express')
 const app = express()
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const process = require('process');
 
 app.use(express.static('public'))
 
-
 app.get('/', function(req, res) {
    res.sendfile('index.html');
-   res.redirect('http://localhost:3000/');
+   res.redirect('http://localhost:'+process.argv[2]+'/');
 });
 app.get('/test', function(req, res) {
    res.send({json: 'sample'});
@@ -23,6 +23,8 @@ var startRight = true;
 var receivedConfirmation = [];
 io.on('connection', function(socket) {
    var id;
+   var isATablet = false;
+   console.log('New Connection');
    
    socket.emit('getWindowSize');
 
@@ -31,6 +33,7 @@ io.on('connection', function(socket) {
       noUsers++;
       id = noUsers;
 
+      socket.join('Window');
       var os = require('os');
       var ifaces = os.networkInterfaces();
 
@@ -51,7 +54,7 @@ io.on('connection', function(socket) {
                // this interface has only one ipv4 adress
                console.log('hey', ifname, iface.address);
 
-               angleToGo = (data.width - 500)/12.0357 + 54;
+               angleToGo = (data.width - 510)/4.0357 + 54;
                var angleThisSocket = Math.floor((id/2))*angleToGo;
                if(id%2 == 0){
                   angleThisSocket = -angleThisSocket;
@@ -73,7 +76,7 @@ io.on('connection', function(socket) {
       
       const interval = setInterval(function() {
          // console.log("synchronising")
-         io.sockets.emit('whatTime');
+         io.sockets.to('Window').emit('whatTime');
       }, 5000);
    })
 
@@ -94,7 +97,7 @@ io.on('connection', function(socket) {
 
    socket.on('currentTime', function(data) {
       // console.log("receive one " + receivedConfirmation)
-      io.sockets.emit('setCube', data);
+      io.sockets.to('Window').emit('setCube', data);
    })
 
    socket.on('confirmation', function(data) {
@@ -103,13 +106,55 @@ io.on('connection', function(socket) {
          receivedConfirmation.push(data);
          if(receivedConfirmation.length >= noUsers){
             receivedConfirmation = []
-            io.sockets.emit('start', data);
+            io.sockets.to('Window').emit('start', data);
          }
       }
    })
 
    socket.on('moveKeySend', function(data) {
-      io.sockets.emit('moveKeySock', data);
+      io.sockets.to('Window').emit('moveKeySock', data);
+   })
+
+   socket.on('serverMoveUp', function() {
+      io.sockets.to('Window').emit('moveUp');
+   })
+   socket.on('serverMoveDown', function() {
+      io.sockets.to('Window').emit('moveDown');
+   })
+   socket.on('serverMoveLeft', function() {
+      io.sockets.to('Window').emit('moveLeft');
+   })
+   socket.on('serverMoveRight', function() {
+      io.sockets.to('Window').emit('moveRight');
+   })
+   socket.on('serverMoveBackwards', function() {
+      io.sockets.to('Window').emit('moveBackwards');
+   })
+   socket.on('serverMoveForward', function() {
+      io.sockets.to('Window').emit('moveForward');
+   })
+
+   socket.on('serverRotateZPos', function() {
+      io.sockets.to('Window').emit('rotateZPos');
+   })
+   socket.on('serverRotateZNeg', function() {
+      io.sockets.to('Window').emit('rotateZNeg');
+   })
+   socket.on('serverRotateYPos', function() {
+      io.sockets.to('Window').emit('rotateYPos');
+   })
+   socket.on('serverRotateYNeg', function() {
+      io.sockets.to('Window').emit('rotateYNeg');
+   })
+   socket.on('serverRotateXPos', function() {
+      io.sockets.to('Window').emit('rotateXPos');
+   })
+   socket.on('serverRotateXNeg', function() {
+      io.sockets.to('Window').emit('rotateXNeg');
+   })
+
+   socket.on('serverResetCamera', function() {
+      io.sockets.to('Window').emit('resetCamera');
    })
 
    socket.on('updateIDReorganise', function(data) {
@@ -143,37 +188,48 @@ io.on('connection', function(socket) {
       console.log("mirror " + id)
    })
 
+   socket.on('signalTablet', function() {
+      isATablet = true;
+      console.log("It's a tablet")
+      socket.join('Tablet');
+   })
+
    socket.on('disconnect', (reason) => {
-      console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
-      // console.log(noUsers + " " + angleNext + " " + lookingRight);
-      noUsers--;
-      if(noUsers%2 ==0){ 
-         angleNext-=angleToGo; 
-         if(id%2 == 1){
+      console.log('Disconnection')
+      if(!isATablet){
+         console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
+      
+         // console.log(noUsers + " " + angleNext + " " + lookingRight);
+         noUsers--;
+         if(noUsers%2 ==0){ 
+            angleNext-=angleToGo; 
+            if(id%2 == 1){
+               lookingRight = -lookingRight;
+            }
+         }else{
             lookingRight = -lookingRight;
          }
-      }else{
-         lookingRight = -lookingRight;
-      }
-      console.log(noUsers + " " + angleNext + " " + lookingRight);
-
-      if(noUsers %2 == 1 && id%2 ==1){
-         io.sockets.emit('updateIDReorganise', id);
-         io.sockets.emit('updateIDReorganiseSock', {noUser:id, startRight:startRight});
-      }else{
-         io.sockets.emit('updateIDMove', id);
-         io.sockets.emit('updateIDMoveSock', id);
-
-         if(id%2==0 && noUsers%2==0){
-            io.sockets.emit('updateIDMirror');
-            io.sockets.emit('updateIDMirrorSock');
-            startRight = !startRight
+         console.log(noUsers + " " + angleNext + " " + lookingRight);
+   
+         if(noUsers %2 == 1 && id%2 ==1){
+            io.sockets.emit('updateIDReorganise', id);
+            io.sockets.emit('updateIDReorganiseSock', {noUser:id, startRight:startRight});
+         }else{
+            io.sockets.emit('updateIDMove', id);
+            io.sockets.emit('updateIDMoveSock', id);
+   
+            if(id%2==0 && noUsers%2==0){
+               io.sockets.emit('updateIDMirror');
+               io.sockets.emit('updateIDMirrorSock');
+               startRight = !startRight
+            }
          }
+         // io.sockets.emit('whatTime');
+      
       }
-      // io.sockets.emit('whatTime');
    });
 });
 
-http.listen(3000, function() {
-   console.log('listening on localhost:3000');
+http.listen(process.argv[2], function() {
+   console.log('listening on localhost:'+process.argv[2]);
 });
