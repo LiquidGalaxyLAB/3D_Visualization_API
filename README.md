@@ -58,6 +58,7 @@ The order of connection would still be the same.
 * left/right key → rotates around Y axis
 * up/down key → rotates around X axis
 * q/e → rotates arounds Z axis
+* h → shows help message
 
 ## Built With
 
