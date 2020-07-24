@@ -2,7 +2,8 @@ var vectorCamera;
 var firstTime = true;
 
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+// var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/5),  window.innerWidth / (window.innerWidth/5), window.innerHeight / (window.innerWidth/5), window.innerHeight / - (window.innerWidth/5), 0.1, 10 );
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
 var Z_AXIS = new THREE.Vector3( 0, 0, -1 );
@@ -78,7 +79,6 @@ cube3.position.z = -5;
 cube3.position.y = 0;
 cylinder.position.x = 0;
 cylinder.position.z = -10;
-cylinder.position.y = 0;
 
 axis.position.z = -10;
 
@@ -106,7 +106,15 @@ function init(){
     
     // cube.rotateZ(20*(Math.PI/180))
     howLong = 0;
+
+    // rotationSoFarX = 0;
+    // rotationSoFarY = 0;
+    // rotationSoFarZ = 0;
     // console.log(camera.getFilmWidth());
+    // var vector4 = renderer.getCurrentViewport(new THREE.Vector4());
+    // renderer.setViewport(vector4.setComponent(0, 200));
+    // console.log(renderer.getCurrentViewport(vector4))
+
 }
 
 var historyTransformation = [];
@@ -196,20 +204,21 @@ function getTranslations(){
 
 function setTranslations(array){
     for(const object of array){
-        var obj = scene.getObjectById(object.id);
+            var obj = scene.getObjectById(object.id);
+            // console.log(obj)
 
-        originalPositionObject[object.id] = object.pos
-        toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
-        obj.position.x = toTranslation[0];
-        obj.position.y = toTranslation[1];
-        obj.position.z = toTranslation[2];
-
-        originalRotationObject[object.id] = object.rot
-        executeRotation(obj, object.rot._x, object.rot._y, object.rot._z);
-
-        obj.scale.x = object.sca.x;
-        obj.scale.y = object.sca.y;
-        obj.scale.z = object.sca.z;
+            originalPositionObject[object.id] = object.pos
+            toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
+            obj.position.x = toTranslation[0];
+            obj.position.y = toTranslation[1];
+            obj.position.z = toTranslation[2];
+    
+            originalRotationObject[object.id] = object.rot
+            executeRotation(obj, object.rot._x, object.rot._y, object.rot._z);
+    
+            obj.scale.x = object.sca.x;
+            obj.scale.y = object.sca.y;
+            obj.scale.z = object.sca.z;
     }
 }
 

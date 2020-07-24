@@ -36,15 +36,17 @@
       socket.on('idSet', function(data) {
          // console.log(width)
          id = data.id;
-         angleCamera = data.angle;
+         // angleCamera = data.angle;
+         angleCamera = 0
          angleCameraOr = data.angle;
          positionCamera[0] = data.x;
          positionCamera[2] = data.z;
          positionCameraOr[0] = data.x;
          positionCameraOr[2] = data.z;
-         rotateVectorInit(angleCamera);
-         setCamera(positionCamera[0], 0, positionCamera[2]);
-         console.log(id + " " + angleCamera + " " + data.x + " " + data.ip);
+         // rotateVectorInit(angleCamera);
+         // translateCamera(angleCamera/2, 0,0);
+         setCamera(positionCamera[0]*100, 0, positionCamera[2]);
+         console.log(id + " " + angleCamera + " " + data.x);
          
          document.getElementById('ipAddress').innerHTML = data.ip;
          rotateCamera = true;
@@ -260,7 +262,7 @@
             }
          }
       }
-   </script>
+    </script>
    
    <body>
       <div id = "error-container"></div>
