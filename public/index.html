@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Graphical Liquid Galaxy API</title>
+      <style type="text/css">  
+         body { margin:0; }  
+     </style> 
+   </head>
+   <label id="ipAddress"> Hii</label>
+   <script src = "/socket.io/socket.io.js"></script>
+   <script src="https://threejs.org/build/three.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   <script>
+      
+
+      // $(document).ready(function(){
+      //    $("button").click(function(){
+      //       $.getJSON('http://gd.geobytes.com/GetCityDetails?callback=?', function(data) {
+      //          console.log(JSON.stringify(data, null, 2));
+      //       });
+      //    });
+      // });
+      const angleToGo = 55;
+      var socket = io();
+      var id;
+      var angleCamera;
+      var positionCamera = [0,0,0];
+      var angleCameraOr;
+      var positionCameraOr = [0,0,0];
+      var rotateCamera;
+      var stopIm;
+      var objectTransform = [];
+
+      var width ;
+      var height;
+      socket.on('idSet', function(data) {
+         // console.log(width)
+         id = data.id;
+         // angleCamera = data.angle;
+         angleCamera = 0
+         angleCameraOr = data.angle;
+         positionCamera[0] = data.x;
+         positionCamera[2] = data.z;
+         positionCameraOr[0] = data.x;
+         positionCameraOr[2] = data.z;
+         // rotateVectorInit(angleCamera);
+         // translateCamera(angleCamera/2, 0,0);
+         setCamera(positionCamera[0]*100, 0, positionCamera[2]);
+         console.log(id + " " + angleCamera + " " + data.x);
+         
+         document.getElementById('ipAddress').innerHTML = data.ip;
+         rotateCamera = true;
+         stopIm = false;
+         init();
+      });
+
+      socket.on('idReset', function(data) {
+         // console.log(width)
+         id = data.id;
+         angleCamera = data.angle;
+         angleCameraOr = data.angle;
+         positionCamera[0] = data.x;
+         positionCamera[2] = data.z;
+         positionCameraOr[0] = data.x;
+         positionCameraOr[2] = data.z;
+         rotateVectorInit(angleCamera);
+         setCamera(positionCamera[0], 0, positionCamera[2]);
+         console.log(id + " " + angleCamera + " " + data.x);
+         
+         rotateCamera = true;
+         stopIm = false;
+      });
+
+      socket.on('getWindowSize', function() {
+         width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+         height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
+         socket.emit('windowSize', {width: width, height: height});
+      });
+
+      socket.on('whatTime', function() {
+        if(id==1){
+         //   console.log("sending position ")
+           socket.emit('currentTime', {pos:getCubePosition(), trans: getTranslations()});
+           stopIm = true
+        }
+      });
+
+      socket.on('start', function(data) {
+         // console.log("Start ");
+         objectTransform = [];
+         stopIm = false;
+      });
+
+      socket.on('setCube', function(data) {
+            // console.log("setting positions");
+            stopIm = true;
+            setCubePosition(data.pos);
+            setTranslations(data.trans);
+            socket.emit('confirmation', id);
+      });
+
+      var angleTilted = 0;
+
+      socket.on('moveUp', function(data) {
+         translateCamera(0, 0.5, 0)
+      });
+      socket.on('moveDown', function(data) {
+         translateCamera(0, -0.5, 0)
+      });
+      socket.on('moveLeft', function(data) {
+         translateCamera(-0.5, 0, 0)
+      });
+      socket.on('moveRight', function(data) {
+         translateCamera(0.5, 0, 0)
+      });
+      socket.on('moveForward', function(data) {
+         translateCamera(0, 0,-0.5)
+      });
+      socket.on('moveBackwards', function(data) {
+         translateCamera(0, 0, 0.5)
+      });
+
+      socket.on('rotateZPos', function(data) {
+         rotateCameraZ(3);
+      });
+      socket.on('rotateZNeg', function(data) {
+         rotateCameraZ(-3);
+      });
+      socket.on('rotateXPos', function(data) {
+         rotateCameraX(3);
+      });
+      socket.on('rotateXNeg', function(data) {
+         rotateCameraX(-3);
+      });
+      socket.on('rotateYPos', function(data) {
+         rotateCameraY(3);
+      });
+      socket.on('rotateYNeg', function(data) {
+         rotateCameraY(-3);
+      });
+
+      socket.on('resetCamera', function(data) {
+         angleCamera = angleCameraOr;
+         changeAngleCurrentToOriginalCamera(angleCamera);
+      });
+
+      socket.on('moveKeySock', function(data) {
+         // stopIm = true;
+         // console.log(data)
+         if (data == 38) {
+            // up arrow
+            rotateCameraX(-3);
+            
+         }else if (data == 40) {
+            // down arrow
+            rotateCameraX(3);
+         }else if (data == 65) {
+            // a key --> moving left
+            translateCamera(-0.5, 0, 0)
+         }else if (data == 68) {
+            // d key --> moving right
+            translateCamera(0.5, 0, 0)
+         }else if (data == 87) {
+            // w key --> moving forward
+            translateCamera(0, 0, -0.5)
+         }else if (data == 83) {
+            // s key --> moving backwards
+            translateCamera(0, 0, 0.5)
+         }else if(data == 82){
+            // r key --> reset
+            angleCamera = angleCameraOr;
+            changeAngleCurrentToOriginalCamera(angleCamera);
+         }else if(data == 81){
+            //q key
+            rotateCameraZ(3);
+         }else if(data == 69){
+            //e key
+            rotateCameraZ(-3);
+         }else if(data == 37){
+            //left arrow
+            rotateCameraY(-3);
+         }else if(data == 39){
+            //right arrow
+            rotateCameraY(3);
+         }else if (data == 32) {
+            // space bar
+            translateCamera(0, 0.5, 0)
+         }else if (data == 88) {
+            // down arrow
+            translateCamera(0, -0.5, 0)
+         }else if (data == 72) {
+             // h key
+             showHelp();
+         }
+         // socket.emit('confirmation', id);
+      });
+
+      socket.on('updateIDReorganiseSock', function(data) {
+         // console.log("reorganise " + id)
+         if(id==2){
+            id = 1;
+            angleCamera = 0;
+         }
+         else if(id==1){
+            id = 3;
+            if(data.startRight){
+               angleCamera = angleToGo;
+            }else{
+               angleCamera = -angleToGo
+            }
+         }
+         else if(id%2 == 0){
+            id = id-2;
+            var angleAbs = Math.abs(angleCamera); 
+            var lookingAt = (angleCamera/angleAbs);
+            angleAbs-=angleToGo;
+            angleCamera = angleAbs*lookingAt;
+         }else{
+            if(data.noUser > id){
+               id += 2;
+               var angleAbs = Math.abs(angleCamera); 
+               var lookingAt = (angleCamera/angleAbs);
+               angleAbs+=angleToGo;
+               angleCamera = angleAbs*lookingAt;
+            }
+         }
+         rotateCamera = true;
+         // console.log("reorganise " + id)
+         socket.emit('updateIDReorganise', data.id);
+      })
+
+      socket.on('updateIDMoveSock', function(data) {
+         // console.log("move " + id)
+         if(data%2 == id%2 && id > data){
+            id -=2;
+            var angleAbs = Math.abs(angleCamera); 
+            var lookingAt = (angleCamera/angleAbs);
+            angleAbs-=angleToGo;
+            angleCamera = angleAbs*lookingAt;
+            rotateCamera = true;
+         }
+         // console.log("move " + id)
+         socket.emit('updateIDMove', data);
+      })
+
+      socket.on('updateIDMirrorSock', function() {
+         // console.log("mirror " + id)
+         if(id > 1){
+            if(id%2==1){
+               id--;
+            }else{
+               id++;
+            }
+         }
+         // console.log("mirror " + id)
+         socket.emit('updateIDMirror');
+      })
+
+      var ip;
+      document.onkeydown = function checkKey(e) {
+         e = e.keyCode;
+         // console.log("MOVING " + e);
+         
+         socket.emit('moveKeySend', e);
+      }
+
+      var mouseDown;
+      var mouseXBef;
+      var mouseYBef;
+      var howMuchMoved;
+      document.onmousedown = function checkMouse(e) {
+        
+         if(e.which != 3){
+            // console.log("mouse " + e.clientX);
+            mouseDown = true;
+            mouseXBef = e.clientX;
+            mouseYBef = e.clientY;
+         }
+         
+      }
+      document.onmouseup = function checkMouse() {
+         // console.log("mouse up");
+         mouseDown = false
+      }
+      
+      document.onmousemove = function checkMouse(e) {
+         if(mouseDown){
+            var howMuch = 50;
+            var a = 3;
+            // console.log("mouse dragging " + e.clientX);
+            if(Math.abs(e.clientX - mouseXBef) >=howMuch){
+               // console.log("moving X");
+               if(mouseXBef>e.clientX){
+                  a = -a
+               }
+               // socket.emit('rotateYServer', a);
+               // rotateCameraY(a);
+               mouseXBef = e.clientX;
+            }
+            if(Math.abs(e.clientY - mouseYBef) >=howMuch){
+               // console.log("moving Y");
+               if(mouseYBef>e.clientY){
+                  a = -a
+               }
+               // socket.emit('rotateXServer', a);
+               // rotateCameraX(a);
+               mouseYBef = e.clientY;
+            }
+         }
+      }
+    </script>
+   
+   <body>
+      <div id = "error-container"></div>
+      <script src="main.js"></script>
+      <div id="help-message"
+        style="display: none;position: absolute;top: 5%;left: 5%;color: white;font-family: sans-serif;background-color: #1e1e1e91;padding: 2%;">
+        <p>w → moves forwards (translate camera negatively on the Z axis)</p>
+        <p>s → moves backwards (translate camera positively on the Z axis)</p>
+        <p>a → moves left (translate camera negatively on the X axis)</p>
+        <p>d → moves right (translate camera positively on the X axis)</p>
+        <p>space bar → moves up (translate camera positively on the Y axis)</p>
+        <p>x → moves down (translate camera negatively on the Y axis)</p>
+        <p>left/right key → rotates around Y axis</p>
+        <p>up/down key → rotates around X axis</p>
+        <p>q/e → rotates arounds Z axis</p>
+        <p>h → show/hide this help message</p>
+    </div>
+   </body>
+</html>
