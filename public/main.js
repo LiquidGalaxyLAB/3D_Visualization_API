@@ -183,6 +183,9 @@ socket.on('moveKeySock', function(data) {
     }else if (data == 88) {
     // down arrow
     translateCamera(0, -0.5, 0)
+    }else if (data == 72) {
+        // h key
+        showHelp();
     }
     // socket.emit('confirmation', id);
 });
