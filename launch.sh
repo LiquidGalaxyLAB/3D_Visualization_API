@@ -2,7 +2,7 @@
 
 usage()
 {
-  echo "Usage: [-m] -i IP_ADDRESS -p PORT [-n NUMBER_SOCKETS] "
+  echo "Usage: [-m] [-i IP_ADDRESS <default: localhost>] [-p PORT  <default: 3000>] [-n NUMBER_SOCKETS] [-d DIRECTORY (where project is found inside public) <default: .>] "
   exit 2
 }
 
@@ -19,26 +19,30 @@ set_variable()
 unameOut="$(uname -s)"
 if [[ $unameOut == *"Darwin"* ]]; then
   FORPATH=$(bash --login -c 'env' | grep '^PATH=*')
+  # if [[ "$FORPATH" == *"node"* ]]; then
   export $FORPATH
+  # fi
 fi
 
 MASTER='f'
 NUMBER_SOCKETS=1
 IP_ADDRESS="localhost"
 PORT="3000"
-while getopts 'mi:p:n:h' c
+DIRECTORY="."
+while getopts 'mi:p:n:d:h' c
 do
   case $c in
     m) set_variable MASTER 't' ;;
     i) set_variable IP_ADDRESS $OPTARG ;;
     p) set_variable PORT $OPTARG ;;
     n) set_variable NUMBER_SOCKETS $OPTARG ;;
+    d) set_variable DIRECTORY $OPTARG ;;
     h) usage ;; esac
 done
 
 
 if [ "$MASTER" == "t" ]; then
-  node app $PORT & sleep 1 
+  node app $PORT $DIRECTORY & sleep 1 
 fi
 echo "here"
 

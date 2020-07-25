@@ -1,9 +1,319 @@
+const angleToGo = 55;
+var socket = io();
+var id;
+var angleCamera;
+var positionCamera = [0,0,0];
+var angleCameraOr;
+var positionCameraOr = [0,0,0];
+var stopIm;
+var objectTransform = [];
+var firstTimeSync;
+
+var width ;
+var height;
+
 var vectorCamera;
+
+socket.on('idSet', function(data) {
+    // console.log(width)
+    id = data.id;
+    // angleCamera = data.angle;
+    angleCamera = 0
+    angleCameraOr = data.angle;
+    positionCamera[0] = data.x;
+    positionCamera[2] = data.z;
+    positionCameraOr[0] = data.x;
+    positionCameraOr[2] = data.z;
+    // rotateVectorInit(angleCamera);
+    // translateCamera(angleCamera/2, 0,0);
+    setCamera(positionCamera[0]*100, 0, positionCamera[2]);
+    console.log(id + " " + angleCamera + " " + data.x);
+    
+    
+    rotateCameraAngle();
+    stopIm = false;
+    firstTimeSync = true;
+    init();
+});
+
+socket.on('idReset', function(data) {
+    // console.log(width)
+    id = data.id;
+    angleCamera = data.angle;
+    angleCameraOr = data.angle;
+    positionCamera[0] = data.x;
+    positionCamera[2] = data.z;
+    positionCameraOr[0] = data.x;
+    positionCameraOr[2] = data.z;
+    rotateVectorInit(angleCamera);
+    setCamera(positionCamera[0], 0, positionCamera[2]);
+    console.log(id + " " + angleCamera + " " + data.x);
+    
+    rotateCameraAngle();
+    stopIm = false;
+});
+
+socket.on('getWindowSize', function() {
+    width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+    height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
+    socket.emit('windowSize', {width: width, height: height});
+});
+
+socket.on('newWindow', function() {
+   firstTimeSync = true;
+});
+
+socket.on('whatTime', function() {
+if(id==1){
+    // console.log("sending position ")
+    socket.emit('currentTime', {trans: getTranslations()});
+    stopIm = true
+    doNothing();
+}
+});
+
+
+socket.on('start', function(data) {
+    // console.log("Start ");
+    objectTransform = [];
+    stopIm = false;
+});
+
+socket.on('setCube', function(data) {
+    // console.log("setting positions");
+    stopIm = true;
+    setTranslations(data.trans);
+    socket.emit('confirmation', id);
+    doNothing();
+});
+
+function doNothing(){
+    if(stopIm){
+    //console.log("waiting");
+    requestAnimationFrame(doNothing);
+    }
+}
+
+var angleTilted = 0;
+
+socket.on('moveUp', function(data) {
+    translateCamera(0, 0.5, 0)
+});
+socket.on('moveDown', function(data) {
+    translateCamera(0, -0.5, 0)
+});
+socket.on('moveLeft', function(data) {
+    translateCamera(-0.5, 0, 0)
+});
+socket.on('moveRight', function(data) {
+    translateCamera(0.5, 0, 0)
+});
+socket.on('moveForward', function(data) {
+    translateCamera(0, 0,-0.5)
+});
+socket.on('moveBackwards', function(data) {
+    translateCamera(0, 0, 0.5)
+});
+
+socket.on('rotateZPos', function(data) {
+    rotateCameraZ(3);
+});
+socket.on('rotateZNeg', function(data) {
+    rotateCameraZ(-3);
+});
+socket.on('rotateXPos', function(data) {
+    rotateCameraX(3);
+});
+socket.on('rotateXNeg', function(data) {
+    rotateCameraX(-3);
+});
+socket.on('rotateYPos', function(data) {
+    rotateCameraY(3);
+});
+socket.on('rotateYNeg', function(data) {
+    rotateCameraY(-3);
+});
+
+socket.on('resetCamera', function(data) {
+    angleCamera = angleCameraOr;
+    changeAngleCurrentToOriginalCamera(angleCamera);
+});
+
+socket.on('moveKeySock', function(data) {
+    // stopIm = true;
+    // console.log(data)
+    if (data == 38) {
+    // up arrow
+    rotateCameraX(-3);
+    
+    }else if (data == 40) {
+    // down arrow
+    rotateCameraX(3);
+    }else if (data == 65) {
+    // a key --> moving left
+    translateCamera(-0.5, 0, 0)
+    }else if (data == 68) {
+    // d key --> moving right
+    translateCamera(0.5, 0, 0)
+    }else if (data == 87) {
+    // w key --> moving forward
+    translateCamera(0, 0, -0.5)
+    }else if (data == 83) {
+    // s key --> moving backwards
+    translateCamera(0, 0, 0.5)
+    }else if(data == 82){
+    // r key --> reset
+    angleCamera = angleCameraOr;
+    changeAngleCurrentToOriginalCamera(angleCamera);
+    }else if(data == 81){
+    //q key
+    rotateCameraZ(3);
+    }else if(data == 69){
+    //e key
+    rotateCameraZ(-3);
+    }else if(data == 37){
+    //left arrow
+    rotateCameraY(-3);
+    }else if(data == 39){
+    //right arrow
+    rotateCameraY(3);
+    }else if (data == 32) {
+    // space bar
+    translateCamera(0, 0.5, 0)
+    }else if (data == 88) {
+    // down arrow
+    translateCamera(0, -0.5, 0)
+    }
+    // socket.emit('confirmation', id);
+});
+
+socket.on('updateIDReorganiseSock', function(data) {
+    // console.log("reorganise " + id)
+    if(id==2){
+    id = 1;
+    angleCamera = 0;
+    }
+    else if(id==1){
+    id = 3;
+    if(data.startRight){
+        angleCamera = angleToGo;
+    }else{
+        angleCamera = -angleToGo
+    }
+    }
+    else if(id%2 == 0){
+    id = id-2;
+    var angleAbs = Math.abs(angleCamera); 
+    var lookingAt = (angleCamera/angleAbs);
+    angleAbs-=angleToGo;
+    angleCamera = angleAbs*lookingAt;
+    }else{
+    if(data.noUser > id){
+        id += 2;
+        var angleAbs = Math.abs(angleCamera); 
+        var lookingAt = (angleCamera/angleAbs);
+        angleAbs+=angleToGo;
+        angleCamera = angleAbs*lookingAt;
+    }
+    }
+    rotateCameraAngle();
+    // console.log("reorganise " + id)
+    socket.emit('updateIDReorganise', data.id);
+})
+
+socket.on('updateIDMoveSock', function(data) {
+    // console.log("move " + id)
+    if(data%2 == id%2 && id > data){
+    id -=2;
+    var angleAbs = Math.abs(angleCamera); 
+    var lookingAt = (angleCamera/angleAbs);
+    angleAbs-=angleToGo;
+    angleCamera = angleAbs*lookingAt;
+    rotateCameraAngle();
+    }
+    // console.log("move " + id)
+    socket.emit('updateIDMove', data);
+})
+
+socket.on('updateIDMirrorSock', function() {
+    // console.log("mirror " + id)
+    if(id > 1){
+    if(id%2==1){
+        id--;
+    }else{
+        id++;
+    }
+    }
+    // console.log("mirror " + id)
+    socket.emit('updateIDMirror');
+})
+
+var ip;
+document.onkeydown = function checkKey(e) {
+    e = e.keyCode;
+    // console.log("MOVING " + e);
+    
+    socket.emit('moveKeySend', e);
+}
+
+var mouseDown;
+var mouseXBef;
+var mouseYBef;
+var howMuchMoved;
+document.onmousedown = function checkMouse(e) {
+
+    if(e.which != 3){
+    // console.log("mouse " + e.clientX);
+    mouseDown = true;
+    mouseXBef = e.clientX;
+    mouseYBef = e.clientY;
+    }
+    
+}
+document.onmouseup = function checkMouse() {
+    // console.log("mouse up");
+    mouseDown = false
+}
+
+document.onmousemove = function checkMouse(e) {
+    if(mouseDown){
+    var howMuch = 50;
+    var a = 3;
+    // console.log("mouse dragging " + e.clientX);
+    if(Math.abs(e.clientX - mouseXBef) >=howMuch){
+        // console.log("moving X");
+        if(mouseXBef>e.clientX){
+            a = -a
+        }
+        // socket.emit('rotateYServer', a);
+        // rotateCameraY(a);
+        mouseXBef = e.clientX;
+    }
+    if(Math.abs(e.clientY - mouseYBef) >=howMuch){
+        // console.log("moving Y");
+        if(mouseYBef>e.clientY){
+            a = -a
+        }
+        // socket.emit('rotateXServer', a);
+        // rotateCameraX(a);
+        mouseYBef = e.clientY;
+    }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 var firstTime = true;
 
 var scene = new THREE.Scene();
 // var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/5),  window.innerWidth / (window.innerWidth/5), window.innerHeight / (window.innerWidth/5), window.innerHeight / - (window.innerWidth/5), 0.1, 10 );
+var constant = 5;
+var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/constant),  window.innerWidth / (window.innerWidth/constant), window.innerHeight / (window.innerWidth/constant), window.innerHeight / - (window.innerWidth/constant), -30, 30 );
+scene.add( camera );
+
+vectorCamera = new THREE.Vector3( 0, 0, -1 );
+
 var Y_AXIS = new THREE.Vector3( 0, 1, 0 );
 var X_AXIS = new THREE.Vector3( 1, 0, 0 );
 var Z_AXIS = new THREE.Vector3( 0, 0, -1 );
@@ -15,106 +325,13 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-var lights = [];
-lights[ 0 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
-
-lights[ 0 ].position.set( 0, 10, 0 );
-lights[ 1 ].position.set( 10, 20, 10 );
-lights[ 2 ].position.set( - 10, - 20, - 10 );
-
-scene.add( lights[ 0 ] );
-scene.add( lights[ 1 ] );
-scene.add( lights[ 2 ] );
-
-var geometry = new THREE.BoxGeometry();
-var material = new THREE.MeshPhongMaterial( { color: 0x156289, emissive: 0xff2200, side: THREE.DoubleSide, flatShading: true } );
-var cube1 = new THREE.Mesh( geometry, material );
-var cube2 = new THREE.Mesh( geometry, material );
-var cube3 = new THREE.Mesh( geometry, material );
-
-var materialLine = new THREE.LineBasicMaterial({
-    color: 0x0000ff
-});
-
-var points = [];
-var length = 20; var step = 1; var cornerZ = length/2; var cornerX = -(length/2); howManyCells = 20/0.2; var heightGrid = -2;
-for(var i=0; i< howManyCells; i = i+2){
-    points.push( new THREE.Vector3( cornerX + (0.2*i), heightGrid, cornerZ ) );
-    points.push( new THREE.Vector3( cornerX + (0.2*i), heightGrid, cornerZ - length ) );
-    points.push( new THREE.Vector3( cornerX + (0.2*(i+1)), heightGrid, cornerZ - length ) );
-    points.push( new THREE.Vector3( cornerX + (0.2*(i+1)), heightGrid, cornerZ ) );
-}
-points.push( new THREE.Vector3( cornerX + (0.2*howManyCells), heightGrid, cornerZ ) );
-for(var i=0; i< howManyCells; i = i+2){
-    points.push( new THREE.Vector3( cornerX +length, heightGrid, cornerZ - length + (0.2*i) ) );
-    points.push( new THREE.Vector3( cornerX , heightGrid, cornerZ - length + (0.2*i)) );
-    points.push( new THREE.Vector3( cornerX, heightGrid, cornerZ - length + (0.2*(i+1))) );
-    points.push( new THREE.Vector3( cornerX + length, heightGrid, cornerZ - length + (0.2*(i+1))) );
-}
-
-
-var geometryLine = new THREE.BufferGeometry().setFromPoints( points );
-var line = new THREE.Line( geometryLine, materialLine );
-
-var materialAxis = new THREE.LineBasicMaterial({
-    color: 0x00ffff
-});
-var geometryAxis = new THREE.BufferGeometry().setFromPoints( [new THREE.Vector3(-10,-1.8, 0 ), new THREE.Vector3(10,-1.8, 0 )] );
-var axis = new THREE.Line( geometryAxis, materialAxis );
-
-var geometryCyl = new THREE.CylinderGeometry( 1, 1, 4, 32 );
-var materialCyl = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-var cylinder = new THREE.Mesh( geometryCyl, materialCyl );
-
-cube1.position.x = 0;
-cube1.position.z = -5;
-cube1.position.y = 0;
-cube2.position.x = 6;
-cube2.position.z = -5;
-cube2.position.y = 0;
-cube3.position.x = -6;
-cube3.position.z = -5;
-cube3.position.y = 0;
-cylinder.position.x = 0;
-cylinder.position.z = -10;
-
-axis.position.z = -10;
-
 function init(){
     if(!firstTime){
         socket.emit('disconnect');
         //location.reload();
     }
-    firstTime = false;  
-     scene.add( camera );
-     scene.add( cube1 );
-     scene.add( cube2 );
-     scene.add( cube3 );
-     scene.add( cylinder );
-     scene.add(line);
-     scene.add(axis);
-
-    if(rotateCamera == null){
-        rotateCamera = false
-    }if(angleCamera == null){
-        angleCamera = false
-    }
-    
+    firstTime = false;
     window.addEventListener( 'resize', onWindowResize, false );
-    
-    // cube.rotateZ(20*(Math.PI/180))
-    howLong = 0;
-
-    // rotationSoFarX = 0;
-    // rotationSoFarY = 0;
-    // rotationSoFarZ = 0;
-    // console.log(camera.getFilmWidth());
-    // var vector4 = renderer.getCurrentViewport(new THREE.Vector4());
-    // renderer.setViewport(vector4.setComponent(0, 200));
-    // console.log(renderer.getCurrentViewport(vector4))
-
 }
 
 var historyTransformation = [];
@@ -122,32 +339,12 @@ var originalPositionObject = {};
 var originalRotationObject = {};
 
 var angleBef = 0;
-var animate = function () {
-    requestAnimationFrame( animate );
 
-    if(!stopIm){
-        if(rotateCamera){
-            camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
-            camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
-            // X_AXIS_camera.applyAxisAngle(Y_AXIS, degreesToRadians(angleCamera));
-            rotateCamera = false;
-            angleBef = angleCamera
-        }
-        
-        var rotation = getOriginalRotationObject(cylinder)
-        rotate(cylinder, rotation.x+ degreesToRadians(2), rotation.y, rotation.z);
-        var position = getOriginalPositionObject(cylinder)
-        addTranslation(cylinder, 0.05, 0, 0);
-        
-
-        if(getOriginalPositionObject(cylinder).x > 10){
-            var position = getOriginalPositionObject(cylinder)
-            translate(cylinder, -position.x, position.y, position.z);
-        } 
-        renderer.render( scene, camera );
-    }
-};
-animate();
+function rotateCameraAngle(){
+    camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
+    camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
+    angleBef = angleCamera
+}
 
 var toTranslation
 function translate(object, translateX, translateY, translateZ){
@@ -164,7 +361,7 @@ function translate(object, translateX, translateY, translateZ){
 }
 
 function addTranslation(object, translateX, translateY, translateZ){
-    var position = getOriginalPositionObject(cylinder)
+    var position = getOriginalPositionObject(object)
     translate(object, position.x+translateX, position.y+translateY, position.z+translateZ);
 }
 
@@ -173,7 +370,6 @@ function rotate(object, angleX, angleY, angleZ){
     originalRotationObject[object.id] = {x: angleX, y: angleY, z: angleZ};
 
     executeRotation(object, angleX, angleY, angleZ);
-        
     if(id == 1 && objectTransform.indexOf(object.id) == -1){
         objectTransform.push(object.id);
     }
@@ -196,29 +392,59 @@ function scale(object, scaleX, scaleY, scaleZ){
 
 function getTranslations(){
     var toSend = [];
-    for(const id of  objectTransform){
-        toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale});
+    if(firstTimeSync){
+        console.log("synchronising first");
+        var children = scene.children;
+
+        for(i = 0; i< children.length; i++){
+            if((children[i] instanceof THREE.Camera) == false){
+                if((children[i] instanceof THREE.Points) == false){
+                    toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), sca: children[i].scale});
+                }else{
+                    toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), sca: children[i].scale, geo: children[i].geometry.attributes.position.array});
+                }
+            }
+        }
+        firstTimeSync=false
+    }else{
+        for(const id of  objectTransform){
+            if((scene.getObjectById(id) instanceof THREE.Points) == false){
+                toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale});
+            }else{
+                toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale, geo: scene.getObjectById(id).geometry.attributes.position.array});
+            }
+        }
     }
+    
     return toSend;
 }
 
 function setTranslations(array){
     for(const object of array){
-            var obj = scene.getObjectById(object.id);
-            // console.log(obj)
+        // console.log(object)
+        var obj = scene.getObjectById(object.id);
+        // console.log(obj)
+        originalPositionObject[object.id] = object.pos
+        toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
+        obj.position.x = toTranslation[0];
+        obj.position.y = toTranslation[1];
+        obj.position.z = toTranslation[2];
 
-            originalPositionObject[object.id] = object.pos
-            toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
-            obj.position.x = toTranslation[0];
-            obj.position.y = toTranslation[1];
-            obj.position.z = toTranslation[2];
-    
-            originalRotationObject[object.id] = object.rot
-            executeRotation(obj, object.rot._x, object.rot._y, object.rot._z);
-    
-            obj.scale.x = object.sca.x;
-            obj.scale.y = object.sca.y;
-            obj.scale.z = object.sca.z;
+        originalRotationObject[object.id] = object.rot;
+
+        executeRotation(obj, object.rot.x, object.rot.y, object.rot.z);
+
+        obj.scale.x = object.sca.x;
+        obj.scale.y = object.sca.y;
+        obj.scale.z = object.sca.z;
+        if((obj instanceof THREE.Points) == true){
+            var positions = obj.geometry.attributes.position.array;
+            for(var i = 0; i<positions.length; i++){
+                positions[i] = object.geo[i]; 
+            }
+            // obj.geometry.attributes.position.array = object.geo;
+            obj.geometry.attributes.position.needsUpdate = true;
+        }
     }
 }
 
@@ -280,7 +506,6 @@ function executeRotation(object, angleX, angleY, angleZ){
                 object.rotateOnWorldAxis(Z_AXIS, historyTransformation[k].rot.z);
             }
         }
-        
     }
 }
 
@@ -301,16 +526,8 @@ function degreesToRadians(degrees){
 function radiansToDegrees(radians){
     var pi = Math.PI;
     return radians * (180/pi);
-  }
+}
 
-function getCubePosition(){
-    return cube1.position;
-}
-function setCubePosition(position){
-    cube1.position.x = position.x;
-    cube1.position.y = position.y;
-    cube1.position.z = position.z;
-}
 
 function setCamera(posx, posy, posz) {
     camera.position.x = posx
@@ -332,10 +549,11 @@ function getOriginalPositionObject(object){
 }
 
 function getOriginalRotationObject(object){
-    if(originalRotationObject[object.id] != null){
+    if(originalRotationObject[object.id] != null && originalRotationObject[object.id] != undefined){
         return originalRotationObject[object.id];
     }else{
-        return object.rotation;
+        // console.log("no rotation")
+        return {x: object.rotation.x, y: object.rotation.y, z: object.rotation.z};
     }
 }
 

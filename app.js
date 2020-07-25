@@ -4,15 +4,14 @@ var http = require('http').Server(app);
 var io = require('socket.io')(http);
 const process = require('process');
 
+app.use(express.static('public/'+process.argv[3]))
 app.use(express.static('public'))
 
 app.get('/', function(req, res) {
-   res.sendfile('index.html');
+   res.sendFile(__dirname + '/public/'+process.argv[3]+'/index.html');
    res.redirect('http://localhost:'+process.argv[2]+'/');
 });
-app.get('/test', function(req, res) {
-   res.send({json: 'sample'});
-});
+
 var angleToGo;
 const separation = 0.1
 var noUsers = 0;
@@ -64,6 +63,7 @@ io.on('connection', function(socket) {
                socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
                                     x: separation * (-(angleThisSocket)/angleToGo),
                                     z: 0, ip: iface.address});
+               io.sockets.to('Window').emit('newWindow');
             }
             ++alias;
          });

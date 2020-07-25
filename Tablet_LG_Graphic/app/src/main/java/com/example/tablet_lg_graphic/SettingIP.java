@@ -84,6 +84,7 @@ public class SettingIP extends AppCompatActivity  {
     private EditText hostname_launch_machine;
     private EditText password_launch_machine;
     private EditText path_machine;
+    private EditText noSockets_machine;
     private CheckBox launch_checkbox_info;
     private TextView title_launch_machine;
     private TextView title_ip_launch_machine;
@@ -104,12 +105,16 @@ public class SettingIP extends AppCompatActivity  {
 
     private Button goBack;
     private Button reset;
+    private Button kill;
     private Button switchRotTrans;
     private ProgressBar loading;
 
 
     private String ipAddressCode;
     private String portCode;
+    private String username_master;
+    private String password_master;
+    private String path_master;
     private int noMachines;
     private int howManyMachinesAsked;
 
@@ -183,10 +188,12 @@ public class SettingIP extends AppCompatActivity  {
             }
         }else{
             loading.setVisibility(View.VISIBLE);
-            launchServer(hostname_launch_machine.getText().toString(),
-                    password_launch_machine.getText().toString(),
-                    ipAddress_launch_machine.getText().toString(),
-                    path_machine.getText().toString(),
+            username_master = hostname_launch_machine.getText().toString();
+            password_master = password_launch_machine.getText().toString();
+            path_master =  path_machine.getText().toString();
+            launchServer(username_master, password_master,
+                    ipAddress_launch_machine.getText().toString(), path_master,
+                    Integer.parseInt(noSockets_machine.getText().toString()),
                     howManyMachinesAsked==0);
             //setIP();
         }
@@ -199,7 +206,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "Going to controls");
             ipAddress.setError(null);
             port.setError(null);
-            setIP();
+            setIP(false);
         }else{
             Log.i("APP", "Error, no open server");
             ipAddress.setError("No open project");
@@ -249,7 +256,7 @@ public class SettingIP extends AppCompatActivity  {
 
             }else {
                 Log.i("APP", "Going to set IP");
-                setIP();
+                setIP(true);
             }
         }
     }
@@ -293,11 +300,11 @@ public class SettingIP extends AppCompatActivity  {
     }
 
 
-    private void setIP() {
+    private void setIP(boolean hasLaunched) {
         if(checkIPValid(ipAddressCode)){
            Log.i("APP","change layout " + ipAddressCode);
            setContentView(R.layout.main);
-           setControlButtons();
+           setControlButtons(hasLaunched);
         }
     }
 
@@ -406,14 +413,14 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void launchServer(final String user, final String password, final String host, final String path, final boolean isMaster){
+    private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster){
         Log.i("LAU", "Start launch");
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
             @Override
             protected String doInBackground(Integer... params) {
                 try {
-                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, isMaster);
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, noSockets, isMaster, false);
                     Log.i("LAU", "Result in " + resultSSH[0]);
 
                 } catch (Exception e) {
@@ -431,7 +438,34 @@ public class SettingIP extends AppCompatActivity  {
 
     }
 
-    private boolean executeSSHcommand(String user, String password, String host, String path, boolean isMaster){
+    @SuppressLint("StaticFieldLeak")
+    private void killServer(final String user, final String password, final String host, final String path){
+        Log.i("LAU", "Start launch");
+        final boolean[] resultSSH = new boolean[1];
+        new AsyncTask<Integer, Void, String>(){
+            @Override
+            protected String doInBackground(Integer... params) {
+                try {
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, 0,true, true);
+                    Log.i("LAU", "Result in " + resultSSH[0]);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String result){
+                Log.i("APP", "Moving to result");
+                loading.setVisibility(View.VISIBLE);
+                backToSetIP();
+            }
+        }.execute(1);
+
+    }
+
+    private boolean executeSSHcommand(String user, String password, String host, String path, int noSockets, boolean isMaster, boolean killServer){
         Log.i("LAU", "Start ssh");
         JSch jsch = new JSch();
         Session session = null;
@@ -450,12 +484,21 @@ public class SettingIP extends AppCompatActivity  {
 
             ChannelExec channel = (ChannelExec)session.openChannel("exec");
 
+            int indexPublic=path.indexOf("public");
+            String projectDir = path.substring(indexPublic+6);
+            String projectDirToChange = path.substring(0, indexPublic);
+            String finalCommand = "cd " + projectDirToChange +"; ./launch.sh -i " + ipAddressCode + " -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
             if(isMaster){
-                channel.setCommand("cd " + path +"; ./launch.sh -m -i " + ipAddressCode + " -p " + portCode);
+                if(killServer){
+                    finalCommand = "cd " + projectDirToChange +"; ./killServer.sh";
+                }else{
+                    finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -i " + ipAddressCode + " -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
+                }
                 //channel.setCommand("ls");
-            }else{
-                channel.setCommand("cd " + path +"; ./launch.sh -i " + ipAddressCode + " -p " + portCode);
             }
+
+            Log.i("SSH", "Command to run "+ finalCommand);
+            channel.setCommand(finalCommand);
 
 
             InputStream commandOutput = channel.getExtInputStream();
@@ -486,7 +529,7 @@ public class SettingIP extends AppCompatActivity  {
                     if (i < 0) break;
                     errorBuffer.append(new String(tmp, 0, i));
                 }
-                if (channel.isClosed() || outputBuffer.toString().contains("Screen number "+noMachines + " connected")) {
+                if (channel.isClosed() || outputBuffer.toString().contains("Screen number "+noMachines + " connected" )) {
                     Log.i("LAU", "output state: " + outputBuffer.toString());
                     if ((in.available() > 0) || (err.available() > 0) &&
                             !outputBuffer.toString().contains("Screen number "+noMachines + " connected")){
@@ -662,6 +705,8 @@ public class SettingIP extends AppCompatActivity  {
         backButton = (Button) findViewById(R.id.back);
         title_launch_machine = (TextView) findViewById(R.id.machine_title);
         title_ip_launch_machine = (TextView) findViewById(R.id.machine_ip_title);
+        noSockets_machine = (EditText) findViewById(R.id.noSockets);
+
         launch_layout_machine.setVisibility(View.GONE);
 
         launch_checkbox_info.setOnClickListener(new OnClickListener() {
@@ -678,7 +723,7 @@ public class SettingIP extends AppCompatActivity  {
         });
     }
 
-    private void setControlButtons(){
+    private void setControlButtons( boolean hasLaunched){
 
         translationOn = true;
 
@@ -697,8 +742,22 @@ public class SettingIP extends AppCompatActivity  {
         rotZNeg = (Button)  findViewById(R.id.rotZNegBut);
 
         goBack = (Button)  findViewById(R.id.back);
+        kill = (Button)  findViewById(R.id.kill);
         reset = (Button)  findViewById(R.id.reset);
         switchRotTrans = (Button)  findViewById(R.id.switchTrans);
+        loading = (ProgressBar) findViewById(R.id.progressBar);
+        if(hasLaunched){
+            kill.setVisibility(View.VISIBLE);
+        }else{
+            kill.setVisibility(View.GONE);
+        }
+        kill.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loading.setVisibility(View.VISIBLE);
+                killServer(username_master, password_master, ipAddressCode, path_master );
+            }
+        });
         goBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
