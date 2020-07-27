@@ -2,7 +2,7 @@
 
 usage()
 {
-  echo "Usage: [-m] [-i IP_ADDRESS <default: localhost>] [-p PORT  <default: 3000>] [-n NUMBER_SOCKETS] [-d DIRECTORY (where project is found inside public) <default: .>] "
+  echo "Usage: [-m] [-i IP_ADDRESS <default: localhost>] [-p PORT  <default: 3000>] [-n NUMBER_SOCKETS] [-t HEIGHT] [-w WIDTH] [-d DIRECTORY <default: .>] "
   exit 2
 }
 
@@ -24,12 +24,22 @@ if [[ $unameOut == *"Darwin"* ]]; then
   # fi
 fi
 
+if [[ $unameOut == *"MINGW"* ]]; then
+  DIMENSIONS=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution | sed -n '3p')
+  WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}')
+  HEIGHT=$(echo $DIMENSIONS | head -n1 | awk '{print $2;}')
+else
+  DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}')
+  WIDTH=$(echo $DIMENSIONS | sed -E 's/x.*//')
+  HEIGHT=$(echo $DIMENSIONS | sed -E 's/.*x//')
+fi
+
 MASTER='f'
 NUMBER_SOCKETS=1
 IP_ADDRESS="localhost"
 PORT="3000"
 DIRECTORY="."
-while getopts 'mi:p:n:d:h' c
+while getopts 'mi:p:n:d:t:w:h' c
 do
   case $c in
     m) set_variable MASTER 't' ;;
@@ -37,6 +47,8 @@ do
     p) set_variable PORT $OPTARG ;;
     n) set_variable NUMBER_SOCKETS $OPTARG ;;
     d) set_variable DIRECTORY $OPTARG ;;
+    t) set_variable HEIGHT $OPTARG ;;
+    w) set_variable WIDTH $OPTARG ;;
     h) usage ;; esac
 done
 
@@ -47,15 +59,7 @@ fi
 echo "here"
 
 
-if [[ $unameOut == *"MINGW"* ]]; then
-  DIMENSIONS=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution | sed -n '3p')
-  WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}')
-  HEIGHT=$(echo $DIMENSIONS | head -n1 | awk '{print $2;}')
-else
-  DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}')
-  WIDTH=$(echo $DIMENSIONS | sed -E 's/x.*//')
-  HEIGHT=$(echo $DIMENSIONS | sed -E 's/.*x//')
-fi
+
 echo $WIDTH
 echo $HEIGHT
 n=1

@@ -316,6 +316,7 @@ public class SettingIP extends AppCompatActivity  {
         final boolean[] result = new boolean[1];
         final boolean[] answered = {false};
         // Request a string response from the provided URL.
+        Log.i("SER", "Trying " + url);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
         new Response.Listener<String>() {
             @Override
@@ -670,7 +671,7 @@ public class SettingIP extends AppCompatActivity  {
         connect_layout = (LinearLayout) findViewById(R.id.connect_layout);
         connect_checkbox = (CheckBox) findViewById(R.id.connected_Wifi_connect);
         ipAddress = (EditText) findViewById(R.id.ip);
-        port = (EditText) findViewById(R.id.port);
+        port = (EditText) findViewById(R.id.port_connect);
         connect_layout.setVisibility(View.VISIBLE);
 
         connect_checkbox.setOnClickListener(new OnClickListener() {
