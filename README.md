@@ -49,7 +49,7 @@ Multiple browsers in a single machine
 $ ./launch.sh -m -n 3 -d examples/objects
 ```
 And it should look like:
-![Alt text](objects.png?raw=true "objects example project")
+![Alt text](img/objects.png?raw=true "objects example project")
 
 #### Running project in multiple machines
 In a specific port.
@@ -65,7 +65,7 @@ $ ./launch.sh -i <ip_central> -p 3333 -d examples/cylinder
 ```
 
 Remember that the order to launch rpojects should be the following:
-![Alt text](orderConnecting.png?raw=true "Order for connection of browsers")
+![Alt text](img/orderConnecting.png?raw=true "Order for connection of browsers")
 
 ## How to create new project using this API
 
@@ -132,16 +132,16 @@ If there is problems running the last command try typing npm install -g nodemon
 
 #### Connect to an already running server
 
-<img src="connect.png" width="230">
+<img src="img/connect.png" width="230">
 
 To connect to an already running server click on the top screen in the android app. All the information that is asked on this section refers to the machine where the server is ran. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed.
 
 #### Launch a server server
-<img src="launch.png" width="230">
+<img src="img/launch.png" width="230">
 
 To launch a server in a machine click on the top screen in the android app. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed., the IP Address needs to be the one of the central machine (the master).
 
-<img src="launch_info.png" width="230">
+<img src="img/launch_info.png" width="230">
 
 Fill the information appropriately for each machine.
 
@@ -159,7 +159,7 @@ Fill the information appropriately for each machine.
 * h → shows help message
 
 ### In the android app
-<img src="controls.png" width="230">
+<img src="img/controls.png" width="230">
 
 To mode of the arrows (translate and rotate) is represented in the botton right of the screen. To switch press the same buttons. 
 
