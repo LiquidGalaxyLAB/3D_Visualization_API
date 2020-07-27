@@ -78,9 +78,9 @@ Remember that the order to launch rpojects should be the following:
 ```
 3. Include tag inside the body with the right path to the 'main.js' file inside the public folder:
 ```
-<script src="../../main.js"></script>
+<script src="main.js"></script>
 ```
-4. Any other JS files in the public folder.
+4. Any other JS files need to be in the public folder.
 
 ## API reference
 
@@ -124,25 +124,25 @@ If there is problems running the last command try typing npm install -g nodemon
 * Being able to SSH to machine. Usual ways to enable ssh in:
   * Windows: Install OPENSSH
   * Mac: Switch remote login on in system preferences/share
-* Android device with KitKat version
+* Android device with at least the KitKat version
 
-* Download the app in :https://drive.google.com/file/d/1KKIPta6niZPKwx3xEmm7bf7df0KcdDDg/view?usp=sharing
+* Download the app i: https://drive.google.com/file/d/1KKIPta6niZPKwx3xEmm7bf7df0KcdDDg/view?usp=sharing
 
 ### How to use
 
 #### Connect to an already running server
 
-![Alt text](connect.png?raw=true "Connect screen")
+![Alt text](connect.png?width=150 "Connect screen" )
 
 To connect to an already running server click on the top screen in the android app. All the information that is asked on this section refers to the machine where the server is ran. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed.
 
 #### Launch a server server
 
-![Alt text](launch.png?raw=true "Launch first screen")
+![Alt text](launch.png?width=150 "Launch first screen")
 
 To launch a server in a machine click on the top screen in the android app. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed., the IP Address needs to be the one of the central machine (the master).
 
-![Alt text](launch_info.png?raw=true "Launch machine info screen")
+![Alt text](launch_info.png?width=150 "Launch machine info screen")
 
 Fill the information appropriately for each machine.
 
@@ -160,7 +160,7 @@ Fill the information appropriately for each machine.
 * h → shows help message
 
 ### In the android app
-![Alt text](controls.png?raw=true "Controls screen")
+![Alt text](controls.png?width=150 "Controls screen")
 
 To mode of the arrows (translate and rotate) is represented in the botton right of the screen. To switch press the same buttons. 
 
