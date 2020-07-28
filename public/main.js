@@ -17,8 +17,9 @@ var vectorCamera;
 socket.on('idSet', function(data) {
     // console.log(width)
     id = data.id;
-    // angleCamera = data.angle;
-    angleCamera = 0
+    angleCamera = data.angle;
+    // angleCamera = (window.width/window.height) *100
+    // angleCamera = 0
     angleCameraOr = data.angle;
     positionCamera[0] = data.x;
     positionCamera[2] = data.z;
@@ -26,7 +27,7 @@ socket.on('idSet', function(data) {
     positionCameraOr[2] = data.z;
     // rotateVectorInit(angleCamera);
     // translateCamera(angleCamera/2, 0,0);
-    setCamera(positionCamera[0]*100, 0, positionCamera[2]);
+    setCamera(positionCamera[0], 0, positionCamera[2]);
     console.log(id + " " + angleCamera + " " + data.x);
     
     
@@ -310,9 +311,13 @@ document.onmousemove = function checkMouse(e) {
 var firstTime = true;
 
 var scene = new THREE.Scene();
-// var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-var constant = 5;
-var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/constant),  window.innerWidth / (window.innerWidth/constant), window.innerHeight / (window.innerWidth/constant), window.innerHeight / - (window.innerWidth/constant), -30, 30 );
+// var constant = 5;
+// var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/constant),  window.innerWidth / (window.innerWidth/constant), window.innerHeight / (window.innerWidth/constant), window.innerHeight / - (window.innerWidth/constant), -30, 30 );
+var aspectRatio = window.innerWidth / window.innerHeight;
+console.log(window.innerWidth)
+console.log( window.innerHeight)
+console.log(aspectRatio)
+var camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000 );
 scene.add( camera );
 
 vectorCamera = new THREE.Vector3( 0, 0, -1 );
@@ -516,6 +521,10 @@ function executeRotation(object, angleX, angleY, angleZ){
 function onWindowResize() {
     width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     height = window.innerHeight|| document.documentElement.clientHeight||  document.body.clientHeight;
+    var aspectRatio = width / height;
+    console.log(width)
+    console.log(height)
+    console.log(aspectRatio)
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize( window.innerWidth, window.innerHeight );

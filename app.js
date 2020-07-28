@@ -53,7 +53,13 @@ io.on('connection', function(socket) {
                // this interface has only one ipv4 adress
                console.log('hey', ifname, iface.address);
 
-               angleToGo = (data.width - 510)/4.0357 + 54;
+               console.log()
+               // angleToGo = (data.width/data.height)*(13/0.18);
+               // angleToGo = 106.5;
+               var aspect = data.width/data.height;
+               // angleToGo= 76.2734+52.236*Math.log(aspect);
+               angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
+               // angleToGo=117.3817/(1+5.2352*Math.exp(-2.211*aspect));
                var angleThisSocket = Math.floor((id/2))*angleToGo;
                if(id%2 == 0){
                   angleThisSocket = -angleThisSocket;
@@ -81,8 +87,9 @@ io.on('connection', function(socket) {
    })
 
    socket.on('windowResize', function(data) {
-
-      angleToGo = (data.width - 500)/12.0357 + 54;
+      var aspect = data.width/data.height;
+      angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
+      
       var angleThisSocket = Math.floor((id/2))*angleToGo;
       if(id%2 == 0){
          angleThisSocket = -angleThisSocket;
