@@ -59,13 +59,21 @@ On central machine with an ip addres <ip_central>:
 $ ./launch.sh -m -p 3333 -d examples/cylinder
 ```
 
-On the rest of machines:
+On the rest of machines, if you have cloned the repository you can:
 ```
 $ ./launch.sh -i <ip_central> -p 3333 -d examples/cylinder
 ```
+If you have not cloned the repository then you can open a browser and go to http://<ip_central>:3000
 
 Remember that the order to launch rpojects should be the following:
 ![Alt text](img/orderConnecting.png?raw=true "Order for connection of browsers")
+
+### Killing  the server
+
+If you run the launch.sh script and you want to be able to kill the server to run a different project then you can run:
+```
+$ ./killServer.sh
+```
 
 ## How to create new project using this API
 
