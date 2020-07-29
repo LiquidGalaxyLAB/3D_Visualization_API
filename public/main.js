@@ -31,7 +31,7 @@ socket.on('idSet', function(data) {
     console.log(id + " " + angleCamera + " " + data.x);
     
     
-    rotateCameraAngle();
+    rotateCameraAngle(angleCamera);
     stopIm = false;
     firstTimeSync = true;
     init();
@@ -50,7 +50,7 @@ socket.on('idReset', function(data) {
     setCamera(positionCamera[0], 0, positionCamera[2]);
     console.log(id + " " + angleCamera + " " + data.x);
     
-    rotateCameraAngle();
+    rotateCameraAngle(angleCamera);
     stopIm = false;
 });
 
@@ -140,6 +140,10 @@ socket.on('resetCamera', function(data) {
     changeAngleCurrentToOriginalCamera(angleCamera);
 });
 
+socket.on('switchCamera', function(data) {
+    callSwtich2Camera();
+});
+
 socket.on('moveKeySock', function(data) {
     // stopIm = true;
     // console.log(data)
@@ -187,6 +191,9 @@ socket.on('moveKeySock', function(data) {
     }else if (data == 72) {
         // h key
         showHelp();
+    }else if (data == 67) {
+        // c key
+        callSwtich2Camera();
     }
     // socket.emit('confirmation', id);
 });
@@ -220,7 +227,7 @@ socket.on('updateIDReorganiseSock', function(data) {
         angleCamera = angleAbs*lookingAt;
     }
     }
-    rotateCameraAngle();
+    rotateCameraAngle(angleCamera);
     // console.log("reorganise " + id)
     socket.emit('updateIDReorganise', data.id);
 })
@@ -233,7 +240,7 @@ socket.on('updateIDMoveSock', function(data) {
     var lookingAt = (angleCamera/angleAbs);
     angleAbs-=angleToGo;
     angleCamera = angleAbs*lookingAt;
-    rotateCameraAngle();
+    rotateCameraAngle(angleCamera);
     }
     // console.log("move " + id)
     socket.emit('updateIDMove', data);
@@ -311,14 +318,14 @@ document.onmousemove = function checkMouse(e) {
 var firstTime = true;
 
 var scene = new THREE.Scene();
-// var constant = 5;
-// var camera = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/constant),  window.innerWidth / (window.innerWidth/constant), window.innerHeight / (window.innerWidth/constant), window.innerHeight / - (window.innerWidth/constant), -30, 30 );
+var constant = 5;
+var cameraOrthographic = new THREE.OrthographicCamera(  window.innerWidth / (- window.innerWidth/constant),  window.innerWidth / (window.innerWidth/constant), window.innerHeight / (window.innerWidth/constant), window.innerHeight / - (window.innerWidth/constant), -30, 30 );
 var aspectRatio = window.innerWidth / window.innerHeight;
-console.log(window.innerWidth)
-console.log( window.innerHeight)
-console.log(aspectRatio)
-var camera = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000 );
+var cameraPerspective = new THREE.PerspectiveCamera(75, aspectRatio, 0.1, 1000 );
+var camera = cameraPerspective;
 scene.add( camera );
+
+var isOrtographic = false;
 
 vectorCamera = new THREE.Vector3( 0, 0, -1 );
 
@@ -342,16 +349,44 @@ function init(){
     window.addEventListener( 'resize', onWindowResize, false );
 }
 
+function callSwtich2Camera() {
+    var cameraPosition = camera.position.clone();
+    var cameraMatrix =  camera.matrix.clone();
+    if (isOrtographic == true) {
+        console.log("Swtiching to Perspective");
+        isOrtographic = false;
+        console.log("cameraPosition", cameraPosition);
+        camera = cameraPerspective;
+        camera.position.copy(cameraPosition);
+        camera.matrix.copy(cameraMatrix);
+        console.log("activeCamera", camera);
+        setCamera(positionCameraOr[0], 0, positionCameraOr[2]);
+        rotateCameraAngle(angleCamera)
+    } else {
+        console.log("Swtiching to Ortographic");
+        isOrtographic = true;
+        console.log("cameraPosition", cameraPosition);
+        camera = cameraOrthographic;
+        camera.position.copy(cameraPosition);
+        camera.matrix.copy(cameraMatrix);
+        console.log("activeCamera", camera);
+        setCamera(positionCameraOr[0]*100, 0, positionCameraOr[2]);
+        
+    }
+    camera.updateProjectionMatrix();
+    renderer.render( scene, camera );
+}
+
 var historyTransformation = [];
 var originalPositionObject = {};
 var originalRotationObject = {};
 
 var angleBef = 0;
 
-function rotateCameraAngle(){
+function rotateCameraAngle(angleNow){
     camera.rotateOnAxis( Y_AXIS, degreesToRadians(-angleBef) );
-    camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleCamera) );
-    angleBef = angleCamera
+    camera.rotateOnAxis( Y_AXIS, degreesToRadians(angleNow) );
+    angleBef = angleNow
 }
 
 var toTranslation

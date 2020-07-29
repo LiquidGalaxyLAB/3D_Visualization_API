@@ -107,6 +107,7 @@ public class SettingIP extends AppCompatActivity  {
     private Button reset;
     private Button kill;
     private Button switchRotTrans;
+    private Button switchCamera;
     private ProgressBar loading;
 
 
@@ -617,6 +618,10 @@ public class SettingIP extends AppCompatActivity  {
         mSocket.emit("serverRotateZNeg");
         Log.i("SER", "rotate Z Neg");
     }
+    private void switchCamera(){
+        mSocket.emit("serverSwitchCamera");
+        Log.i("SER", "Switch camera view");
+    }
 
     private void disconnectTablet(){
         mSocket.disconnect();
@@ -747,6 +752,7 @@ public class SettingIP extends AppCompatActivity  {
         reset = (Button)  findViewById(R.id.reset);
         switchRotTrans = (Button)  findViewById(R.id.switchTrans);
         loading = (ProgressBar) findViewById(R.id.progressBar);
+        switchCamera = (Button) findViewById(R.id.camera);
         if(hasLaunched){
             kill.setVisibility(View.VISIBLE);
         }else{
@@ -855,6 +861,13 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
                 rotateZNeg();
+            }
+        });
+
+        switchCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchCamera();
             }
         });
     }

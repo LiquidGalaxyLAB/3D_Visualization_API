@@ -63,7 +63,7 @@
 
     <Button
         android:id="@+id/switchTrans"
-        android:layout_width="wrap_content"
+        android:layout_width="320px"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
@@ -88,8 +88,17 @@
         android:text="Kill" />
 
     <Button
+        android:id="@+id/camera"
+        android:layout_width="320px"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="240px"
+        android:text="Orthogonal" />
+
+    <Button
         android:id="@+id/reset"
-        android:layout_width="wrap_content"
+        android:layout_width="320px"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"

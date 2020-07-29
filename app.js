@@ -89,7 +89,7 @@ io.on('connection', function(socket) {
    socket.on('windowResize', function(data) {
       var aspect = data.width/data.height;
       angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
-      
+
       var angleThisSocket = Math.floor((id/2))*angleToGo;
       if(id%2 == 0){
          angleThisSocket = -angleThisSocket;
@@ -162,6 +162,10 @@ io.on('connection', function(socket) {
 
    socket.on('serverResetCamera', function() {
       io.sockets.to('Window').emit('resetCamera');
+   })
+
+   socket.on('serverSwitchCamera', function() {
+      io.sockets.to('Window').emit('switchCamera');
    })
 
    socket.on('updateIDReorganise', function(data) {
