@@ -61,7 +61,7 @@ $ ./launch.sh -m -p 3333 -d examples/cylinder
 
 On the rest of machines, if you have cloned the repository you can:
 ```
-$ ./launch.sh -i <ip_central> -p 3333 -d examples/cylinder
+$ ./launch.sh -i <ip_central> -p 3333
 ```
 If you have not cloned the repository then you can open a browser and go to http://<ip_central>:3000
 
@@ -165,6 +165,7 @@ Fill the information appropriately for each machine.
 * up/down key → rotates around X axis
 * q/e → rotates arounds Z axis
 * h → shows help message
+* c → switch between orthogonal and perspective view
 
 ### In the android app
 <img src="img/controls.png" width="230">
