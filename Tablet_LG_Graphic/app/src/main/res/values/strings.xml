@@ -1,18 +1,27 @@
 <resources>
     <string name="app_name">Tablet_LG_Graphic</string>
     <!-- Strings related to login -->
-    <string name="prompt_email">IP Address</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="ip_address">IP Address</string>
+    <string name="password">Machine password</string>
     <string name="action_sign_in">Select IP Address</string>
-    <string name="action_sample">Sample</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="launch">Launch</string>
+    <string name="connect">Connect</string>
+    <string name="port">Port</string>
+    <string name="next">Next</string>
+    <string name="noMachines">Nº Machines</string>
+    <string name="ip_machine">Machine public IP Address</string>
+    <string name="ip_machine_back">123.123.1.12</string>
+    <string name="hostname">Machine hostname</string>
+    <string name="hostname_back">Sample</string>
+    <string name="path">Path to project</string>
+    <string name="noScreens">Nº of screens in this machine</string>
+    <string name="back">Back</string>
+    <string name="reset">Reset</string>
+    <string name="translate">Translate</string>
+    <string name="rotate">Rotate</string>
+    <string name="kill">Kill</string>
+    <string name="orthogonal">Orthogonal</string>
+    <string name="centralMAchineTitle">Info central machine</string>
     <string name="wifi_checkbox">"Check if this device connected to the same wifi as the machine"
     </string>
     <string name="wifi_checkbox_launch">"Check if this device connected to the same wifi as the machine where the server will be run"

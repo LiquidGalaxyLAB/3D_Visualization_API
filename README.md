@@ -97,7 +97,7 @@ $ ./killServer.sh
   * Description → Scene of the animation project
 
 * *var camera*
-  * type → THREE.OrthographicCamera
+  * type → THREE.OrthographicCamera or THREE.PerspectiveCamera 
   * Description → Camera of the animation scene
 
 * *scale(object: Object3D, scaleX: Float, scaleY: Float, scaleZ:Float): void*

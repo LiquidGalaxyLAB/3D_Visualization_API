@@ -24,7 +24,7 @@
             android:layout_weight="1"
             android:background="@color/off"
             android:textColor="@color/white"
-            android:text="Launch" />
+            android:text="@string/launch" />
         <Button
             android:id="@+id/connect"
             android:layout_width="0dp"
@@ -32,7 +32,7 @@
             android:layout_weight="1"
             android:background="@color/colorPrimary"
             android:textColor="@color/white"
-            android:text="Connect" />
+            android:text="@string/connect" />
     </LinearLayout>
 
 
@@ -55,7 +55,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="IP address" />
+            android:text="@string/ip_address" />
 
         <EditText
             android:id="@+id/ip"
@@ -69,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Port" />
+            android:text="@string/port" />
 
         <EditText
             android:id="@+id/port_connect"
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/off"
             android:inputType="number"
-            android:text="Nº Machines" />
+            android:text="@string/noMachines" />
 
         <EditText
             android:id="@+id/noMachines"
@@ -116,7 +116,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="IP address" />
+            android:text="@string/ip_address" />
 
         <EditText
             android:id="@+id/ip_launch"
@@ -130,7 +130,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Port" />
+            android:text="@string/port" />
 
         <EditText
             android:id="@+id/port"
@@ -156,7 +156,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/off"
             android:textSize="@dimen/title"
-            android:text="Info central machine" />
+            android:text="@string/centralMAchineTitle" />
 
         <CheckBox
             android:id="@+id/connected_Wifi"
@@ -169,13 +169,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Machine public IP Address" />
+            android:text="@string/ip_machine" />
         <EditText
             android:id="@+id/ip_address_machine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:hint="123.123.1.12"
+            android:hint="@string/ip_machine_back"
             android:singleLine="true" />
 
         <TextView
@@ -183,13 +183,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Machine hostname" />
+            android:text="@string/hostname" />
         <EditText
             android:id="@+id/host_name_machine"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:hint="Sample"
+            android:hint="@string/hostname_back"
             android:singleLine="true" />
 
         <TextView
@@ -197,7 +197,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Machine password" />
+            android:text="@string/password" />
         <EditText
             android:id="@+id/password_machine"
             android:layout_width="match_parent"
@@ -211,7 +211,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Path to project" />
+            android:text="@string/path" />
         <EditText
             android:id="@+id/path"
             android:layout_width="match_parent"
@@ -225,7 +225,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/off"
             android:inputType="number"
-            android:text="Nº of screens in this machine" />
+            android:text="@string/noScreens" />
 
         <EditText
             android:id="@+id/noSockets"
@@ -252,7 +252,7 @@
             android:background="@color/colorAccent"
             android:textColor="@color/white"
             android:visibility="invisible"
-            android:text="Back" />
+            android:text="@string/back" />
         <Button
             android:id="@+id/next"
             android:layout_width="0dp"
@@ -260,7 +260,7 @@
             android:layout_weight="1"
             android:background="@color/design_default_color_primary"
             android:textColor="@color/white"
-            android:text="Next" />
+            android:text="@string/next" />
     </LinearLayout>
 
     <ProgressBar

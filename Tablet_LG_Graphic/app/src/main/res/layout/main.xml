@@ -67,7 +67,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:text="Translate" />
+        android:text="@string/translate" />
 
     <Button
         android:id="@+id/back"
@@ -75,7 +75,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Back" />
+        android:text="@string/back" />
 
     <Button
         android:id="@+id/kill"
@@ -85,7 +85,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="120px"
         android:visibility="gone"
-        android:text="Kill" />
+        android:text="@string/kill" />
 
     <Button
         android:id="@+id/camera"
@@ -94,7 +94,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="240px"
-        android:text="Orthogonal" />
+        android:text="@string/orthogonal" />
 
     <Button
         android:id="@+id/reset"
@@ -103,7 +103,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="120px"
-        android:text="Reset" />
+        android:text="@string/reset" />
 
     <Button
         android:id="@+id/rotXPosBut"
