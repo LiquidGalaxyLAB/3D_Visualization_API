@@ -489,7 +489,14 @@ public class SettingIP extends AppCompatActivity  {
             int indexPublic=path.indexOf("public");
             String projectDir = path.substring(indexPublic+6);
             String projectDirToChange = path.substring(0, indexPublic);
-            String finalCommand = "cd " + projectDirToChange +"; ./launch.sh -i " + ipAddressCode + " -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
+            String finalCommand = "cd " + projectDirToChange +"; "+
+                    "DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}');" +
+                    "WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}');" +
+                    "HEIGHT=$(echo $DIMENSIONS | head -n1 | awk '{print $2;}')" +
+                    ".google-chrome \"data:text/html,<html><body><script>window.moveTo(0,0);" +
+                    "window.resizeTo($(($WIDTH)),$HEIGHT);" +
+                    "window.location='http://" + ipAddressCode + ":" + portCode  + "';" +
+                    "</script></body></html>;";
             if(isMaster){
                 if(killServer){
                     finalCommand = "cd " + projectDirToChange +"; ./killServer.sh";
