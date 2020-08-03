@@ -63,7 +63,7 @@ On the rest of machines, if you have cloned the repository you can:
 ```
 $ ./launch.sh -i <ip_central> -p 3333
 ```
-If you have not cloned the repository then you can open a browser and go to http://<ip_central>:3000
+If you have not cloned the repository then you can open a browser and go to http://<ip_central>:3333
 
 Remember that the order to launch rpojects should be the following:
 ![Alt text](img/orderConnecting.png?raw=true "Order for connection of browsers")
