@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/off"
+            android:background="@color/colorPrimary"
             android:textColor="@color/white"
             android:text="@string/launch" />
         <Button
@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/colorPrimary"
+            android:background="@color/off"
             android:textColor="@color/white"
             android:text="@string/connect" />
     </LinearLayout>
@@ -42,7 +42,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible"
+        android:visibility="gone"
         android:orientation="vertical">
         <CheckBox
             android:id="@+id/connected_Wifi_connect"
@@ -86,7 +86,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <CheckBox
@@ -206,18 +206,6 @@
             android:inputType="textPassword"
             android:singleLine="true" />
 
-        <TextView
-            android:id="@+id/path_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/off"
-            android:text="@string/path" />
-        <EditText
-            android:id="@+id/path"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:maxLines="1"
-            android:singleLine="true" />
 
         <TextView
             android:id="@+id/noSocketsTitle"
@@ -238,6 +226,59 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/layout_project"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="200px"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/project_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:textSize="@dimen/title"
+            android:text="@string/centralMAchineTitle" />
+
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_register_project"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="200px"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/title_register_project"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:textSize="@dimen/title"
+            android:text="Register project" />
+        <TextView
+            android:id="@+id/path_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Write the path of your project" />
+        <EditText
+            android:id="@+id/path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:text="/Users/saracb/LG/3D_Visualization_API/public/examples/cylinder"/>
+
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -260,7 +301,17 @@
             android:layout_weight="1"
             android:background="@color/design_default_color_primary"
             android:textColor="@color/white"
+            android:visibility="visible"
             android:text="@string/next" />
+        <Button
+            android:id="@+id/registerPath"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="gone"
+            android:background="@color/white"
+            android:textColor="@color/design_default_color_primary"
+            android:text="@string/registerPath" />
     </LinearLayout>
 
     <ProgressBar
