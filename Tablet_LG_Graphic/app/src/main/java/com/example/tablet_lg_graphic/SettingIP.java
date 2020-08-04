@@ -183,6 +183,7 @@ public class SettingIP extends AppCompatActivity  {
             backButton.setVisibility(View.VISIBLE);
             nextButton.setVisibility(View.VISIBLE);
         }else if(STATE==REGISTER_PROJECT){
+            loading.setVisibility(View.GONE);
             if(result == false){
                 registerPath.setError("Path not valid");
             }else{
@@ -207,6 +208,8 @@ public class SettingIP extends AppCompatActivity  {
                     @Override
                     public void onClick(View v) {
                         for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i);
+                            loading.setVisibility(View.VISIBLE);
                             launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0);
                         }
                     }
@@ -255,6 +258,7 @@ public class SettingIP extends AppCompatActivity  {
                         ipAddress_launch_machine.getText().toString(), "", true);
             }
         }else if(STATE==REGISTER_PROJECT){
+            loading.setVisibility(View.VISIBLE);
             testMachine(username.get(0), password.get(0),ipAddressCode.get(0), registerPath.getText().toString(), false);
         }
     }
@@ -347,6 +351,14 @@ public class SettingIP extends AppCompatActivity  {
             backButton.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.GONE);
             STATE=LAUNCH;
+        }if(STATE==REGISTER_PROJECT){
+            STATE=PROJECT;
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+            project_layout.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
         }
     }
 
@@ -453,11 +465,25 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     private void backToSetIP(){
-        Log.w("APP","change layout");
+        Log.w("APP","change layout from  " + STATE);
         disconnectTablet();
         setContentView(R.layout.ip_setting);
-        STATE=LAUNCH;
-        setMenuButtons();
+
+
+        if(STATE!=PROJECT){
+            setMenuButtons();
+        }else{
+            setMenuButtons();
+            STATE=PROJECT;
+            project_layout.setVisibility(View.VISIBLE);
+            launch_layout.setVisibility(View.GONE);
+            nextButton.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_state_button.setVisibility(View.GONE);
+        }
+
     }
 
     private void setSwitchRotTrans(){
@@ -517,6 +543,7 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             protected void onPostExecute(String result){
                 Log.w("APP", "Moving to result");
+                loading.setVisibility(View.GONE);
                 setIP(true);
             }
         }.execute(1);
@@ -556,7 +583,7 @@ public class SettingIP extends AppCompatActivity  {
 
     @SuppressLint("StaticFieldLeak")
     private void killServer(final String user, final String password, final String host, final String path){
-        Log.w("LAU", "Start launch");
+        Log.w("LAU", "Start kill");
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
             @Override
@@ -1010,8 +1037,9 @@ public class SettingIP extends AppCompatActivity  {
         });
 
         try {
-            mSocket = IO.socket("http://" + ipAddressCode + ":" + portCode + "/");
-        } catch (URISyntaxException e) {}
+            Log.i("SOC", "Creating socket");
+            mSocket = IO.socket("http://" + ipAddressCode.get(0) + ":" + portCode + "/");
+        } catch (URISyntaxException e) {Log.i("SOC", "There was an error");}
 
         mSocket.connect();
         mSocket.emit("signalTablet");
