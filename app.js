@@ -20,6 +20,7 @@ var angleNext = 0;
 var lookingRight = 1; 
 var startRight = true;
 var receivedConfirmation = [];
+var projectsReloaded = 0;
 io.on('connection', function(socket) {
    var id;
    var isATablet = false;
@@ -33,47 +34,23 @@ io.on('connection', function(socket) {
       id = noUsers;
 
       socket.join('Window');
-      var os = require('os');
-      var ifaces = os.networkInterfaces();
 
-      Object.keys(ifaces).forEach(function (ifname) {
-         var alias = 0;
-
-         ifaces[ifname].forEach(function (iface) {
-            if ('IPv4' !== iface.family || iface.internal !== false) {
-               // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
-               return;
-            }
-
-            if (alias >= 1) {
-               // this single interface has multiple ipv4 addresses
-               console.log(ifname + ':' + alias, iface.address);
-
-            } else {
-               // this interface has only one ipv4 adress
-               console.log('hey', ifname, iface.address);
-
-               console.log()
-               // angleToGo = (data.width/data.height)*(13/0.18);
-               // angleToGo = 106.5;
-               var aspect = data.width/data.height;
-               // angleToGo= 76.2734+52.236*Math.log(aspect);
-               angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
-               // angleToGo=117.3817/(1+5.2352*Math.exp(-2.211*aspect));
-               var angleThisSocket = Math.floor((id/2))*angleToGo;
-               if(id%2 == 0){
-                  angleThisSocket = -angleThisSocket;
-               }
-               // console.log(lookingRight)
-               console.log('Screen number ' + noUsers + ' connected with id ' + id);
-               socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
-                                    x: separation * (-(angleThisSocket)/angleToGo),
-                                    z: 0, ip: iface.address});
-               io.sockets.to('Window').emit('newWindow');
-            }
-            ++alias;
-         });
-      });
+      // angleToGo = (data.width/data.height)*(13/0.18);
+      // angleToGo = 106.5;
+      var aspect = data.width/data.height;
+      // angleToGo= 76.2734+52.236*Math.log(aspect);
+      angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
+      // angleToGo=117.3817/(1+5.2352*Math.exp(-2.211*aspect));
+      var angleThisSocket = Math.floor((id/2))*angleToGo;
+      if(id%2 == 0){
+         angleThisSocket = -angleThisSocket;
+      }
+      // console.log(lookingRight)
+      console.log('Screen number ' + noUsers + ' connected with id ' + id);
+      socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
+                           x: separation * (-(angleThisSocket)/angleToGo),
+                           z: 0});
+      io.sockets.to('Window').emit('newWindow', noUsers);
 
       
 
@@ -205,9 +182,41 @@ io.on('connection', function(socket) {
       socket.join('Tablet');
    })
 
+   var noUsersReloaded
+   socket.on('newProjectServer', function(idSocket) {
+      console.log("reloading " + id + "  and " + idSocket);
+      noUsersReloaded = idSocket
+      projectsReloaded++;
+      if(projectsReloaded == idSocket){
+         angleToGo = null;
+         noUsers = 0;
+         activeUser = 1;
+         angleNext = 0;
+         lookingRight = 1; 
+         startRight = true;
+         receivedConfirmation = [];
+         projectsReloaded = 0;
+         sendReload();
+      }
+   })
+
+   socket.on('serverReload', function() {
+      console.log("reloading " + id);
+      sendReload();
+   })
+
+   function sendReload(){
+      console.log("send reloading " + id + " to " + (projectsReloaded+1));
+      projectsReloaded++;
+      io.sockets.to('Window').emit('reload', projectsReloaded);
+      if(projectsReloaded == noUsersReloaded){
+         projectsReloaded=0;
+      }
+   }
+
    socket.on('disconnect', (reason) => {
       console.log('Disconnection')
-      if(!isATablet){
+      if(!isATablet && projectsReloaded == 0){
          console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
       
          // console.log(noUsers + " " + angleNext + " " + lookingRight);

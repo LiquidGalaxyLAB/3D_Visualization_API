@@ -23,6 +23,7 @@
     <string name="orthogonal">Orthogonal</string>
     <string name="centralMAchineTitle">Info central machine</string>
     <string name="registerPath"><u>Register new project</u></string>
+    <string name="projectTitle">Select a project</string>
     <string name="wifi_checkbox">"Check if this device connected to the same wifi as the machine"
     </string>
     <string name="wifi_checkbox_launch">"Check if this device connected to the same wifi as the machine where the server will be run"

@@ -25,6 +25,7 @@ if [[ $unameOut == *"Darwin"* ]]; then
 fi
 
 if [[ $unameOut == *"MINGW"* ]]; then
+  
   DIMENSIONS=$(wmic path Win32_VideoController get CurrentHorizontalResolution,CurrentVerticalResolution | sed -n '3p')
   WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}')
   HEIGHT=$(echo $DIMENSIONS | head -n1 | awk '{print $2;}')
@@ -38,7 +39,7 @@ MASTER='f'
 NUMBER_SOCKETS=1
 IP_ADDRESS="localhost"
 PORT="3000"
-DIRECTORY="."
+DIRECTORY="examples/cylinder"
 while getopts 'mi:p:n:d:t:w:h' c
 do
   case $c in
@@ -58,13 +59,12 @@ if [ "$MASTER" == "t" ]; then
 fi
 echo "here"
 
-
-
 echo $WIDTH
 echo $HEIGHT
 n=1
 while [ $n -le $NUMBER_SOCKETS ]
 do
+    echo "loooop"
     POSITION=$((NUMBER_SOCKETS-n))
     if [ $((n%2)) -eq 0 ];then
         POSITION=$((NUMBER_SOCKETS+n-1))

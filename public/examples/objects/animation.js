@@ -1,5 +1,4 @@
 
-init();
 animate();
 
     // camera.position.z = 1800;

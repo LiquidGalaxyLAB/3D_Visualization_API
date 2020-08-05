@@ -129,8 +129,10 @@ public class SettingIP extends AppCompatActivity  {
     private ArrayList<String> password;
     private ArrayList<String> path_projects;
     private ArrayList<Integer> noScreens;
+    private int lastProjectUsed;
     private int noMachines;
     private int howManyMachinesAsked;
+    private boolean portBusyFromUs;
 
     private boolean translationOn;
 
@@ -139,7 +141,7 @@ public class SettingIP extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ip_setting);
 
-        setMenuButtons();
+        setMenuButtons(true);
     }
 
     private void switchStateToLaunch(){
@@ -210,7 +212,9 @@ public class SettingIP extends AppCompatActivity  {
                         for(int i = 0; i< username.size(); i++){
                             Log.i("APP", "Launching one server " + i);
                             loading.setVisibility(View.VISIBLE);
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0);
+
+                            lastProjectUsed = proj.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
                         }
                     }
                 });
@@ -359,6 +363,7 @@ public class SettingIP extends AppCompatActivity  {
             project_layout.setVisibility(View.VISIBLE);
             projectPath.setVisibility(View.VISIBLE);
             nextButton.setVisibility(View.GONE);
+
         }
     }
 
@@ -394,7 +399,14 @@ public class SettingIP extends AppCompatActivity  {
     private void setIP(boolean hasLaunched) {
         if(checkIPValid(ipAddressCode.get(0))){
            Log.w("APP","change layout " + ipAddressCode);
+           Log.i("APP", "checking list " + projects);
+            for(int i=0; i<projects.size(); i++){
+                project_layout.removeView(projects.get(i));
+
+                projects.get(i).setOnClickListener(null);
+            }
            setContentView(R.layout.main);
+           Log.i("APP", "checking list " + projects);
            setControlButtons(hasLaunched);
         }
     }
@@ -465,15 +477,23 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     private void backToSetIP(){
-        Log.w("APP","change layout from  " + STATE);
-        disconnectTablet();
-        setContentView(R.layout.ip_setting);
-
 
         if(STATE!=PROJECT){
-            setMenuButtons();
+            Log.w("APP","change layout from  " + STATE);
+            disconnectTablet();
+            setContentView(R.layout.ip_setting);
+
+            setMenuButtons(true);
         }else{
-            setMenuButtons();
+            Log.w("APP","change layout from  " + STATE);
+            disconnectTablet();
+
+            loading.setVisibility(View.VISIBLE);
+            launchServer(username.get(0), password.get(0), ipAddressCode.get(0), path_projects.get(lastProjectUsed), 0, false, true);
+
+            setContentView(R.layout.ip_setting);
+
+            setMenuButtons(false);
             STATE=PROJECT;
             project_layout.setVisibility(View.VISIBLE);
             launch_layout.setVisibility(View.GONE);
@@ -482,6 +502,23 @@ public class SettingIP extends AppCompatActivity  {
             projectPath.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.GONE);
             connect_state_button.setVisibility(View.GONE);
+            Log.i("APP", "moving to list " + projects);
+            for(int i=0; i<projects.size(); i++){
+                project_layout.addView(projects.get(i));
+
+                projects.get(i).setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i);
+                            loading.setVisibility(View.VISIBLE);
+                            lastProjectUsed=projects.get(i).getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(i).getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+            }
         }
 
     }
@@ -524,14 +561,15 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster){
+    private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster, final boolean goingBack){
         Log.w("LAU", "Start launch");
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
             @Override
             protected String doInBackground(Integer... params) {
                 try {
-                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, noSockets, isMaster, false);
+                    Log.i("APP", "It has launched " + portBusyFromUs);
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, noSockets, isMaster, portBusyFromUs);
                     Log.w("LAU", "Result in " + resultSSH[0]);
 
                 } catch (Exception e) {
@@ -544,7 +582,11 @@ public class SettingIP extends AppCompatActivity  {
             protected void onPostExecute(String result){
                 Log.w("APP", "Moving to result");
                 loading.setVisibility(View.GONE);
-                setIP(true);
+                if(!goingBack){
+                    portBusyFromUs=true;
+                    setIP(true);
+                }
+
             }
         }.execute(1);
 
@@ -589,7 +631,7 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             protected String doInBackground(Integer... params) {
                 try {
-                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, 0,true, true);
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, 0,false, true);
                     Log.w("LAU", "Result in " + resultSSH[0]);
 
                 } catch (Exception e) {
@@ -602,6 +644,7 @@ public class SettingIP extends AppCompatActivity  {
             protected void onPostExecute(String result){
                 Log.w("APP", "Moving to result");
                 loading.setVisibility(View.VISIBLE);
+                STATE=LAUNCH;
                 backToSetIP();
             }
         }.execute(1);
@@ -627,6 +670,8 @@ public class SettingIP extends AppCompatActivity  {
 
             ChannelExec channel = (ChannelExec)session.openChannel("exec");
 
+            channel.setXForwarding(true);
+
             int indexPublic=path.indexOf("public");
             String projectDir = path.substring(indexPublic+6);
             String projectDirToChange = path.substring(0, indexPublic);
@@ -638,14 +683,14 @@ public class SettingIP extends AppCompatActivity  {
                     "window.resizeTo($(($WIDTH)),$HEIGHT);" +
                     "window.location='http://" + ipAddressCode.get(0) + ":" + portCode  + "';" +
                     "</script></body></html>;";
-            if(isMaster){
-                if(killServer){
-                    finalCommand = "cd " + projectDirToChange +"; ./killServer.sh";
-                }else{
-                    finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
-                }
-                //channel.setCommand("ls");
+            if(isMaster && killServer) {
+                finalCommand = "cd " + projectDirToChange +"; node " + portCode + " " + projectDir;
+            }else if(killServer && !isMaster) {
+                finalCommand = "cd " + projectDirToChange + "; ./killServer.sh";
+            } else if (!killServer && isMaster) {
+                finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
             }
+
 
             Log.w("SSH", "Command to run "+ finalCommand);
             channel.setCommand(finalCommand);
@@ -872,15 +917,31 @@ public class SettingIP extends AppCompatActivity  {
 
     }
 
-    private void setMenuButtons(){
+    private void setMenuButtons(boolean empty){
         STATE=LAUNCH;
 
-        ipAddressCode = new ArrayList<String>();
-        username = new ArrayList<String>();
-        password  = new ArrayList<String>();
-        path_projects  = new ArrayList<String>();
-        noScreens = new ArrayList<Integer>();
-        projects = new ArrayList<Button>();
+        if(ipAddressCode == null || empty ) {
+            ipAddressCode = new ArrayList<String>();
+        }
+        if(username == null || empty ) {
+            username = new ArrayList<String>();
+        }
+        if(password == null || empty ) {
+            password = new ArrayList<String>();
+        }
+        if(path_projects == null || empty ) {
+            path_projects = new ArrayList<String>();
+        }
+        if(noScreens == null|| empty ) {
+            noScreens = new ArrayList<Integer>();
+        }
+        if(projects == null|| empty ){
+            projects = new ArrayList<Button>();
+        }
+        if(portBusyFromUs != true){
+            portBusyFromUs = false;
+        }
+
 
         nextButton = (Button) findViewById(R.id.next);
         launch_state_button = (Button) findViewById(R.id.launch);
@@ -1014,6 +1075,7 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
                 loading.setVisibility(View.VISIBLE);
+                portBusyFromUs = false;
                 killServer(username.get(0), password.get(0), ipAddressCode.get(0), path_projects.get(0) );
             }
         });

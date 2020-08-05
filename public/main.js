@@ -8,33 +8,41 @@ var positionCameraOr = [0,0,0];
 var stopIm;
 var objectTransform = [];
 var firstTimeSync;
-
+var firstTime = true;;
 var width ;
 var height;
+var noUsers;
 
 var vectorCamera;
 
 socket.on('idSet', function(data) {
-    // console.log(width)
-    id = data.id;
-    angleCamera = data.angle;
-    // angleCamera = (window.width/window.height) *100
-    // angleCamera = 0
-    angleCameraOr = data.angle;
-    positionCamera[0] = data.x;
-    positionCamera[2] = data.z;
-    positionCameraOr[0] = data.x;
-    positionCameraOr[2] = data.z;
-    // rotateVectorInit(angleCamera);
-    // translateCamera(angleCamera/2, 0,0);
-    setCamera(positionCamera[0], 0, positionCamera[2]);
-    console.log(id + " " + angleCamera + " " + data.x);
+    if(firstTime != false){
+        noUsers = id;
+        // console.log(width)
+        id = data.id;
+        angleCamera = data.angle;
+        // angleCamera = (window.width/window.height) *100
+        // angleCamera = 0
+        angleCameraOr = data.angle;
+        positionCamera[0] = data.x;
+        positionCamera[2] = data.z;
+        positionCameraOr[0] = data.x;
+        positionCameraOr[2] = data.z;
+        // rotateVectorInit(angleCamera);
+        // translateCamera(angleCamera/2, 0,0);
+        setCamera(positionCamera[0], 0, positionCamera[2]);
+        console.log(id + " " + angleCamera + " " + data.x);
+        
+        
+        rotateCameraAngle(angleCamera);
+        stopIm = false;
+        firstTimeSync = true;
     
-    
-    rotateCameraAngle(angleCamera);
-    stopIm = false;
-    firstTimeSync = true;
-    init();
+        firstTime =true;
+    }
+
+    console.log("init")
+    initWindow();
 });
 
 socket.on('idReset', function(data) {
@@ -60,7 +68,8 @@ socket.on('getWindowSize', function() {
     socket.emit('windowSize', {width: width, height: height});
 });
 
-socket.on('newWindow', function() {
+socket.on('newWindow', function(data) {
+   noUsers = data;
    firstTimeSync = true;
 });
 
@@ -259,6 +268,24 @@ socket.on('updateIDMirrorSock', function() {
     socket.emit('updateIDMirror');
 })
 
+socket.on('reload', function(data) {
+    console.log("received reload " + data);
+    if(id == data){
+        console.log("Reload with " + id);
+        socket.emit('disconnect');
+        console.log(firstTime);
+
+        var now = new Date().getTime();
+        while(new Date().getTime() < now + (1000*id)){ /* do nothing */ } 
+        location.reload();
+    }
+    if(id-1 == data){
+        console.log("continue reload");
+        socket.emit('serverReload')
+    }
+    
+})
+
 var ip;
 document.onkeydown = function checkKey(e) {
     e = e.keyCode;
@@ -315,7 +342,6 @@ document.onmousemove = function checkMouse(e) {
 
 //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-var firstTime = true;
 
 var scene = new THREE.Scene();
 var constant = 5;
@@ -340,10 +366,13 @@ var renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-function init(){
+function initWindow(){
+    console.log(firstTime);
     if(!firstTime){
-        socket.emit('disconnect');
-        //location.reload();
+        // if(id==1){
+            console.log("StartReload");
+            socket.emit('newProjectServer', noUsers)
+        // }
     }
     firstTime = false;
     window.addEventListener( 'resize', onWindowResize, false );
