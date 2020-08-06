@@ -324,6 +324,7 @@ public class SettingIP extends AppCompatActivity  {
             if(howManyMachinesAsked < noMachines){
                 ipAddress_launch_machine.setVisibility(View.VISIBLE);
                 launch_checkbox_info.setVisibility(View.VISIBLE);
+                ipAddress_launch_machine.setVisibility(View.VISIBLE);
                 if(howManyMachinesAsked%2 == 0){
                     title_launch_machine.setText("Info " + (howManyMachinesAsked+1)/2 + " machine to the right ");
                 }else{
@@ -914,6 +915,161 @@ public class SettingIP extends AppCompatActivity  {
                 (ip >> 8 & 0xff),
                 (ip >> 16 & 0xff),
                 (ip >> 24 & 0xff));
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.i("APP", "restore before usernames " + username);
+        Log.i("APP", "restore State before" + STATE);
+        super.onSaveInstanceState(outState);
+
+        //outState.putBoolean("MyBoolean", true);
+        //outState.putDouble("myDouble", 1.9);
+        Log.i("APP", "save State " + STATE);
+        Log.i("APP", "save usernames " + username);
+        outState.putInt("STATE", STATE);
+        outState.putStringArrayList("ipAddressCode", ipAddressCode);
+        outState.putStringArrayList("username", username);
+        outState.putStringArrayList("password", password);
+        outState.putStringArrayList("path_projects", path_projects);
+        outState.putIntegerArrayList("noScreens", noScreens);
+        outState.putBoolean("portBusyFromUs", portBusyFromUs);
+
+        int[] buttonID = new int[projects.size()];
+        for(int i=0; i<projects.size(); i++){
+            buttonID[i] = projects.get(i).getId();
+            project_layout.removeView( projects.get(i));
+        }
+        outState.putIntArray("buttonID", buttonID);
+
+        //outState.putString("MyString", "Welcome back to Android");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedState) {
+        Log.i("APP", "restore usernames " + username);
+        super.onRestoreInstanceState(savedState);
+
+        Log.i("APP", "restore after usernames " + username);
+        //boolean myBoolean = savedState.getBoolean("MyBoolean");
+        //double myDouble = savedState.getDouble("myDouble");
+        STATE = savedState.getInt("STATE");
+        Log.i("APP", "restore State " + STATE);
+        if(STATE==CONNECT){
+            Log.i("APP", "restore State connect");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(visibleColor);
+            connect_layout.setVisibility(View.VISIBLE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH){
+            Log.i("APP", "restore State launch");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH_INFO){
+            Log.i("APP", "restore State launch info");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.VISIBLE);
+
+            if(howManyMachinesAsked==0){
+                launch_checkbox_info.setVisibility(View.GONE);
+                title_ip_launch_machine.setVisibility(View.GONE);
+                ipAddress_launch_machine.setVisibility(View.GONE);
+            }else{
+                launch_checkbox_info.setVisibility(View.VISIBLE);
+                title_ip_launch_machine.setVisibility(View.VISIBLE);
+                ipAddress_launch_machine.setVisibility(View.VISIBLE);
+            }
+
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==PROJECT){
+            Log.i("APP", "restore State project");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==REGISTER_PROJECT){
+            Log.i("APP", "restore State register");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.VISIBLE);
+        }
+        //String myString = savedState.getString("MyString");
+
+
+        ipAddressCode = savedState.getStringArrayList("ipAddressCode");
+        username = savedState.getStringArrayList("username");
+        password = savedState.getStringArrayList("password");
+        path_projects = savedState.getStringArrayList("path_projects");
+        noScreens = savedState.getIntegerArrayList("noScreens");
+        portBusyFromUs = savedState.getBoolean("portBusyFromUs");
+
+        int[] buttonID = savedState.getIntArray("buttonID");
+
+        for(int i=0; i<buttonID.length; i++){
+            final Button proj = new Button(this);
+            proj.setText(path_projects.get(buttonID[i]));
+
+            proj.setId(buttonID[i]);
+            projects.add(proj);
+            project_layout.addView(proj);
+
+            proj.setOnClickListener(new OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    for(int i = 0; i< username.size(); i++){
+                        Log.i("APP", "Launching one server " + i);
+                        loading.setVisibility(View.VISIBLE);
+
+                        lastProjectUsed = proj.getId();
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                    }
+                }
+            });
+        }
+
+        Log.i("APP", "restore final username " + username);
 
     }
 
