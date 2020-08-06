@@ -2,7 +2,7 @@
 
 usage()
 {
-  echo "Usage: [-m] [-i IP_ADDRESS <default: localhost>] [-p PORT  <default: 3000>] [-n NUMBER_SOCKETS] [-t HEIGHT] [-w WIDTH] [-d DIRECTORY <default: .>] "
+  echo "Usage: [-m] [-i IP_ADDRESS <default: localhost>] [-p PORT  <default: 3000>] [-n NUMBER_SOCKETS] [-t HEIGHT] [-w WIDTH] [-d DIRECTORY <default: .>] [-b]"
   exit 2
 }
 
@@ -40,7 +40,8 @@ NUMBER_SOCKETS=1
 IP_ADDRESS="localhost"
 PORT="3000"
 DIRECTORY="examples/cylinder"
-while getopts 'mi:p:n:d:t:w:h' c
+OPEN_BROWSER='t'
+while getopts 'mi:p:n:d:t:w:bh' c
 do
   case $c in
     m) set_variable MASTER 't' ;;
@@ -50,6 +51,7 @@ do
     d) set_variable DIRECTORY $OPTARG ;;
     t) set_variable HEIGHT $OPTARG ;;
     w) set_variable WIDTH $OPTARG ;;
+    b) set_variable OPEN_BROWSER 'f' ;;
     h) usage ;; esac
 done
 
@@ -62,6 +64,9 @@ echo "here"
 echo $WIDTH
 echo $HEIGHT
 n=1
+if [ "$OPEN_BROWSER" == "f" ]; then
+  n=$(($NUMBER_SOCKETS+1));
+fi
 while [ $n -le $NUMBER_SOCKETS ]
 do
     echo "loooop"

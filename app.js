@@ -21,6 +21,8 @@ var lookingRight = 1;
 var startRight = true;
 var receivedConfirmation = [];
 var projectsReloaded = 0;
+var noUsersReloaded = null;
+var actuallyReloaded = 0;
 io.on('connection', function(socket) {
    var id;
    var isATablet = false;
@@ -33,29 +35,20 @@ io.on('connection', function(socket) {
       noUsers++;
       id = noUsers;
 
+      
       socket.join('Window');
 
-      // angleToGo = (data.width/data.height)*(13/0.18);
-      // angleToGo = 106.5;
       var aspect = data.width/data.height;
-      // angleToGo= 76.2734+52.236*Math.log(aspect);
       angleToGo=-18.7339*(aspect*aspect)+93.5448*aspect+0.0208;
-      // angleToGo=117.3817/(1+5.2352*Math.exp(-2.211*aspect));
       var angleThisSocket = Math.floor((id/2))*angleToGo;
       if(id%2 == 0){
          angleThisSocket = -angleThisSocket;
       }
-      // console.log(lookingRight)
       console.log('Screen number ' + noUsers + ' connected with id ' + id);
       socket.emit('idSet', {id: id, active: id==activeUser, angle: angleThisSocket, 
                            x: separation * (-(angleThisSocket)/angleToGo),
                            z: 0});
       io.sockets.to('Window').emit('newWindow', noUsers);
-
-      
-
-      // if(noUsers%2 == 1){ angleNext+=angleToGo; }
-      // lookingRight = -lookingRight;
       
       const interval = setInterval(function() {
          // console.log("synchronising")
@@ -182,7 +175,7 @@ io.on('connection', function(socket) {
       socket.join('Tablet');
    })
 
-   var noUsersReloaded
+   
    socket.on('newProjectServer', function(idSocket) {
       console.log("reloading " + id + "  and " + idSocket);
       noUsersReloaded = idSocket
@@ -209,13 +202,13 @@ io.on('connection', function(socket) {
       console.log("send reloading " + id + " to " + (projectsReloaded+1));
       projectsReloaded++;
       io.sockets.to('Window').emit('reload', projectsReloaded);
-      if(projectsReloaded == noUsersReloaded){
-         projectsReloaded=0;
-      }
    }
 
    socket.on('disconnect', (reason) => {
       console.log('Disconnection')
+      if(projectsReloaded != 0){
+         actuallyReloaded++;
+      }
       if(!isATablet && projectsReloaded == 0){
          console.log('Screen number ' + id + ' disconnected and there are ' + noUsers + ' users');
       
@@ -246,6 +239,14 @@ io.on('connection', function(socket) {
          }
          // io.sockets.emit('whatTime');
       
+      }
+
+      console.log('Number users reloaded ' + noUsersReloaded + ' ' + actuallyReloaded)
+      if(actuallyReloaded == noUsersReloaded){
+            projectsReloaded=0;
+            noUsersReloaded=null;
+            actuallyReloaded=0;
+            console.log('Number users reloaded reassignment ' + noUsersReloaded + ' ' + projectsReloaded);
       }
    });
 });

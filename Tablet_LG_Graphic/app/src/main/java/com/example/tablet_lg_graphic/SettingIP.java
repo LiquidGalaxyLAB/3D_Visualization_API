@@ -684,7 +684,7 @@ public class SettingIP extends AppCompatActivity  {
                     "window.location='http://" + ipAddressCode.get(0) + ":" + portCode  + "';" +
                     "</script></body></html>;";
             if(isMaster && killServer) {
-                finalCommand = "cd " + projectDirToChange +"; node " + portCode + " " + projectDir;
+                finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -p " + portCode + " -d " + projectDir + " -b";
             }else if(killServer && !isMaster) {
                 finalCommand = "cd " + projectDirToChange + "; ./killServer.sh";
             } else if (!killServer && isMaster) {
