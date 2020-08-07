@@ -138,13 +138,9 @@ If there is problems running the last command try typing npm install -g nodemon
 
 ### How to use
 
-#### Connect to an already running server
+This app is programmed to remember the state it was left even when leaving the app.
 
-<img src="img/connect.png" width="230">
-
-To connect to an already running server click on the top screen in the android app. All the information that is asked on this section refers to the machine where the server is ran. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed.
-
-#### Launch a server server
+#### Launch a server
 <img src="img/launch.png" width="230">
 
 To launch a server in a machine click on the top screen in the android app. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed., the IP Address needs to be the one of the central machine (the master).
@@ -152,6 +148,23 @@ To launch a server in a machine click on the top screen in the android app. The 
 <img src="img/launch_info.png" width="230">
 
 Fill the information appropriately for each machine.
+
+<img src="img/project.png" width="230">
+
+After filling the needed information, the app will go into the projects window. Here the list of projects registered would appear. You can register projects by clicking the "Register project" button
+
+<img src="img/register_project.png" width="230">
+
+Fill with the path in your **Master** to the directory with the index.html file you want to run. The app will check that the directory is valid and then it would be registered
+
+<img src="img/project_filled.png" width="230">
+
+
+#### Connect to an already running server
+
+<img src="img/connect.png" width="230">
+
+To connect to an already running server click on the top screen in the android app. All the information that is asked on this section refers to the machine where the server is ran. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed.
 
 ## Controls
 ### In the computer
@@ -172,7 +185,7 @@ Fill the information appropriately for each machine.
 
 To mode of the arrows (translate and rotate) is represented in the botton right of the screen. To switch press the same buttons. 
 
-The 'kill' button is only shown when the app launched the server, and it would kill the server and go back. This would leave the port where the server is run free.
+The **'kill'** button is only shown when the app launched the server, and it would kill the server and go back. This would leave *the port where the server is run free*.
 
 ## Built With
 

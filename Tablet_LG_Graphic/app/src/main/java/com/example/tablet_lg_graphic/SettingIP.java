@@ -2,6 +2,7 @@ package com.example.tablet_lg_graphic;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 
@@ -18,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiInfo;
+import android.content.SharedPreferences;
 
 import java.lang.reflect.Array;
 import java.net.URISyntaxException;
@@ -29,11 +31,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Locale;
 import java.io.InputStream;
 
 import java.io.IOException;
+import java.util.Set;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -136,12 +142,343 @@ public class SettingIP extends AppCompatActivity  {
 
     private boolean translationOn;
 
+
+    private SharedPreferences prefs;
+    private int progress;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ip_setting);
 
         setMenuButtons(true);
+        prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        restoreForCreate(prefs);
+    }
+
+    @Override
+    protected void onRestart(){
+        super.onRestart();
+
+        Log.i("APP", "restore projects " + projects);
+        Log.i("APP", "restore paths " + path_projects);
+
+        Log.i("APP", "restore after projects " + projects);
+        Log.i("APP", "restore after paths " + path_projects);
+        //boolean myBoolean = savedState.getBoolean("MyBoolean");
+        //double myDouble = savedState.getDouble("myDouble");
+        STATE = prefs.getInt("STATE", 1);
+        Log.i("APP", "restore State " + STATE);
+        if(STATE==CONNECT){
+            Log.i("APP", "restore State connect");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(visibleColor);
+            connect_layout.setVisibility(View.VISIBLE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH){
+            Log.i("APP", "restore State launch");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH_INFO){
+            Log.i("APP", "restore State launch info");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.VISIBLE);
+
+            if(howManyMachinesAsked==0){
+                launch_checkbox_info.setVisibility(View.GONE);
+                title_ip_launch_machine.setVisibility(View.GONE);
+                ipAddress_launch_machine.setVisibility(View.GONE);
+            }else{
+                launch_checkbox_info.setVisibility(View.VISIBLE);
+                title_ip_launch_machine.setVisibility(View.VISIBLE);
+                ipAddress_launch_machine.setVisibility(View.VISIBLE);
+            }
+
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==PROJECT){
+            Log.i("APP", "restore State project");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==REGISTER_PROJECT){
+            Log.i("APP", "restore State register");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.VISIBLE);
+        }
+        //String myString = savedState.getString("MyString");
+
+
+        Set<String> ipAddressCodeSet = prefs.getStringSet("ipAddressCode", new HashSet<String>());
+        ipAddressCode = new ArrayList<String>(ipAddressCodeSet) ;
+
+        Set<String> usernameSet = prefs.getStringSet("username", new HashSet<String>());
+        username = new ArrayList<String>(usernameSet) ;
+        Set<String> passwordSet = prefs.getStringSet("password", new HashSet<String>());
+        password = new ArrayList<String>(passwordSet) ;
+        Set<String> path_projectsSet = prefs.getStringSet("path_projects", new HashSet<String>());
+        path_projects = new ArrayList<String>(path_projectsSet) ;
+
+        Set<String> noScreensSet = prefs.getStringSet("noScreens", new HashSet<String>());
+        noScreens = new ArrayList<Integer>(noScreensSet.size()) ;
+        for (String myInt : noScreensSet)
+        {
+            noScreens.add(Integer.valueOf(myInt));
+        }
+
+        portBusyFromUs = prefs.getBoolean("portBusyFromUs", false);
+
+        Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
+
+        projects = new ArrayList<Button>();
+        for (Iterator<String> it = buttonID.iterator(); it.hasNext(); ) {
+            String f = it.next();
+
+            final Button proj = new Button(this);
+            proj.setText(path_projects.get(Integer.parseInt(f)));
+
+            proj.setId(Integer.parseInt(f));
+            projects.add(proj);
+            project_layout.addView(proj);
+
+            proj.setOnClickListener(new OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    for(int i = 0; i< username.size(); i++){
+                        Log.i("APP", "Launching one server " + i);
+                        loading.setVisibility(View.VISIBLE);
+
+                        lastProjectUsed = proj.getId();
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                    }
+                }
+            });
+        }
+
+        Log.i("APP", "restore final  projects " + projects);
+        Log.i("APP", "restore final paths " + path_projects);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences.Editor editPrefs = prefs.edit();
+
+
+        Log.i("APP", "restore before projects " + projects);
+        Log.i("APP", "restore before paths " + path_projects);
+        Log.i("APP", "restore State before" + STATE);
+
+        editPrefs.putInt("STATE", STATE);
+        Set<String> ipAddressCodeSet = new HashSet<String>(ipAddressCode);
+        editPrefs.putStringSet("ipAddressCode", ipAddressCodeSet);
+        Set<String> usernameSet = new HashSet<String>(username);
+        editPrefs.putStringSet("username", usernameSet);
+        Set<String> passwordSet = new HashSet<String>(password);
+        editPrefs.putStringSet("password", passwordSet);
+        Set<String> path_projectsSet = new HashSet<String>(path_projects);
+        editPrefs.putStringSet("path_projects", path_projectsSet);
+
+        List<String> noScreensString = new ArrayList<String>();
+        for (Integer i: noScreens) {
+            noScreensString.add(String.valueOf(i));
+        }
+        Set<String> noScreensSet = new HashSet<String>(noScreensString);
+        editPrefs.putStringSet("noScreens", noScreensSet);
+
+        editPrefs.putBoolean("portBusyFromUs", portBusyFromUs);
+
+        Set<String> buttonID = new HashSet<String>();
+        for(int i=0; i<projects.size(); i++){
+            buttonID.add(String.valueOf(projects.get(i).getId()));
+            project_layout.removeView( projects.get(i));
+        }
+        editPrefs.putStringSet("buttonID", buttonID);
+
+        editPrefs.commit();
+    }
+
+    protected void restoreForCreate(SharedPreferences prefs) {
+        Log.i("APP", "restore projects " + projects);
+
+        Log.i("APP", "restore after projects " + projects);
+        //boolean myBoolean = savedState.getBoolean("MyBoolean");
+        //double myDouble = savedState.getDouble("myDouble");
+        STATE = prefs.getInt("STATE", 1);
+        Log.i("APP", "restore State " + STATE);
+        if(STATE==CONNECT){
+            Log.i("APP", "restore State connect");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(visibleColor);
+            connect_layout.setVisibility(View.VISIBLE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH){
+            Log.i("APP", "restore State launch");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.VISIBLE);
+            backButton.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==LAUNCH_INFO){
+            Log.i("APP", "restore State launch info");
+            connect_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setVisibility(View.VISIBLE);
+            launch_state_button.setBackgroundColor(visibleColor);
+            connect_state_button.setBackgroundColor(offColor);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.VISIBLE);
+
+            if(howManyMachinesAsked==0){
+                launch_checkbox_info.setVisibility(View.GONE);
+                title_ip_launch_machine.setVisibility(View.GONE);
+                ipAddress_launch_machine.setVisibility(View.GONE);
+            }else{
+                launch_checkbox_info.setVisibility(View.VISIBLE);
+                title_ip_launch_machine.setVisibility(View.VISIBLE);
+                ipAddress_launch_machine.setVisibility(View.VISIBLE);
+            }
+
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==PROJECT){
+            Log.i("APP", "restore State project");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            project_register_layout.setVisibility(View.GONE);
+        }else if(STATE==REGISTER_PROJECT){
+            Log.i("APP", "restore State register");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.VISIBLE);
+        }
+        //String myString = savedState.getString("MyString");
+
+
+        Set<String> ipAddressCodeSet = prefs.getStringSet("ipAddressCode", new HashSet<String>());
+        ipAddressCode = new ArrayList<String>(ipAddressCodeSet) ;
+
+        Set<String> usernameSet = prefs.getStringSet("username", new HashSet<String>());
+        username = new ArrayList<String>(usernameSet) ;
+        Set<String> passwordSet = prefs.getStringSet("password", new HashSet<String>());
+        password = new ArrayList<String>(passwordSet) ;
+        Set<String> path_projectsSet = prefs.getStringSet("path_projects", new HashSet<String>());
+        path_projects = new ArrayList<String>(path_projectsSet) ;
+
+        Set<String> noScreensSet = prefs.getStringSet("noScreens", new HashSet<String>());
+        noScreens = new ArrayList<Integer>(noScreensSet.size()) ;
+        for (String myInt : noScreensSet)
+        {
+            noScreens.add(Integer.valueOf(myInt));
+        }
+
+        portBusyFromUs = prefs.getBoolean("portBusyFromUs", false);
+
+        Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
+
+        for (Iterator<String> it = buttonID.iterator(); it.hasNext(); ) {
+            String f = it.next();
+
+            final Button proj = new Button(this);
+            proj.setText(path_projects.get(Integer.parseInt(f)));
+
+            proj.setId(Integer.parseInt(f));
+            projects.add(proj);
+            project_layout.addView(proj);
+
+            proj.setOnClickListener(new OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    for(int i = 0; i< username.size(); i++){
+                        Log.i("APP", "Launching one server " + i);
+                        loading.setVisibility(View.VISIBLE);
+
+                        lastProjectUsed = proj.getId();
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                    }
+                }
+            });
+        }
+
+        Log.i("APP", "restore final  projects " + projects);
+
     }
 
     private void switchStateToLaunch(){
@@ -189,35 +526,43 @@ public class SettingIP extends AppCompatActivity  {
             if(result == false){
                 registerPath.setError("Path not valid");
             }else{
-                STATE = PROJECT;
-                project_layout.setVisibility(View.VISIBLE);
-                project_register_layout.setVisibility(View.GONE);
-                projectPath.setVisibility(View.VISIBLE);
-                backButton.setVisibility(View.VISIBLE);
-                nextButton.setVisibility(View.GONE);
+                if(path_projects.contains(registerPath.getText())){
+                    registerPath.setError("Path already registered");
+                }else{
+                    STATE = PROJECT;
+                    project_layout.setVisibility(View.VISIBLE);
+                    project_register_layout.setVisibility(View.GONE);
+                    projectPath.setVisibility(View.VISIBLE);
+                    backButton.setVisibility(View.VISIBLE);
+                    nextButton.setVisibility(View.GONE);
 
-                final Button proj = new Button(this);
-                proj.setText(registerPath.getText());
+                    final Button proj = new Button(this);
+                    String path=registerPath.getText().toString();
+                    int indexPublic=path.indexOf("public");
+                    String projectDir = path.substring(indexPublic+6);
+                    proj.setText(projectDir);
 
-                proj.setId(path_projects.size());
-                path_projects.add(registerPath.getText().toString());
-                registerPath.setText(null);
-                projects.add(proj);
-                project_layout.addView(proj);
+                    proj.setId(path_projects.size());
+                    path_projects.add(registerPath.getText().toString());
+                    registerPath.setText(null);
+                    projects.add(proj);
+                    project_layout.addView(proj);
 
-                proj.setOnClickListener(new OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v) {
-                        for(int i = 0; i< username.size(); i++){
-                            Log.i("APP", "Launching one server " + i);
-                            loading.setVisibility(View.VISIBLE);
+                    proj.setOnClickListener(new OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v) {
+                            for(int i = 0; i< username.size(); i++){
+                                Log.i("APP", "Launching one server " + i);
+                                loading.setVisibility(View.VISIBLE);
 
-                            lastProjectUsed = proj.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                                lastProjectUsed = proj.getId();
+                                launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+
             }
         }
     }
@@ -347,6 +692,7 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     private void clickBack(){
+        Log.i("APP", "clicked back " + STATE + " "+ (STATE==PROJECT));
         if(STATE==LAUNCH_INFO || STATE==PROJECT){
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
@@ -355,8 +701,22 @@ public class SettingIP extends AppCompatActivity  {
             launch_layout.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+            ipAddressCode = new ArrayList<String>();
+            username = new ArrayList<String>();
+            password = new ArrayList<String>();
+            path_projects = new ArrayList<String>();
+            noScreens = new ArrayList<Integer>();
+            for(int i=0; i<projects.size(); i++){
+                project_layout.removeView(projects.get(i));
+                projects.get(i).setOnClickListener(null);
+            }
+            projects = new ArrayList<Button>();
+            //password_launch_machine.setText(null);
             STATE=LAUNCH;
-        }if(STATE==REGISTER_PROJECT){
+        }else if(STATE==REGISTER_PROJECT){
             STATE=PROJECT;
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
@@ -918,16 +1278,16 @@ public class SettingIP extends AppCompatActivity  {
 
     }
 
-    @Override
+    /*@Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.i("APP", "restore before usernames " + username);
+        Log.i("APP", "restore before projects " + projects);
         Log.i("APP", "restore State before" + STATE);
         super.onSaveInstanceState(outState);
 
         //outState.putBoolean("MyBoolean", true);
         //outState.putDouble("myDouble", 1.9);
         Log.i("APP", "save State " + STATE);
-        Log.i("APP", "save usernames " + username);
+        Log.i("APP", "save projects " + projects);
         outState.putInt("STATE", STATE);
         outState.putStringArrayList("ipAddressCode", ipAddressCode);
         outState.putStringArrayList("username", username);
@@ -944,134 +1304,9 @@ public class SettingIP extends AppCompatActivity  {
         outState.putIntArray("buttonID", buttonID);
 
         //outState.putString("MyString", "Welcome back to Android");
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedState) {
-        Log.i("APP", "restore usernames " + username);
-        super.onRestoreInstanceState(savedState);
-
-        Log.i("APP", "restore after usernames " + username);
-        //boolean myBoolean = savedState.getBoolean("MyBoolean");
-        //double myDouble = savedState.getDouble("myDouble");
-        STATE = savedState.getInt("STATE");
-        Log.i("APP", "restore State " + STATE);
-        if(STATE==CONNECT){
-            Log.i("APP", "restore State connect");
-            connect_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setBackgroundColor(offColor);
-            connect_state_button.setBackgroundColor(visibleColor);
-            connect_layout.setVisibility(View.VISIBLE);
-            launch_layout.setVisibility(View.GONE);
-            backButton.setVisibility(View.GONE);
-            nextButton.setVisibility(View.VISIBLE);
-            launch_layout_machine.setVisibility(View.GONE);
-            project_layout.setVisibility(View.GONE);
-            projectPath.setVisibility(View.GONE);
-            project_register_layout.setVisibility(View.GONE);
-        }else if(STATE==LAUNCH){
-            Log.i("APP", "restore State launch");
-            connect_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setBackgroundColor(visibleColor);
-            connect_state_button.setBackgroundColor(offColor);
-            connect_layout.setVisibility(View.GONE);
-            launch_layout.setVisibility(View.VISIBLE);
-            backButton.setVisibility(View.GONE);
-            nextButton.setVisibility(View.VISIBLE);
-            launch_layout_machine.setVisibility(View.GONE);
-            project_layout.setVisibility(View.GONE);
-            projectPath.setVisibility(View.GONE);
-            project_register_layout.setVisibility(View.GONE);
-        }else if(STATE==LAUNCH_INFO){
-            Log.i("APP", "restore State launch info");
-            connect_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setVisibility(View.VISIBLE);
-            launch_state_button.setBackgroundColor(visibleColor);
-            connect_state_button.setBackgroundColor(offColor);
-            connect_layout.setVisibility(View.GONE);
-            launch_layout.setVisibility(View.GONE);
-            backButton.setVisibility(View.VISIBLE);
-            nextButton.setVisibility(View.VISIBLE);
-            launch_layout_machine.setVisibility(View.VISIBLE);
-
-            if(howManyMachinesAsked==0){
-                launch_checkbox_info.setVisibility(View.GONE);
-                title_ip_launch_machine.setVisibility(View.GONE);
-                ipAddress_launch_machine.setVisibility(View.GONE);
-            }else{
-                launch_checkbox_info.setVisibility(View.VISIBLE);
-                title_ip_launch_machine.setVisibility(View.VISIBLE);
-                ipAddress_launch_machine.setVisibility(View.VISIBLE);
-            }
-
-            project_layout.setVisibility(View.GONE);
-            projectPath.setVisibility(View.GONE);
-            project_register_layout.setVisibility(View.GONE);
-        }else if(STATE==PROJECT){
-            Log.i("APP", "restore State project");
-            connect_state_button.setVisibility(View.GONE);
-            launch_state_button.setVisibility(View.GONE);
-            connect_layout.setVisibility(View.GONE);
-            launch_layout.setVisibility(View.GONE);
-            backButton.setVisibility(View.VISIBLE);
-            nextButton.setVisibility(View.GONE);
-            launch_layout_machine.setVisibility(View.GONE);
-            project_layout.setVisibility(View.VISIBLE);
-            projectPath.setVisibility(View.VISIBLE);
-            project_register_layout.setVisibility(View.GONE);
-        }else if(STATE==REGISTER_PROJECT){
-            Log.i("APP", "restore State register");
-            connect_state_button.setVisibility(View.GONE);
-            launch_state_button.setVisibility(View.GONE);
-            connect_layout.setVisibility(View.GONE);
-            launch_layout.setVisibility(View.GONE);
-            backButton.setVisibility(View.VISIBLE);
-            nextButton.setVisibility(View.VISIBLE);
-            launch_layout_machine.setVisibility(View.GONE);
-            project_layout.setVisibility(View.GONE);
-            projectPath.setVisibility(View.GONE);
-            project_register_layout.setVisibility(View.VISIBLE);
-        }
-        //String myString = savedState.getString("MyString");
+    }*/
 
 
-        ipAddressCode = savedState.getStringArrayList("ipAddressCode");
-        username = savedState.getStringArrayList("username");
-        password = savedState.getStringArrayList("password");
-        path_projects = savedState.getStringArrayList("path_projects");
-        noScreens = savedState.getIntegerArrayList("noScreens");
-        portBusyFromUs = savedState.getBoolean("portBusyFromUs");
-
-        int[] buttonID = savedState.getIntArray("buttonID");
-
-        for(int i=0; i<buttonID.length; i++){
-            final Button proj = new Button(this);
-            proj.setText(path_projects.get(buttonID[i]));
-
-            proj.setId(buttonID[i]);
-            projects.add(proj);
-            project_layout.addView(proj);
-
-            proj.setOnClickListener(new OnClickListener()
-            {
-                @Override
-                public void onClick(View v) {
-                    for(int i = 0; i< username.size(); i++){
-                        Log.i("APP", "Launching one server " + i);
-                        loading.setVisibility(View.VISIBLE);
-
-                        lastProjectUsed = proj.getId();
-                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
-                    }
-                }
-            });
-        }
-
-        Log.i("APP", "restore final username " + username);
-
-    }
 
     private void setMenuButtons(boolean empty){
         STATE=LAUNCH;

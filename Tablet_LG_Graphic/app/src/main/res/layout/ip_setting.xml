@@ -16,6 +16,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="visible"
         android:orientation="horizontal">
         <Button
             android:id="@+id/launch"
@@ -244,7 +245,6 @@
             android:text="@string/projectTitle" />
 
 
-
     </LinearLayout>
 
     <LinearLayout
@@ -274,8 +274,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:singleLine="true"
-            android:text="/Users/saracb/LG/3D_Visualization_API/public/examples/cylinder"/>
+            android:singleLine="true"/>
 
 
     </LinearLayout>
