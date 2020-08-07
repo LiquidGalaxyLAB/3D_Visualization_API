@@ -121,9 +121,9 @@ $ ./killServer.sh
 ## Android app
 
 ### Prerequesites
-* npm i
+* npm i in master
 
-You will still need to run in the machine:
+You will still need to run in the master machine machine:
 ```
 $ npm install
 ```
