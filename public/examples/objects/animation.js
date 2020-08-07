@@ -1,6 +1,6 @@
 
-animate();
 
+// 
     // camera.position.z = 1800;
     scene.background = new THREE.Color( 0xffffff );
 
@@ -104,8 +104,10 @@ animate();
     mesh.add( wireframe );
     scene.add( mesh );
 
-
+    
 //
+animate();
+
 
 function animate() {
 
@@ -116,6 +118,8 @@ function animate() {
 }
 
 function render() {
+
+    camera.position.z = 10;
 
     renderer.render( scene, camera );
 
