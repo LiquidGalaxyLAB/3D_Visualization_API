@@ -134,7 +134,7 @@ If there is problems running the last command try typing npm install -g nodemon
   * Mac: Switch remote login on in system preferences/share
 * Android device with at least the KitKat version
 
-* Download the app i: https://drive.google.com/file/d/1iEJQydHogou1FgV5__IeV4p7VHvWCG0C/view?usp=sharing
+* Download the app i: https://drive.google.com/file/d/15LZfCakYCRCmlKxijxa1iCYykL5pr35O/view?usp=sharing
 
 ### How to use
 
