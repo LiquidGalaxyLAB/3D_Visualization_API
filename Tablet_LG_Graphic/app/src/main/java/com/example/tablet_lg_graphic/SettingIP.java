@@ -192,7 +192,10 @@ public class SettingIP extends AppCompatActivity  {
             String f = it.next();
 
             final Button proj = new Button(this);
-            proj.setText(path_projects.get(Integer.parseInt(f)));
+            String path=registerPath.getText().toString();
+            int indexPublic=path.indexOf("public");
+            String projectDir = path.substring(indexPublic+6);
+            proj.setText(projectDir);
 
             proj.setId(Integer.parseInt(f));
             projects.add(proj);
@@ -394,7 +397,10 @@ public class SettingIP extends AppCompatActivity  {
             String f = it.next();
 
             final Button proj = new Button(this);
-            proj.setText(path_projects.get(Integer.parseInt(f)));
+            String path=registerPath.getText().toString();
+            int indexPublic=path.indexOf("public");
+            String projectDir = path.substring(indexPublic+6);
+            proj.setText(projectDir);
 
             proj.setId(Integer.parseInt(f));
             projects.add(proj);
