@@ -103,6 +103,9 @@ $ ./killServer.sh
 * *scale(object: Object3D, scaleX: Float, scaleY: Float, scaleZ:Float): void*
   * Description → It sets the object's local scale to ( x: scaleX, y: scaleY, z: scaleZ )
 
+* *setColor(object: Object3D, color: Integer, colorWrite: boolean, vertexColor: boolean)*
+  * Description → It sets the object's color to ( colorHex: color, colorWrite: colorWrite, vertexColor: vertexColor )
+
 * *translate(object: Object3D, translateX: Float, translateY: Float, translateZ: Float): void*
   * Description → It sets the object's local position to ( x: translateX, y: translateY, z: translateZ )
 * *addTranslation(object: Object3D, translateX: Float, translateY: Float, translateZ: Float): void*

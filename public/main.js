@@ -462,18 +462,49 @@ function scale(object, scaleX, scaleY, scaleZ){
     }
 }
 
+function setColor(object, color, colorWrite, vertexColor){
+    object.material.color.setHex( color );
+    object.material.colorWrite = colorWrite;
+    object.material.vertexColor = vertexColor;
+
+    if(id == 1 && objectTransform.indexOf(object.id) == -1){
+        objectTransform.push(object.id);
+    }
+}
+
 function getTranslations(){
     var toSend = [];
     if(firstTimeSync){
         console.log("synchronising first");
         var children = scene.children;
 
+        
         for(i = 0; i< children.length; i++){
+            console.log(children[i].material);
             if((children[i] instanceof THREE.Camera) == false){
                 if((children[i] instanceof THREE.Points) == false){
-                    toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), sca: children[i].scale});
+                    if(children[i].color != undefined){
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale, colHex: children[i].color.getHex()});
+                    }else if(children[i].material.color != undefined){
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale, colHex: children[i].material.color.getHex()});
+                    }else{
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale});
+                    }
+                    
                 }else{
-                    toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), sca: children[i].scale, geo: children[i].geometry.attributes.position.array});
+                    if(children[i].color != undefined){
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale, geo: children[i].geometry.attributes.position.array, colHex: children[i].color.getHex()});    
+                    }else if(children[i].material.color != undefined){
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale, geo: children[i].geometry.attributes.position.array, colHex: children[i].material.color.getHex()});    
+                    }else{
+                        toSend.push({id: children[i].id, pos: getOriginalPositionObject(children[i]), rot: getOriginalRotationObject(children[i]), 
+                            sca: children[i].scale, geo: children[i].geometry.attributes.position.array});    
+                    }
                 }
             }
         }
@@ -481,9 +512,34 @@ function getTranslations(){
     }else{
         for(const id of  objectTransform){
             if((scene.getObjectById(id) instanceof THREE.Points) == false){
-                toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale});
+                if(scene.getObjectById(id).color != undefined){
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale,  
+                        colHex: scene.getObjectById(id).color.getHex()});  
+                }else if(scene.getObjectById(id).material.color != undefined){
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale,  
+                        colHex: scene.getObjectById(id).material.color.getHex()});    
+                }else{
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale});
+                }
             }else{
-                toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale, geo: scene.getObjectById(id).geometry.attributes.position.array});
+                if(scene.getObjectById(id).color != undefined){
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale, 
+                        geo: scene.getObjectById(id).geometry.attributes.position.array, 
+                        colHex: scene.getObjectById(id).color.getHex()});
+                }else if(scene.getObjectById(id).material.color != undefined){
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale, 
+                        geo: scene.getObjectById(id).geometry.attributes.position.array, 
+                        colHex: scene.getObjectById(id).material.color.getHex()});   
+                }else{
+                    toSend.push({id: id, pos: getOriginalPositionObject(scene.getObjectById(id)), 
+                        rot: getOriginalRotationObject(scene.getObjectById(id)), sca: scene.getObjectById(id).scale, 
+                        geo: scene.getObjectById(id).geometry.attributes.position.array});
+                }
             }
         }
     }
@@ -509,6 +565,12 @@ function setTranslations(array){
         obj.scale.x = object.sca.x;
         obj.scale.y = object.sca.y;
         obj.scale.z = object.sca.z;
+
+        if(obj.color != undefined){
+            obj.color.setHex(object.colHex)
+        }else if(obj.material.color != undefined){
+            obj.material.color.setHex(object.colHex)
+        }
         if((obj instanceof THREE.Points) == true){
             var positions = obj.geometry.attributes.position.array;
             for(var i = 0; i<positions.length; i++){
