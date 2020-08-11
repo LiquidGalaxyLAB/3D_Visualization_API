@@ -40,6 +40,13 @@ Each argument means:
 * -t, -w → Dimensions of a single browser. By default these will be set to occupy the maximum of the screen monitor.
 * -d → Path to animation project directory (relative to 'public' folder), this is where the file 'index.html' is found. Default is the public directory.
 
+
+If the script fails due to the OS or different versions, you can run:
+```
+$ node app <port> <directory>
+```
+And then open a brown and go to http://localhost:<port>
+
 ### Example commands to run script launch.sh
 
 #### Running project in a single machine 
@@ -50,6 +57,14 @@ $ ./launch.sh -m -n 3 -d examples/objects
 ```
 And it should look like:
 ![Alt text](img/objects.png?raw=true "objects example project")
+
+
+If you are going for the second approach then you would run:
+If the script fails due to the OS or different versions, you can run:
+```
+$ node app 3000 examples/objects
+```
+And then open http://localhost:3000
 
 #### Running project in multiple machines
 In a specific port.
@@ -132,9 +147,8 @@ $ npm install
 ```
 If there is problems running the last command try typing npm install -g nodemon
 
-* Being able to SSH to machine. Usual ways to enable ssh in:
-  * Windows: Install OPENSSH
-  * Mac: Switch remote login on in system preferences/share
+* Having Linux machines
+* Being able to SSH to machine. 
 * Android device with at least the KitKat version
 
 * Download the app i: https://drive.google.com/file/d/15LZfCakYCRCmlKxijxa1iCYykL5pr35O/view?usp=sharing
