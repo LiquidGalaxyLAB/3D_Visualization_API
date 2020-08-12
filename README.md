@@ -60,7 +60,6 @@ And it should look like:
 
 
 If you are going for the second approach then you would run:
-If the script fails due to the OS or different versions, you can run:
 ```
 $ node app 3000 examples/objects
 ```
