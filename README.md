@@ -45,7 +45,7 @@ If the script fails due to the OS or different versions, you can run:
 ```
 $ node app <port> <directory>
 ```
-And then open a brown and go to http://localhost:<port>
+And then open a brown and go to http://localhost:port
 
 ### Example commands to run script launch.sh
 
