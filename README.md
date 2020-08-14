@@ -151,7 +151,7 @@ If there is problems running the last command try typing npm install -g nodemon
 * Being able to SSH to machine. 
 * Android device with at least the KitKat version
 
-* Download the app i: https://drive.google.com/file/d/15LZfCakYCRCmlKxijxa1iCYykL5pr35O/view?usp=sharing
+* Download the app in: https://drive.google.com/drive/folders/15Zdks4OuHtfNjNBILYXr5axL7HoKTnnp?usp=sharing
 
 ### How to use
 
@@ -166,9 +166,15 @@ To launch a server in a machine click on the top screen in the android app. The 
 
 Fill the information appropriately for each machine.
 
+<img src="img/register_repository.png" width="230">
+
+Fill with the complete path in your **Master** of this repository.
+
 <img src="img/project.png" width="230">
 
-After filling the needed information, the app will go into the projects window. Here the list of projects registered would appear. You can register projects by clicking the "Register project" button
+After filling the needed information, the app will go into the projects window where the sample projects would appear. The "Demo" button would make the app follow steps of action that could showcase all three sample animations and the different user control functionalities, which would end in the "killing" of the server and disconnection of the machine 
+
+Other projects registered would appear. You can register projects by clicking the "Register project" button. 
 
 <img src="img/register_project.png" width="230">
 
