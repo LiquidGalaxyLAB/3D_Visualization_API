@@ -263,20 +263,55 @@
             android:textColor="@color/off"
             android:textSize="@dimen/title"
             android:text="Register project" />
+
+        <CheckBox
+            android:id="@+id/same_repository"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="The project is in the same base repository" />
+
         <TextView
             android:id="@+id/path_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/off"
-            android:text="Write the path of your project" />
+            android:text="Write the path of your repository" />
         <EditText
             android:id="@+id/path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:singleLine="true"/>
+    </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/layout_find_repository"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="100px"
+        android:visibility="gone"
+        android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/title_find_repository"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:textSize="@dimen/title"
+            android:text="Register project" />
+        <TextView
+            android:id="@+id/reopsitory_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:text="Write the path of your 3D_Visualization_API repository" />
+        <EditText
+            android:id="@+id/repository"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:singleLine="true"/>
     </LinearLayout>
 
     <LinearLayout

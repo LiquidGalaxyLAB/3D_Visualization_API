@@ -40,6 +40,7 @@ import java.io.InputStream;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -53,12 +54,15 @@ import com.jcraft.jsch.Session;
 
 public class SettingIP extends AppCompatActivity  {
 
+    private boolean DEMO_ON=false;
+    private int projectRunning = 0;
 
     private int CONNECT=0;
     private int LAUNCH=1;
     private int LAUNCH_INFO=2;
     private int PROJECT=3;
     private int REGISTER_PROJECT=4;
+    private int REGISTER_REPOSITORY=5;
     private int STATE;
 
     private static int MIN_PORT_NUMBER = 1;
@@ -94,6 +98,11 @@ public class SettingIP extends AppCompatActivity  {
     //RegisterProject buttons
     private EditText registerPath;
     private LinearLayout project_register_layout;
+    private CheckBox sameRepository;
+
+    //RegisterREPOSITORY buttons
+    private EditText registerRepository;
+    private LinearLayout repository_register_layout;
 
     // Launch info buttons
     private Button backButton;
@@ -154,7 +163,7 @@ public class SettingIP extends AppCompatActivity  {
 
         setMenuButtons(true);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        restoreForCreate(prefs);
+        //restoreForCreate(prefs);
     }
 
     @Override
@@ -188,32 +197,63 @@ public class SettingIP extends AppCompatActivity  {
         Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
 
         projects = new ArrayList<Button>();
+        int i=0;
         for (Iterator<String> it = buttonID.iterator(); it.hasNext(); ) {
             String f = it.next();
 
-            final Button proj = new Button(this);
-            String path=registerPath.getText().toString();
-            int indexPublic=path.indexOf("public");
-            String projectDir = path.substring(indexPublic+6);
-            proj.setText(projectDir);
+            if(i==0){
+                final Button proj = new Button(this);
+                proj.setText("Demo");
 
-            proj.setId(Integer.parseInt(f));
-            projects.add(proj);
-            project_layout.addView(proj);
+                proj.setId(Integer.parseInt(f));
+                projects.add(proj);
+                project_layout.addView(proj);
 
-            proj.setOnClickListener(new OnClickListener()
-            {
-                @Override
-                public void onClick(View v) {
-                    for(int i = 0; i< username.size(); i++){
-                        Log.i("APP", "Launching one server " + i);
-                        loading.setVisibility(View.VISIBLE);
+                proj.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching demo ");
+                            loading.setVisibility(View.VISIBLE);
 
-                        lastProjectUsed = proj.getId();
-                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            lastProjectUsed = proj.getId();
+                            DEMO_ON=true;
+                            projectRunning=1;
+                            launchDemo(projectRunning);
+                        }
                     }
+                });
+                i++;
+            }else{
+                final Button proj = new Button(this);
+                String path=path_projects.get(i);
+                int indexPublic=path.indexOf(path_projects.get(0) + "public");
+                String projectDir = path;
+                if(indexPublic ==-1){
+                    projectDir = path.substring(indexPublic+path_projects.get(0).length()+6);
                 }
-            });
+                proj.setText(projectDir);
+
+                proj.setId(Integer.parseInt(f));
+                projects.add(proj);
+                project_layout.addView(proj);
+
+                proj.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(proj.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = proj.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+            }
+
         }
 
         Log.i("APP", "restore final  projects " + projects);
@@ -317,6 +357,19 @@ public class SettingIP extends AppCompatActivity  {
             project_layout.setVisibility(View.GONE);
             projectPath.setVisibility(View.GONE);
             project_register_layout.setVisibility(View.VISIBLE);
+        }else if(STATE==REGISTER_REPOSITORY){
+            Log.i("APP", "restore State repository");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+            repository_register_layout.setVisibility(View.VISIBLE);
         }
         //String myString = savedState.getString("MyString");
 
@@ -392,33 +445,63 @@ public class SettingIP extends AppCompatActivity  {
 
         Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
 
+
         projects = new ArrayList<Button>();
+        int i=0;
         for (Iterator<String> it = buttonID.iterator(); it.hasNext(); ) {
             String f = it.next();
+            if(i==0){
+                final Button proj = new Button(this);
+                proj.setText("Demo");
 
-            final Button proj = new Button(this);
-            String path=registerPath.getText().toString();
-            int indexPublic=path.indexOf("public");
-            String projectDir = path.substring(indexPublic+6);
-            proj.setText(projectDir);
+                proj.setId(Integer.parseInt(f));
+                projects.add(proj);
+                project_layout.addView(proj);
 
-            proj.setId(Integer.parseInt(f));
-            projects.add(proj);
-            project_layout.addView(proj);
+                proj.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching demo ");
+                            loading.setVisibility(View.VISIBLE);
 
-            proj.setOnClickListener(new OnClickListener()
-            {
-                @Override
-                public void onClick(View v) {
-                    for(int i = 0; i< username.size(); i++){
-                        Log.i("APP", "Launching one server " + i);
-                        loading.setVisibility(View.VISIBLE);
-
-                        lastProjectUsed = proj.getId();
-                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            lastProjectUsed = proj.getId();
+                            DEMO_ON=true;
+                            projectRunning=1;
+                            launchDemo(projectRunning);
+                        }
                     }
+                });
+                i++;
+            }else{
+                final Button proj = new Button(this);
+                String path=path_projects.get(i);
+                int indexPublic=path.indexOf(path_projects.get(0) + "public");
+                String projectDir = path;
+                if(indexPublic ==-1){
+                    projectDir = path.substring(indexPublic+path_projects.get(0).length()+6);
                 }
-            });
+                proj.setText(projectDir);
+
+                proj.setId(Integer.parseInt(f));
+                projects.add(proj);
+                project_layout.addView(proj);
+
+                proj.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(proj.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = proj.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+            }
         }
 
         Log.i("APP", "restore final  projects " + projects);
@@ -519,6 +602,19 @@ public class SettingIP extends AppCompatActivity  {
             project_layout.setVisibility(View.GONE);
             projectPath.setVisibility(View.GONE);
             project_register_layout.setVisibility(View.VISIBLE);
+        }else if(STATE==REGISTER_REPOSITORY){
+            Log.i("APP", "restore State repository");
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            connect_layout.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            backButton.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            project_layout.setVisibility(View.GONE);
+            projectPath.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+            repository_register_layout.setVisibility(View.VISIBLE);
         }
         //String myString = savedState.getString("MyString");
 
@@ -581,8 +677,12 @@ public class SettingIP extends AppCompatActivity  {
 
                     final Button proj = new Button(this);
                     String path=registerPath.getText().toString();
-                    int indexPublic=path.indexOf("public");
-                    String projectDir = path.substring(indexPublic+6);
+                    int indexPublic=path.indexOf(path_projects.get(0) + "public");
+                    String projectDir = path;
+                    if(indexPublic ==-1){
+                        projectDir = path.substring(indexPublic+path_projects.get(0).length()+6);
+                    }
+
                     proj.setText(projectDir);
 
                     proj.setId(path_projects.size());
@@ -596,7 +696,7 @@ public class SettingIP extends AppCompatActivity  {
                         @Override
                         public void onClick(View v) {
                             for(int i = 0; i< username.size(); i++){
-                                Log.i("APP", "Launching one server " + i);
+                                Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(proj.getId()));
                                 loading.setVisibility(View.VISIBLE);
 
                                 lastProjectUsed = proj.getId();
@@ -606,6 +706,17 @@ public class SettingIP extends AppCompatActivity  {
                     });
                 }
 
+            }
+        }
+    }
+
+    private void sameRepositoryFill(){
+        if(STATE==REGISTER_PROJECT){
+            Log.i("APP", "Same reposiory to fill");
+            if(sameRepository.isChecked()){
+                ipAddress.setText(path_projects.get(0));
+            }else{
+                ipAddress.setText(null);
             }
         }
     }
@@ -647,15 +758,146 @@ public class SettingIP extends AppCompatActivity  {
             } else{
                 loading.setVisibility(View.VISIBLE);
                 testMachine(hostname_launch_machine.getText().toString(), password_launch_machine.getText().toString(),
-                        ipAddress_launch_machine.getText().toString(), "", true);
+                        ipAddress_launch_machine.getText().toString(), "", STATE);
             }
         }else if(STATE==REGISTER_PROJECT){
             loading.setVisibility(View.VISIBLE);
-            testMachine(username.get(0), password.get(0),ipAddressCode.get(0), registerPath.getText().toString(), false);
+            testMachine(username.get(0), password.get(0),ipAddressCode.get(0), registerPath.getText().toString(), STATE);
+        }else if(STATE==REGISTER_REPOSITORY){
+            Log.i("APP", "Registering base repository");
+            loading.setVisibility(View.VISIBLE);
+            testMachine(username.get(0), password.get(0),ipAddressCode.get(0), registerRepository.getText().toString(), STATE);
         }
     }
 
-    private void nextControlsFromConnect(boolean available){
+    private void registerBasePath(boolean available){
+        Log.i("APP", "Registering new repository");
+        if(STATE==REGISTER_REPOSITORY){
+            loading.setVisibility(View.GONE);
+            if(!available){
+                Log.i("APP", "Repository not found");
+                registerRepository.setError("Path not found");
+            }else{
+                Log.i("APP", "Setting layout");
+                nextButton.setVisibility(View.GONE);
+                projectPath.setVisibility(View.VISIBLE);
+                repository_register_layout.setVisibility(View.GONE);
+                project_layout.setVisibility(View.VISIBLE);
+                STATE=PROJECT;
+
+                Log.i("APP", "Creating demo button");
+                final Button demo = new Button(this);
+                demo.setText("Demo");
+                String path=registerRepository.getText().toString();
+
+                demo.setId(path_projects.size());
+                path_projects.add(path);
+                projects.add(demo);
+                project_layout.addView(demo);
+
+                demo.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        Log.i("APP", "Launching demo ");
+                        loading.setVisibility(View.VISIBLE);
+
+                        lastProjectUsed = demo.getId();
+                        DEMO_ON=true;
+                        projectRunning=1;
+                        launchDemo(projectRunning);
+                    }
+                });
+
+                Log.i("APP", "Creating cylinder button");
+                final Button cylinder = new Button(this);
+                cylinder.setText("examples/cylinder");
+
+                cylinder.setId(path_projects.size());
+                if (path.endsWith("/")) {
+                    path_projects.add(path+"public/examples/cylinder");
+                }else{
+                    path_projects.add(path+"/public/examples/cylinder");
+                }
+                projects.add(cylinder);
+                project_layout.addView(cylinder);
+
+                cylinder.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(cylinder.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = cylinder.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(cylinder.getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+
+                Log.i("APP", "Creating particles button");
+
+                final Button particles = new Button(this);
+                particles.setText("examples/particles");
+
+                particles.setId(path_projects.size());
+                if (path.endsWith("/")) {
+                    path_projects.add(path+"public/examples/particles");
+                }else{
+                    path_projects.add(path+"/public/examples/particles");
+                }
+                projects.add(particles);
+                project_layout.addView(particles);
+
+                particles.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(particles.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = particles.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(particles.getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+
+                Log.i("APP", "Creating objects button");
+
+                final Button objects = new Button(this);
+                objects.setText("examples/objects");
+
+                objects.setId(path_projects.size());
+                if (path.endsWith("/")) {
+                    path_projects.add(path+"public/examples/objects");
+                }else{
+                    path_projects.add(path+"/public/examples/objects");
+                }
+                projects.add(objects);
+                project_layout.addView(objects);
+
+                objects.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(objects.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = objects.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(objects.getId()), noScreens.get(i), i==0, false);
+                        }
+                    }
+                });
+
+                Log.i("APP", "Finishing setting buttons " + path_projects);
+            }
+        }
+    }
+
+    private void nextControlsFromConnect(boolean available) throws InterruptedException {
         loading.setVisibility(View.GONE);
         Log.w("APP", "Checking project is open " + available);
         if(!available){
@@ -722,15 +964,14 @@ public class SettingIP extends AppCompatActivity  {
                 }
 
             }else {
-                Log.w("APP", "Going to projects");
+                Log.w("APP", "Going to find repository");
                 launch_layout_machine.setVisibility(View.GONE);
-                project_layout.setVisibility(View.VISIBLE);
+                repository_register_layout.setVisibility(View.VISIBLE);
                 backButton.setVisibility(View.VISIBLE);
-                nextButton.setVisibility(View.GONE);
-                projectPath.setVisibility(View.VISIBLE);
+                nextButton.setVisibility(View.VISIBLE);
                 launch_state_button.setVisibility(View.INVISIBLE);
                 connect_state_button.setVisibility(View.INVISIBLE);
-                STATE = PROJECT;
+                STATE = REGISTER_REPOSITORY;
 
             }
             Log.i("APP", "Added new username "+ username);
@@ -801,6 +1042,24 @@ public class SettingIP extends AppCompatActivity  {
             }
 
         }else if(STATE==PROJECT){
+            STATE=REGISTER_REPOSITORY;
+            for(int i=0; i<projects.size(); i++){
+                project_layout.removeView( projects.get(i));
+            }
+            projects=new ArrayList<Button>();
+            projectPath.setVisibility(View.GONE);
+            nextButton.setVisibility(View.VISIBLE);
+        }else if(STATE==REGISTER_PROJECT){
+            STATE=PROJECT;
+            connect_state_button.setVisibility(View.GONE);
+            launch_state_button.setVisibility(View.GONE);
+            project_register_layout.setVisibility(View.GONE);
+            project_layout.setVisibility(View.VISIBLE);
+            projectPath.setVisibility(View.VISIBLE);
+            nextButton.setVisibility(View.GONE);
+
+        }else if(STATE==REGISTER_REPOSITORY){
+            Log.i("APP", "Going back from repository");
             noMachines_edit.setText(String.valueOf(noMachines));
             port_launch.setText(String.valueOf(portCode));
             portCode=null;
@@ -826,15 +1085,6 @@ public class SettingIP extends AppCompatActivity  {
             projects = new ArrayList<Button>();
             //password_launch_machine.setText(null);
             STATE=LAUNCH;
-        }else if(STATE==REGISTER_PROJECT){
-            STATE=PROJECT;
-            connect_state_button.setVisibility(View.GONE);
-            launch_state_button.setVisibility(View.GONE);
-            project_register_layout.setVisibility(View.GONE);
-            project_layout.setVisibility(View.VISIBLE);
-            projectPath.setVisibility(View.VISIBLE);
-            nextButton.setVisibility(View.GONE);
-
         }
     }
 
@@ -867,15 +1117,16 @@ public class SettingIP extends AppCompatActivity  {
     }
 
 
-    private void setIP(boolean hasLaunched) {
+    private void setIP(boolean hasLaunched) throws InterruptedException {
         if(checkIPValid(ipAddressCode.get(0))){
-           Log.w("APP","change layout " + ipAddressCode);
+
            Log.i("APP", "checking list " + projects);
             for(int i=0; i<projects.size(); i++){
                 project_layout.removeView(projects.get(i));
 
                 projects.get(i).setOnClickListener(null);
             }
+            Log.w("APP","change layout " + ipAddressCode);
            setContentView(R.layout.main);
            Log.i("APP", "checking list " + projects);
            setControlButtons(hasLaunched);
@@ -900,7 +1151,11 @@ public class SettingIP extends AppCompatActivity  {
                 if(!fromConnect){
                     nextMachineInfoFromLaunch(false);
                 }else{
-                    nextControlsFromConnect(false);
+                    try {
+                        nextControlsFromConnect(false);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }, new Response.ErrorListener() {
@@ -911,7 +1166,11 @@ public class SettingIP extends AppCompatActivity  {
                     ipAddressCode.add(ip);
                     nextMachineInfoFromLaunch(true);
                 }else{
-                    nextControlsFromConnect(true);
+                    try {
+                        nextControlsFromConnect(true);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
@@ -955,43 +1214,78 @@ public class SettingIP extends AppCompatActivity  {
             setContentView(R.layout.ip_setting);
 
             setMenuButtons(true);
-        }else{
-            Log.w("APP","change layout from  " + STATE);
+        }else {
+            Log.w("APP", "change layout from  Project " + STATE + " demo on " + DEMO_ON);
             disconnectTablet();
 
             loading.setVisibility(View.VISIBLE);
             launchServer(username.get(0), password.get(0), ipAddressCode.get(0), path_projects.get(lastProjectUsed), 0, false, true);
 
-            setContentView(R.layout.ip_setting);
-
-            setMenuButtons(false);
-            STATE=PROJECT;
-            project_layout.setVisibility(View.VISIBLE);
-            launch_layout.setVisibility(View.GONE);
-            nextButton.setVisibility(View.GONE);
-            backButton.setVisibility(View.VISIBLE);
-            projectPath.setVisibility(View.VISIBLE);
-            launch_state_button.setVisibility(View.GONE);
-            connect_state_button.setVisibility(View.GONE);
-            Log.i("APP", "moving to list " + projects);
-            for(int i=0; i<projects.size(); i++){
-                project_layout.addView(projects.get(i));
-
-                projects.get(i).setOnClickListener(new OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v) {
-                        for(int i = 0; i< username.size(); i++){
-                            Log.i("APP", "Launching one server " + i);
-                            loading.setVisibility(View.VISIBLE);
-                            lastProjectUsed=projects.get(i).getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(i).getId()), noScreens.get(i), i==0, false);
-                        }
-                    }
-                });
-            }
         }
 
+    }
+
+    private void backToSetIPProject() throws InterruptedException {
+        setContentView(R.layout.ip_setting);
+
+        setMenuButtons(false);
+        STATE=PROJECT;
+        project_layout.setVisibility(View.VISIBLE);
+        launch_layout.setVisibility(View.GONE);
+        nextButton.setVisibility(View.GONE);
+        backButton.setVisibility(View.VISIBLE);
+        projectPath.setVisibility(View.VISIBLE);
+        launch_state_button.setVisibility(View.GONE);
+        connect_state_button.setVisibility(View.GONE);
+        Log.i("APP", "moving to list " + projects);
+
+        project_layout.addView(projects.get(0));
+        projects.get(0).setOnClickListener(new OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                for(int i = 0; i< username.size(); i++){
+                    Log.i("APP", "Launching demo ");
+                    loading.setVisibility(View.VISIBLE);
+
+                    lastProjectUsed = projects.get(0).getId();
+                    DEMO_ON=true;
+                    projectRunning=1;
+                    launchDemo(projectRunning);
+                }
+            }
+        });
+
+        for(int i=1; i<projects.size(); i++){
+            project_layout.addView(projects.get(i));
+
+            projects.get(i).setOnClickListener(new OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    for(int i = 0; i< username.size(); i++){
+                        Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(projects.get(i).getId()));
+                        loading.setVisibility(View.VISIBLE);
+                        lastProjectUsed=projects.get(i).getId();
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(i).getId()), noScreens.get(i), i==0, false);
+                    }
+                }
+            });
+        }
+        Log.i("APP", "Finishing setting buttons " + path_projects + " and demo on " + DEMO_ON);
+
+        if(DEMO_ON){
+            Log.i("APP", "Going to next demo ");
+            projectRunning++;
+            if(projectRunning>3){
+                Log.i("APP", "finishing demo ");
+                DEMO_ON = false;
+                projectRunning=0;
+            }else{
+                TimeUnit.SECONDS.sleep(2);
+                launchDemo(projectRunning);
+            }
+        }
     }
 
     private void setSwitchRotTrans(){
@@ -1031,9 +1325,16 @@ public class SettingIP extends AppCompatActivity  {
         translationOn = !translationOn;
     }
 
+    private void launchDemo(int projectToLaunch){
+        Log.i("APP", "Demo launching project: " + projectToLaunch);
+        DEMO_ON = true;
+
+        projects.get(projectToLaunch).performClick();
+    }
+
     @SuppressLint("StaticFieldLeak")
     private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster, final boolean goingBack){
-        Log.w("LAU", "Start launch");
+        Log.w("LAU", "Start launch is MAster " + isMaster + " goingBack " + goingBack );
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
             @Override
@@ -1052,10 +1353,21 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             protected void onPostExecute(String result){
                 Log.w("APP", "Moving to result");
-                loading.setVisibility(View.GONE);
+
                 if(!goingBack){
+                    loading.setVisibility(View.GONE);
                     portBusyFromUs=true;
-                    setIP(true);
+                    try {
+                        setIP(true);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    try {
+                        backToSetIPProject();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
 
             }
@@ -1064,7 +1376,7 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void testMachine(final String user, final String password, final String host, final String path, final boolean isLaunchInfo){
+    private void testMachine(final String user, final String password, final String host, final String path, final int whatState){
         Log.w("LAU", "Start launch");
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
@@ -1082,11 +1394,13 @@ public class SettingIP extends AppCompatActivity  {
 
             @Override
             protected void onPostExecute(String result){
-                Log.w("APP", "Moving to result");
-                if(isLaunchInfo){
+                Log.w("APP", "Moving to result " + whatState);
+                if(whatState==LAUNCH_INFO){
                     nextMachineInfo(resultSSH[0]);
-                }else{
+                }else if(whatState==REGISTER_PROJECT){
                     registerNewPath(resultSSH[0]);
+                }else if(whatState==REGISTER_REPOSITORY){
+                    registerBasePath(resultSSH[0]);
                 }
 
             }
@@ -1116,7 +1430,7 @@ public class SettingIP extends AppCompatActivity  {
                 Log.w("APP", "Moving to result");
                 loading.setVisibility(View.VISIBLE);
                 STATE=LAUNCH;
-                backToSetIP();
+                    backToSetIP();
             }
         }.execute(1);
 
@@ -1313,6 +1627,116 @@ public class SettingIP extends AppCompatActivity  {
         return true;
     }
 
+
+    @SuppressLint("StaticFieldLeak")
+    private void demoAnimation(){
+        Log.w("LAU", "Start kill");
+        final boolean[] resultSSH = new boolean[1];
+        new AsyncTask<Integer, Void, String>(){
+            @Override
+            protected String doInBackground(Integer... params) {
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(String result){
+                Log.i("APP", "Start animation");
+                try {
+                    if(projectRunning == 1){
+                        Log.i("APP", "Running project 1 ");
+                        TimeUnit.SECONDS.sleep(10);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        transUp.performClick();
+                        TimeUnit.SECONDS.sleep(1);
+                        transBackwards.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        switchRotTrans.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        rotYNeg.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotYNeg.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotZNeg.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        reset.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        switchCamera.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+
+                    }else if(projectRunning == 2){
+                        Log.i("APP", "Running project 2 ");
+                        TimeUnit.SECONDS.sleep(10);
+                        switchCamera.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        switchRotTrans.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotXPos.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotXPos.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        rotZPos.performClick();
+                        TimeUnit.SECONDS.sleep(1);
+                        rotZPos.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        switchRotTrans.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        reset.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transDown.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transForward.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        switchCamera.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+
+                    }else if(projectRunning == 3){
+                        Log.i("APP", "Running project 3 ");
+                        TimeUnit.SECONDS.sleep(10);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        transRight.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        transUp.performClick();
+                        TimeUnit.SECONDS.sleep(1);
+                        transBackwards.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        switchRotTrans.performClick();
+                        TimeUnit.SECONDS.sleep(5);
+                        rotYNeg.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotYNeg.performClick();
+                        TimeUnit.SECONDS.sleep(2);
+                        rotZNeg.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        reset.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+                        switchCamera.performClick();
+                        TimeUnit.SECONDS.sleep(10);
+
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.w("APP", "Finishing demo animation");
+                if(projectRunning ==3){
+                    kill.performClick();
+                }else{
+                    goBack.performClick();
+                }
+            }
+        }.execute(1);
+
+    }
+
     private void translateUp(){
         mSocket.emit("serverMoveUp");
         Log.i("SER", "move up");
@@ -1395,6 +1819,8 @@ public class SettingIP extends AppCompatActivity  {
     private void setMenuButtons(boolean empty){
         STATE=LAUNCH;
 
+        DEMO_ON=false;
+        projectRunning=0;
         if(ipAddressCode == null || empty ) {
             ipAddressCode = new ArrayList<String>();
         }
@@ -1514,10 +1940,22 @@ public class SettingIP extends AppCompatActivity  {
         //Register project
         project_register_layout = (LinearLayout) findViewById(R.id.layout_register_project);
         registerPath = (EditText) findViewById(R.id.path);
+        sameRepository = (CheckBox) findViewById(R.id.same_repository);
+        sameRepository.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sameRepositoryFill();
+            }
+        });
+
+        //Register project
+        repository_register_layout = (LinearLayout) findViewById(R.id.layout_find_repository);
+        registerRepository = (EditText) findViewById(R.id.repository);
+
         Log.i("APP", "Initial state " + STATE);
     }
 
-    private void setControlButtons( boolean hasLaunched){
+    private void setControlButtons( boolean hasLaunched) throws InterruptedException {
 
         translationOn = true;
 
@@ -1660,6 +2098,11 @@ public class SettingIP extends AppCompatActivity  {
                 switchCamera();
             }
         });
+
+
+        if(DEMO_ON){
+            demoAnimation();
+        }
     }
 }
 
