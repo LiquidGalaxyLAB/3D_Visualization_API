@@ -45,7 +45,7 @@ If the script fails due to the OS or different versions, you can run:
 ```
 $ node app <port> <directory>
 ```
-And then open a brown and go to http://localhost:<port>
+And then open a brown and go to http://localhost:port
 
 ### Example commands to run script launch.sh
 
@@ -60,7 +60,6 @@ And it should look like:
 
 
 If you are going for the second approach then you would run:
-If the script fails due to the OS or different versions, you can run:
 ```
 $ node app 3000 examples/objects
 ```
