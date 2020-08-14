@@ -220,7 +220,11 @@ public class SettingIP extends AppCompatActivity  {
                             lastProjectUsed = proj.getId();
                             DEMO_ON=true;
                             projectRunning=1;
-                            launchDemo(projectRunning);
+                            try {
+                                launchDemo(projectRunning);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
@@ -249,6 +253,11 @@ public class SettingIP extends AppCompatActivity  {
 
                             lastProjectUsed = proj.getId();
                             launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            try {
+                                TimeUnit.SECONDS.sleep(3);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
@@ -469,7 +478,11 @@ public class SettingIP extends AppCompatActivity  {
                             lastProjectUsed = proj.getId();
                             DEMO_ON=true;
                             projectRunning=1;
-                            launchDemo(projectRunning);
+                            try {
+                                launchDemo(projectRunning);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
@@ -498,6 +511,11 @@ public class SettingIP extends AppCompatActivity  {
 
                             lastProjectUsed = proj.getId();
                             launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            try {
+                                TimeUnit.SECONDS.sleep(3);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 });
@@ -701,6 +719,11 @@ public class SettingIP extends AppCompatActivity  {
 
                                 lastProjectUsed = proj.getId();
                                 launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                                try {
+                                    TimeUnit.SECONDS.sleep(3);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
                     });
@@ -805,7 +828,11 @@ public class SettingIP extends AppCompatActivity  {
                         lastProjectUsed = demo.getId();
                         DEMO_ON=true;
                         projectRunning=1;
-                        launchDemo(projectRunning);
+                        try {
+                            launchDemo(projectRunning);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 });
 
@@ -1251,23 +1278,33 @@ public class SettingIP extends AppCompatActivity  {
                     lastProjectUsed = projects.get(0).getId();
                     DEMO_ON=true;
                     projectRunning=1;
-                    launchDemo(projectRunning);
+                    try {
+                        launchDemo(projectRunning);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         });
 
-        for(int i=1; i<projects.size(); i++){
-            project_layout.addView(projects.get(i));
+        for(int j=1; j<projects.size(); j++){
+            project_layout.addView(projects.get(j));
 
-            projects.get(i).setOnClickListener(new OnClickListener()
+            final int finalJ = j;
+            projects.get(j).setOnClickListener(new OnClickListener()
             {
                 @Override
                 public void onClick(View v) {
                     for(int i = 0; i< username.size(); i++){
-                        Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(projects.get(i).getId()));
+                        Log.i("APP", "Launching one server resetting" + i + " from button " + path_projects.get(projects.get(finalJ).getId()));
                         loading.setVisibility(View.VISIBLE);
-                        lastProjectUsed=projects.get(i).getId();
-                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(i).getId()), noScreens.get(i), i==0, false);
+                        lastProjectUsed=projects.get(finalJ).getId();
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(finalJ).getId()), noScreens.get(i), i==0, false);
+                        try {
+                            TimeUnit.SECONDS.sleep(3);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             });
@@ -1325,10 +1362,14 @@ public class SettingIP extends AppCompatActivity  {
         translationOn = !translationOn;
     }
 
-    private void launchDemo(int projectToLaunch){
+    private void launchDemo(int projectToLaunch) throws InterruptedException {
         Log.i("APP", "Demo launching project: " + projectToLaunch);
         DEMO_ON = true;
 
+        if(projectToLaunch>1){
+            Log.i("APP", "waiting  for " + projects.get(projectToLaunch) + " path " + path_projects.get(projects.get(projectToLaunch).getId()));
+            TimeUnit.SECONDS.sleep(5);
+        }
         projects.get(projectToLaunch).performClick();
     }
 
@@ -1459,8 +1500,15 @@ public class SettingIP extends AppCompatActivity  {
             channel.setXForwarding(true);
 
             int indexPublic=path.indexOf("public");
-            String projectDir = path.substring(indexPublic+6);
-            String projectDirToChange = path.substring(0, indexPublic);
+            String projectDirToChange = path;
+            String projectDir = path;
+            if(indexPublic!=-1){
+                projectDir = path.substring(indexPublic+6);
+                projectDirToChange = path.substring(0, indexPublic);
+            }
+
+
+
             String finalCommand = "cd " + projectDirToChange +"; "+
                     "DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}');" +
                     "WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}');" +
@@ -1639,102 +1687,106 @@ public class SettingIP extends AppCompatActivity  {
             }
 
             @Override
-            protected void onPostExecute(String result){
-                Log.i("APP", "Start animation");
-                try {
-                    if(projectRunning == 1){
-                        Log.i("APP", "Running project 1 ");
-                        TimeUnit.SECONDS.sleep(10);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        transUp.performClick();
-                        TimeUnit.SECONDS.sleep(1);
-                        transBackwards.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        switchRotTrans.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        rotYNeg.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotYNeg.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotZNeg.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        reset.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        switchCamera.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-
-                    }else if(projectRunning == 2){
-                        Log.i("APP", "Running project 2 ");
-                        TimeUnit.SECONDS.sleep(10);
-                        switchCamera.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        switchRotTrans.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotXPos.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotXPos.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        rotZPos.performClick();
-                        TimeUnit.SECONDS.sleep(1);
-                        rotZPos.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        switchRotTrans.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        reset.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transDown.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transForward.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        switchCamera.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-
-                    }else if(projectRunning == 3){
-                        Log.i("APP", "Running project 3 ");
-                        TimeUnit.SECONDS.sleep(10);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        transRight.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        transUp.performClick();
-                        TimeUnit.SECONDS.sleep(1);
-                        transBackwards.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        switchRotTrans.performClick();
-                        TimeUnit.SECONDS.sleep(5);
-                        rotYNeg.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotYNeg.performClick();
-                        TimeUnit.SECONDS.sleep(2);
-                        rotZNeg.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        reset.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-                        switchCamera.performClick();
-                        TimeUnit.SECONDS.sleep(10);
-
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Log.w("APP", "Finishing demo animation");
-                if(projectRunning ==3){
-                    kill.performClick();
-                }else{
-                    goBack.performClick();
-                }
+            protected void onPostExecute(String result) {
+                actualDemoAnimation();
             }
         }.execute(1);
 
+    }
+
+    private void actualDemoAnimation(){
+        Log.i("APP", "Start animation");
+        try {
+            if(projectRunning == 1){
+                Log.i("APP", "Running project 1 ");
+                TimeUnit.SECONDS.sleep(10);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                transUp.performClick();
+                TimeUnit.SECONDS.sleep(1);
+                transBackwards.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                switchRotTrans.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                rotYNeg.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotYNeg.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotZNeg.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                reset.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                switchCamera.performClick();
+                TimeUnit.SECONDS.sleep(10);
+
+            }else if(projectRunning == 2){
+                Log.i("APP", "Running project 2 ");
+                TimeUnit.SECONDS.sleep(10);
+                switchCamera.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                switchRotTrans.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotXPos.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotXPos.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                rotZPos.performClick();
+                TimeUnit.SECONDS.sleep(1);
+                rotZPos.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                switchRotTrans.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                reset.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transDown.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transForward.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                switchCamera.performClick();
+                TimeUnit.SECONDS.sleep(10);
+
+            }else if(projectRunning == 3){
+                Log.i("APP", "Running project 3 ");
+                TimeUnit.SECONDS.sleep(10);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                transRight.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                transUp.performClick();
+                TimeUnit.SECONDS.sleep(1);
+                transBackwards.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                switchRotTrans.performClick();
+                TimeUnit.SECONDS.sleep(5);
+                rotYNeg.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotYNeg.performClick();
+                TimeUnit.SECONDS.sleep(2);
+                rotZNeg.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                reset.performClick();
+                TimeUnit.SECONDS.sleep(10);
+                switchCamera.performClick();
+                TimeUnit.SECONDS.sleep(10);
+
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.w("APP", "Finishing demo animation");
+        if(projectRunning ==3){
+            kill.performClick();
+        }else{
+            goBack.performClick();
+        }
     }
 
     private void translateUp(){
@@ -1819,8 +1871,10 @@ public class SettingIP extends AppCompatActivity  {
     private void setMenuButtons(boolean empty){
         STATE=LAUNCH;
 
-        DEMO_ON=false;
-        projectRunning=0;
+        if(DEMO_ON!= true){
+            DEMO_ON=false;
+        }
+
         if(ipAddressCode == null || empty ) {
             ipAddressCode = new ArrayList<String>();
         }
