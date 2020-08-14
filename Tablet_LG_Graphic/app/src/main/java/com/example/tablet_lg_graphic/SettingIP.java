@@ -163,7 +163,7 @@ public class SettingIP extends AppCompatActivity  {
 
         setMenuButtons(true);
         prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        //restoreForCreate(prefs);
+        restoreForCreate(prefs);
     }
 
     @Override
