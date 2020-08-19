@@ -1570,7 +1570,7 @@ public class SettingIP extends AppCompatActivity  {
 
             byte[] tmp = new byte[1024];
             long startTime = System.currentTimeMillis();
-            while (false||(System.currentTimeMillis()-startTime)<5000) {
+            while (false||(System.currentTimeMillis()-startTime)<10000) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1024);
                     if (i < 0) break;
@@ -1602,7 +1602,7 @@ public class SettingIP extends AppCompatActivity  {
                     Thread.sleep(1000);
                 } catch (Exception ee) {
                 }
-                if((System.currentTimeMillis()-startTime)>=5000){
+                if((System.currentTimeMillis()-startTime)>=10000){
                     errorBuffer.append("Time out");
                     totalOutput.append("Time out");
                 }
