@@ -94,6 +94,7 @@ public class SettingIP extends AppCompatActivity  {
     private Button projectPath;
     private LinearLayout project_layout;
     private ArrayList<Button> projects;
+    private TextView info;
 
     //RegisterProject buttons
     private EditText registerPath;
@@ -234,7 +235,7 @@ public class SettingIP extends AppCompatActivity  {
                 String path=path_projects.get(i);
                 int indexPublic=path.indexOf(path_projects.get(0) + "public");
                 String projectDir = path;
-                if(indexPublic ==-1){
+                if(indexPublic !=-1){
                     projectDir = path.substring(indexPublic+path_projects.get(0).length()+6);
                 }
                 proj.setText(projectDir);
@@ -443,6 +444,7 @@ public class SettingIP extends AppCompatActivity  {
         Set<String> path_projectsSet = prefs.getStringSet("path_projects", new HashSet<String>());
         path_projects = new ArrayList<String>(path_projectsSet) ;
 
+        Log.i("APP", "Path project " + path_projects);
         Set<String> noScreensSet = prefs.getStringSet("noScreens", new HashSet<String>());
         noScreens = new ArrayList<Integer>(noScreensSet.size()) ;
         for (String myInt : noScreensSet)
@@ -486,13 +488,13 @@ public class SettingIP extends AppCompatActivity  {
                         }
                     }
                 });
-                i++;
+
             }else{
                 final Button proj = new Button(this);
                 String path=path_projects.get(i);
                 int indexPublic=path.indexOf(path_projects.get(0) + "public");
                 String projectDir = path;
-                if(indexPublic ==-1){
+                if(indexPublic !=-1){
                     projectDir = path.substring(indexPublic+path_projects.get(0).length()+6);
                 }
                 proj.setText(projectDir);
@@ -520,6 +522,7 @@ public class SettingIP extends AppCompatActivity  {
                     }
                 });
             }
+            i++;
         }
 
         Log.i("APP", "restore final  projects " + projects);
@@ -678,6 +681,7 @@ public class SettingIP extends AppCompatActivity  {
             projectPath.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
             nextButton.setVisibility(View.VISIBLE);
+            info.setText(null);
         }else if(STATE==REGISTER_PROJECT){
             loading.setVisibility(View.GONE);
             if(result == false){
@@ -737,9 +741,11 @@ public class SettingIP extends AppCompatActivity  {
         if(STATE==REGISTER_PROJECT){
             Log.i("APP", "Same reposiory to fill");
             if(sameRepository.isChecked()){
-                ipAddress.setText(path_projects.get(0));
+                Log.i("APP", "Same reposiory to fill: fill " + path_projects.get(0));
+                registerPath.setText(path_projects.get(0));
             }else{
-                ipAddress.setText(null);
+                Log.i("APP", "Same reposiory to fill: empty");
+                registerPath.setText(null);
             }
         }
     }
@@ -1076,6 +1082,11 @@ public class SettingIP extends AppCompatActivity  {
             projects=new ArrayList<Button>();
             projectPath.setVisibility(View.GONE);
             nextButton.setVisibility(View.VISIBLE);
+            project_layout.setVisibility(View.GONE);
+            repository_register_layout.setVisibility(View.VISIBLE);
+            registerRepository.setText(path_projects.get(0));
+            path_projects = new ArrayList<String>();
+            info.setText(null);
         }else if(STATE==REGISTER_PROJECT){
             STATE=PROJECT;
             connect_state_button.setVisibility(View.GONE);
@@ -1376,6 +1387,7 @@ public class SettingIP extends AppCompatActivity  {
     @SuppressLint("StaticFieldLeak")
     private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster, final boolean goingBack){
         Log.w("LAU", "Start launch is MAster " + isMaster + " goingBack " + goingBack );
+        info.setText(null);
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
             @Override
@@ -1391,18 +1403,27 @@ public class SettingIP extends AppCompatActivity  {
                 return null;
             }
 
+
             @Override
             protected void onPostExecute(String result){
                 Log.w("APP", "Moving to result");
 
                 if(!goingBack){
                     loading.setVisibility(View.GONE);
-                    portBusyFromUs=true;
-                    try {
-                        setIP(true);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    if(resultSSH[0] != false){
+                        portBusyFromUs=true;
+                        info.setText(null);
+                        try {
+                            setIP(true);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                    }else{
+                        info.setText(totalOutput);
                     }
+
+
                 }else{
                     try {
                         backToSetIPProject();
@@ -1454,6 +1475,7 @@ public class SettingIP extends AppCompatActivity  {
         Log.w("LAU", "Start kill");
         final boolean[] resultSSH = new boolean[1];
         new AsyncTask<Integer, Void, String>(){
+
             @Override
             protected String doInBackground(Integer... params) {
                 try {
@@ -1477,6 +1499,9 @@ public class SettingIP extends AppCompatActivity  {
 
     }
 
+    StringBuilder outputBuffer;
+    StringBuilder errorBuffer;
+    StringBuilder totalOutput;
     private boolean executeSSHcommand(String user, String password, String host, String path, int noSockets, boolean isMaster, boolean killServer){
         Log.w("LAU", "Start ssh with user " + user + " host " + host + " path " + path + " noSockets " + noSockets +
                 " isMaster " + isMaster + " killServer " + killServer);
@@ -1494,6 +1519,7 @@ public class SettingIP extends AppCompatActivity  {
             session.connect();
 
             Log.w("LAU", "Session connected");
+
 
             ChannelExec channel = (ChannelExec)session.openChannel("exec");
 
@@ -1532,8 +1558,9 @@ public class SettingIP extends AppCompatActivity  {
 
             InputStream commandOutput = channel.getExtInputStream();
 
-            StringBuilder outputBuffer = new StringBuilder();
-            StringBuilder errorBuffer = new StringBuilder();
+            outputBuffer = new StringBuilder();
+            errorBuffer = new StringBuilder();
+            totalOutput = new StringBuilder();
 
             InputStream in = channel.getInputStream();
             InputStream err = channel.getExtInputStream();
@@ -1542,11 +1569,13 @@ public class SettingIP extends AppCompatActivity  {
             Log.w("LAU", "Channel connected");
 
             byte[] tmp = new byte[1024];
-            while (true) {
+            long startTime = System.currentTimeMillis();
+            while (false||(System.currentTimeMillis()-startTime)<5000) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1024);
                     if (i < 0) break;
                     outputBuffer.append(new String(tmp, 0, i));
+                    totalOutput.append(new String(tmp, 0, i));
                     Log.w("LAU", "getting output: " + outputBuffer.toString());
                     if(outputBuffer.toString().contains("Screen number "+noMachines + " connected")){
                         Log.w("LAU", "get output: " + outputBuffer.toString());
@@ -1557,6 +1586,7 @@ public class SettingIP extends AppCompatActivity  {
                     int i = err.read(tmp, 0, 1024);
                     if (i < 0) break;
                     errorBuffer.append(new String(tmp, 0, i));
+                    totalOutput.append(new String(tmp, 0, i));
                 }
                 if (channel.isClosed() || outputBuffer.toString().contains("Screen number "+noMachines + " connected" )) {
                     Log.w("LAU", "output state: " + outputBuffer.toString());
@@ -1571,6 +1601,10 @@ public class SettingIP extends AppCompatActivity  {
                 try {
                     Thread.sleep(1000);
                 } catch (Exception ee) {
+                }
+                if((System.currentTimeMillis()-startTime)>=5000){
+                    errorBuffer.append("Time out");
+                    totalOutput.append("Time out");
                 }
             }
 
@@ -1588,6 +1622,7 @@ public class SettingIP extends AppCompatActivity  {
             e.printStackTrace();
             return false;
         }
+
 
         return true;
     }
@@ -1983,6 +2018,7 @@ public class SettingIP extends AppCompatActivity  {
         //Project layout
         project_layout = (LinearLayout) findViewById(R.id.layout_project);
         projectPath = (Button) findViewById(R.id.registerPath);
+        info = (TextView) findViewById(R.id.info);
 
         projectPath.setOnClickListener(new OnClickListener() {
             @Override

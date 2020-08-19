@@ -58,18 +58,18 @@ done
 
 if [ "$MASTER" == "t" ]; then
   node app $PORT $DIRECTORY & sleep 1 
+  echo "Server opened"
 fi
-echo "here"
 
-echo $WIDTH
-echo $HEIGHT
+echo "Width: $WIDTH"
+echo "Height: $HEIGHT"
 n=1
 if [ "$OPEN_BROWSER" == "f" ]; then
   n=$(($NUMBER_SOCKETS+1));
 fi
 while [ $n -le $NUMBER_SOCKETS ]
 do
-    echo "loooop"
+    echo "loop to open browsers"
     POSITION=$((NUMBER_SOCKETS-n))
     if [ $((n%2)) -eq 0 ];then
         POSITION=$((NUMBER_SOCKETS+n-1))
