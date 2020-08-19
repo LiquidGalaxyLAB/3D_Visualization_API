@@ -162,6 +162,8 @@ $ sudo systemctl start ssh
 This app is programmed to remember the state it was left even when leaving the app.
 
 #### Launch a server
+When launching a server, do not have any browser in any machine connected to the ip and port that you are intending to connect in the app.
+
 <img src="img/launch.png" width="230">
 
 To launch a server in a machine click on the top screen in the android app. The ckeckbox would fill the beginning of the "IP Address" section, but still needs to be completed., the IP Address needs to be the one of the central machine (the master).
