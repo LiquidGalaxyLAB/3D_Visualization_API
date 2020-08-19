@@ -147,8 +147,7 @@ $ npm install
 If there is problems running the last command try typing npm install -g nodemon
 
 * Having Linux machines
-* Being able to SSH to machine. 
- * Might need to install OpenSSH in all machines, you can do this by
+* Being able to SSH to machine, might need to install OpenSSH in all machines, you can do this by
 ```
 $ sudo apt-get install openssh-server
 $ sudo systemctl enable ssh
