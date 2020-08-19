@@ -148,6 +148,12 @@ If there is problems running the last command try typing npm install -g nodemon
 
 * Having Linux machines
 * Being able to SSH to machine. 
+ * Might need to install OpenSSH in all machines, you can do this by
+```
+$ sudo apt-get install openssh-server
+$ sudo systemctl enable ssh
+$ sudo systemctl start ssh
+```
 * Android device with at least the KitKat version
 
 * Download the app in: https://drive.google.com/drive/folders/15Zdks4OuHtfNjNBILYXr5axL7HoKTnnp?usp=sharing
