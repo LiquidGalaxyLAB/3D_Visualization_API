@@ -220,3 +220,12 @@ The **'kill'** button is only shown when the app launched the server, and it wou
 
 * [Socket.io](https://socket.io/) - Library for web sockets
 * [Threejs](https://threejs.org/) - Graphics library
+* [Android Studio](https://developer.android.com/studio) - Integrated development environment for Google's Android operating system
+
+## Thanks to
+<img src="img/LOGO LIQUID GALAXY-sq1000- OKnoline.png" width="230">
+<img src="img/0-logo-liquidgalaxylab.png" width="140">
+<img src="img/LOGO LABORATORIS TIC.png" width="140">
+<img src="img/pcital logo.jpg" width="140">
+<img src="img/gsoc.png" width="140">
+<img src="img/LogoLGEU.png" width="140">
