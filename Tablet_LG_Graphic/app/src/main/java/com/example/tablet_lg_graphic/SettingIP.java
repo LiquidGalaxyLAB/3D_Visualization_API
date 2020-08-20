@@ -63,6 +63,7 @@ public class SettingIP extends AppCompatActivity  {
     private int PROJECT=3;
     private int REGISTER_PROJECT=4;
     private int REGISTER_REPOSITORY=5;
+    private int ABOUT=6;
     private int STATE;
 
     private static int MIN_PORT_NUMBER = 1;
@@ -76,6 +77,7 @@ public class SettingIP extends AppCompatActivity  {
     private Button nextButton;
     private Button launch_state_button;
     private Button connect_state_button;
+    private Button about_state_button;
 
     // Connect buttons
     private EditText ipAddress;
@@ -115,6 +117,9 @@ public class SettingIP extends AppCompatActivity  {
     private CheckBox launch_checkbox_info;
     private TextView title_launch_machine;
     private TextView title_ip_launch_machine;
+
+    //About
+    private LinearLayout about_layout;
 
     private Button transUp;
     private Button transDown;
@@ -286,6 +291,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State connect");
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
+            about_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(offColor);
             connect_state_button.setBackgroundColor(visibleColor);
             connect_layout.setVisibility(View.VISIBLE);
@@ -300,6 +306,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State launch");
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
+            about_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(visibleColor);
             connect_state_button.setBackgroundColor(offColor);
             connect_layout.setVisibility(View.GONE);
@@ -316,6 +323,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State launch info");
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
+            about_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(visibleColor);
             connect_state_button.setBackgroundColor(offColor);
             connect_layout.setVisibility(View.GONE);
@@ -347,8 +355,10 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State project");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
             nextButton.setVisibility(View.GONE);
             launch_layout_machine.setVisibility(View.GONE);
@@ -359,6 +369,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State register");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
@@ -371,6 +382,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State repository");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
@@ -380,6 +392,16 @@ public class SettingIP extends AppCompatActivity  {
             projectPath.setVisibility(View.GONE);
             project_register_layout.setVisibility(View.GONE);
             repository_register_layout.setVisibility(View.VISIBLE);
+        }else if(STATE==ABOUT){
+            connect_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(offColor);
+            about_state_button.setBackgroundColor(visibleColor);
+            backButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.INVISIBLE);
         }
         //String myString = savedState.getString("MyString");
 
@@ -543,6 +565,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State connect");
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
+            about_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(offColor);
             connect_state_button.setBackgroundColor(visibleColor);
             connect_layout.setVisibility(View.VISIBLE);
@@ -603,6 +626,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State project");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
@@ -615,6 +639,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State register");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
@@ -627,6 +652,7 @@ public class SettingIP extends AppCompatActivity  {
             Log.i("APP", "restore State repository");
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             connect_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.GONE);
             backButton.setVisibility(View.VISIBLE);
@@ -636,31 +662,47 @@ public class SettingIP extends AppCompatActivity  {
             projectPath.setVisibility(View.GONE);
             project_register_layout.setVisibility(View.GONE);
             repository_register_layout.setVisibility(View.VISIBLE);
+        }else if(STATE==ABOUT){
+            connect_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(offColor);
+            about_state_button.setBackgroundColor(visibleColor);
+            backButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.INVISIBLE);
         }
         //String myString = savedState.getString("MyString");
 
     }
 
     private void switchStateToLaunch(){
-        if(STATE==CONNECT){
+        if(STATE==CONNECT || STATE==ABOUT){
             Log.w("APP", "Switching to Launch");
             connect_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.GONE);
             launch_layout_machine.setVisibility(View.GONE);
             launch_layout.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(visibleColor);
             connect_state_button.setBackgroundColor(offColor);
+            about_state_button.setBackgroundColor(offColor);
             backButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
             STATE=LAUNCH;
         }
     }
 
     private void switchStateToConnect(){
-        if(STATE==LAUNCH){
+        if(STATE==LAUNCH || STATE==ABOUT){
             Log.w("APP", "Switching to connect");
             launch_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.GONE);
             connect_layout.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(offColor);
             connect_state_button.setBackgroundColor(visibleColor);
+            about_state_button.setBackgroundColor(offColor);
+            nextButton.setVisibility(View.VISIBLE);
             STATE=CONNECT;
         }else if(STATE==LAUNCH_INFO){
             Log.w("APP", "Switching to connect");
@@ -668,8 +710,26 @@ public class SettingIP extends AppCompatActivity  {
             connect_layout.setVisibility(View.VISIBLE);
             launch_state_button.setBackgroundColor(offColor);
             connect_state_button.setBackgroundColor(visibleColor);
+            about_state_button.setBackgroundColor(offColor);
             backButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.VISIBLE);
             STATE=CONNECT;
+        }
+    }
+
+    private void switchStateToAbout(){
+        if(STATE==CONNECT || STATE==LAUNCH || STATE==LAUNCH_INFO){
+            Log.w("APP", "Switching to Launch");
+            connect_layout.setVisibility(View.GONE);
+            about_layout.setVisibility(View.VISIBLE);
+            launch_layout_machine.setVisibility(View.GONE);
+            launch_layout.setVisibility(View.GONE);
+            launch_state_button.setBackgroundColor(offColor);
+            connect_state_button.setBackgroundColor(offColor);
+            about_state_button.setBackgroundColor(visibleColor);
+            backButton.setVisibility(View.INVISIBLE);
+            nextButton.setVisibility(View.INVISIBLE);
+            STATE=ABOUT;
         }
     }
 
@@ -1004,6 +1064,7 @@ public class SettingIP extends AppCompatActivity  {
                 nextButton.setVisibility(View.VISIBLE);
                 launch_state_button.setVisibility(View.INVISIBLE);
                 connect_state_button.setVisibility(View.INVISIBLE);
+                about_state_button.setVisibility(View.INVISIBLE);
                 STATE = REGISTER_REPOSITORY;
 
             }
@@ -1091,6 +1152,7 @@ public class SettingIP extends AppCompatActivity  {
             STATE=PROJECT;
             connect_state_button.setVisibility(View.GONE);
             launch_state_button.setVisibility(View.GONE);
+            about_state_button.setVisibility(View.GONE);
             project_register_layout.setVisibility(View.GONE);
             project_layout.setVisibility(View.VISIBLE);
             projectPath.setVisibility(View.VISIBLE);
@@ -1104,7 +1166,9 @@ public class SettingIP extends AppCompatActivity  {
             title_launch_machine.setText("Info central machine");
             connect_state_button.setVisibility(View.VISIBLE);
             launch_state_button.setVisibility(View.VISIBLE);
+            about_state_button.setVisibility(View.VISIBLE);
             project_register_layout.setVisibility(View.GONE);
+            repository_register_layout.setVisibility(View.GONE);
             launch_layout.setVisibility(View.VISIBLE);
             backButton.setVisibility(View.INVISIBLE);
             loading.setVisibility(View.GONE);
@@ -1274,6 +1338,7 @@ public class SettingIP extends AppCompatActivity  {
         backButton.setVisibility(View.VISIBLE);
         projectPath.setVisibility(View.VISIBLE);
         launch_state_button.setVisibility(View.GONE);
+        about_state_button.setVisibility(View.GONE);
         connect_state_button.setVisibility(View.GONE);
         Log.i("APP", "moving to list " + projects);
 
@@ -1936,6 +2001,7 @@ public class SettingIP extends AppCompatActivity  {
         nextButton = (Button) findViewById(R.id.next);
         launch_state_button = (Button) findViewById(R.id.launch);
         connect_state_button = (Button) findViewById(R.id.connect);
+        about_state_button = (Button) findViewById(R.id.about);
         loading = (ProgressBar) findViewById(R.id.progressBar);
         launch_state_button.setBackgroundColor(visibleColor);
         connect_state_button.setBackgroundColor(offColor);
@@ -1957,6 +2023,12 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             public void onClick(View view) {
                 switchStateToLaunch();
+            }
+        });
+        about_state_button.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchStateToAbout();
             }
         });
 
@@ -2041,6 +2113,9 @@ public class SettingIP extends AppCompatActivity  {
         //Register project
         repository_register_layout = (LinearLayout) findViewById(R.id.layout_find_repository);
         registerRepository = (EditText) findViewById(R.id.repository);
+
+        //About
+        about_layout = (LinearLayout) findViewById(R.id.layout_logos);
 
         Log.i("APP", "Initial state " + STATE);
     }

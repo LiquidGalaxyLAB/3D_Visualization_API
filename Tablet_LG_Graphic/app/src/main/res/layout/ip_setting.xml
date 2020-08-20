@@ -34,6 +34,14 @@
             android:background="@color/off"
             android:textColor="@color/white"
             android:text="@string/connect" />
+        <Button
+            android:id="@+id/about"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/off"
+            android:textColor="@color/white"
+            android:text="@string/about" />
     </LinearLayout>
 
 
@@ -87,7 +95,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible"
+        android:visibility="gone"
         android:orientation="vertical">
 
         <CheckBox
@@ -148,7 +156,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <TextView
@@ -248,6 +256,73 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/layout_logos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_marginTop="100px"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/logo_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/off"
+            android:paddingTop="30dp"
+            android:textSize="@dimen/title"
+            android:text="@string/logo" />
+
+        <ImageButton
+            android:id="@+id/lg"
+            android:layout_width="150dp"
+            android:layout_height="120dp"
+            android:background="@mipmap/lg"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/lg_lab"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:background="@mipmap/lg_lab"/>
+            <ImageButton
+                android:id="@+id/tic_lab"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:background="@mipmap/lab_tic"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/pcital"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:background="@mipmap/pcital"/>
+            <ImageButton
+                android:id="@+id/gsoc"
+                android:layout_width="120dp"
+                android:layout_height="100dp"
+                android:background="@mipmap/gsoc"/>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/lg_eu"
+            android:layout_width="120dp"
+            android:layout_height="100dp"
+            android:background="@mipmap/lg_eu"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/layout_register_project"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -335,7 +410,7 @@
             android:layout_weight="1"
             android:background="@color/colorAccent"
             android:textColor="@color/white"
-            android:visibility="invisible"
+            android:visibility="visible"
             android:text="@string/back" />
         <Button
             android:id="@+id/next"

@@ -6,6 +6,7 @@
     <string name="action_sign_in">Select IP Address</string>
     <string name="launch">Launch</string>
     <string name="connect">Connect</string>
+    <string name="about">About</string>
     <string name="port">Port</string>
     <string name="next">Next</string>
     <string name="noMachines">Nº Machines</string>
@@ -24,6 +25,7 @@
     <string name="centralMAchineTitle">Info central machine</string>
     <string name="registerPath"><u>Register new project</u></string>
     <string name="projectTitle">Select a project</string>
+    <string name="logo">Thanks to</string>
     <string name="wifi_checkbox">"Check if this device connected to the same wifi as the machine"
     </string>
     <string name="wifi_checkbox_launch">"Check if this device connected to the same wifi as the machine where the server will be run"
