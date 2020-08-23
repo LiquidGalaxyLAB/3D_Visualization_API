@@ -198,8 +198,6 @@ public class SettingIP extends AppCompatActivity  {
             noScreens.add(Integer.valueOf(myInt));
         }
 
-        portBusyFromUs = prefs.getBoolean("portBusyFromUs", false);
-
         Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
 
         projects = new ArrayList<Button>();
@@ -258,7 +256,7 @@ public class SettingIP extends AppCompatActivity  {
                             loading.setVisibility(View.VISIBLE);
 
                             lastProjectUsed = proj.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false, i);
                             try {
                                 TimeUnit.SECONDS.sleep(3);
                             } catch (InterruptedException e) {
@@ -438,7 +436,6 @@ public class SettingIP extends AppCompatActivity  {
         Set<String> noScreensSet = new HashSet<String>(noScreensString);
         editPrefs.putStringSet("noScreens", noScreensSet);
 
-        editPrefs.putBoolean("portBusyFromUs", portBusyFromUs);
 
         Set<String> buttonID = new HashSet<String>();
         for(int i=0; i<projects.size(); i++){
@@ -473,8 +470,6 @@ public class SettingIP extends AppCompatActivity  {
         {
             noScreens.add(Integer.valueOf(myInt));
         }
-
-        portBusyFromUs = prefs.getBoolean("portBusyFromUs", false);
 
         Set<String> buttonID = prefs.getStringSet("buttonID", new HashSet<String>());
 
@@ -534,7 +529,7 @@ public class SettingIP extends AppCompatActivity  {
                             loading.setVisibility(View.VISIBLE);
 
                             lastProjectUsed = proj.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false, i);
                             try {
                                 TimeUnit.SECONDS.sleep(3);
                             } catch (InterruptedException e) {
@@ -782,7 +777,7 @@ public class SettingIP extends AppCompatActivity  {
                                 loading.setVisibility(View.VISIBLE);
 
                                 lastProjectUsed = proj.getId();
-                                launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false);
+                                launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(proj.getId()), noScreens.get(i), i==0, false, i);
                                 try {
                                     TimeUnit.SECONDS.sleep(3);
                                 } catch (InterruptedException e) {
@@ -924,7 +919,7 @@ public class SettingIP extends AppCompatActivity  {
                             loading.setVisibility(View.VISIBLE);
 
                             lastProjectUsed = cylinder.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(cylinder.getId()), noScreens.get(i), i==0, false);
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(cylinder.getId()), noScreens.get(i), i==0, false, i);
                         }
                     }
                 });
@@ -952,7 +947,7 @@ public class SettingIP extends AppCompatActivity  {
                             loading.setVisibility(View.VISIBLE);
 
                             lastProjectUsed = particles.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(particles.getId()), noScreens.get(i), i==0, false);
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(particles.getId()), noScreens.get(i), i==0, false, i);
                         }
                     }
                 });
@@ -980,7 +975,7 @@ public class SettingIP extends AppCompatActivity  {
                             loading.setVisibility(View.VISIBLE);
 
                             lastProjectUsed = objects.getId();
-                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(objects.getId()), noScreens.get(i), i==0, false);
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(objects.getId()), noScreens.get(i), i==0, false, i);
                         }
                     }
                 });
@@ -1254,6 +1249,7 @@ public class SettingIP extends AppCompatActivity  {
                     nextMachineInfoFromLaunch(false);
                 }else{
                     try {
+                        ipAddressCode.add(ip);
                         nextControlsFromConnect(false);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -1321,7 +1317,7 @@ public class SettingIP extends AppCompatActivity  {
             disconnectTablet();
 
             loading.setVisibility(View.VISIBLE);
-            launchServer(username.get(0), password.get(0), ipAddressCode.get(0), path_projects.get(lastProjectUsed), 0, false, true);
+            launchServer(username.get(0), password.get(0), ipAddressCode.get(0), path_projects.get(lastProjectUsed), 0, false, true, 0);
 
         }
 
@@ -1375,7 +1371,7 @@ public class SettingIP extends AppCompatActivity  {
                         Log.i("APP", "Launching one server resetting" + i + " from button " + path_projects.get(projects.get(finalJ).getId()));
                         loading.setVisibility(View.VISIBLE);
                         lastProjectUsed=projects.get(finalJ).getId();
-                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(finalJ).getId()), noScreens.get(i), i==0, false);
+                        launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(projects.get(finalJ).getId()), noScreens.get(i), i==0, false, i);
                         try {
                             TimeUnit.SECONDS.sleep(3);
                         } catch (InterruptedException e) {
@@ -1450,7 +1446,7 @@ public class SettingIP extends AppCompatActivity  {
     }
 
     @SuppressLint("StaticFieldLeak")
-    private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster, final boolean goingBack){
+    private void launchServer(final String user, final String password, final String host, final String path, final int noSockets, final boolean isMaster, final boolean goingBack, final int machineNo){
         Log.w("LAU", "Start launch is MAster " + isMaster + " goingBack " + goingBack );
         info.setText(null);
         final boolean[] resultSSH = new boolean[1];
@@ -1459,7 +1455,7 @@ public class SettingIP extends AppCompatActivity  {
             protected String doInBackground(Integer... params) {
                 try {
                     Log.i("APP", "It has launched " + portBusyFromUs);
-                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, noSockets, isMaster, portBusyFromUs);
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, noSockets, isMaster, portBusyFromUs, machineNo);
                     Log.w("LAU", "Result in " + resultSSH[0]);
 
                 } catch (Exception e) {
@@ -1471,11 +1467,12 @@ public class SettingIP extends AppCompatActivity  {
 
             @Override
             protected void onPostExecute(String result){
-                Log.w("APP", "Moving to result");
+                Log.w("APP", "Moving to result machineNo " + machineNo + " noMachines " + noMachines);
 
                 if(!goingBack){
-                    loading.setVisibility(View.GONE);
-                    if(resultSSH[0] != false){
+
+                    if(resultSSH[0] != false && machineNo+1==noMachines){
+                        loading.setVisibility(View.GONE);
                         portBusyFromUs=true;
                         info.setText(null);
                         try {
@@ -1544,7 +1541,7 @@ public class SettingIP extends AppCompatActivity  {
             @Override
             protected String doInBackground(Integer... params) {
                 try {
-                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, 0,false, true);
+                    resultSSH[0] = executeSSHcommand( user,  password,  host, path, 0,false, true, 0);
                     Log.w("LAU", "Result in " + resultSSH[0]);
 
                 } catch (Exception e) {
@@ -1567,7 +1564,7 @@ public class SettingIP extends AppCompatActivity  {
     StringBuilder outputBuffer;
     StringBuilder errorBuffer;
     StringBuilder totalOutput;
-    private boolean executeSSHcommand(String user, String password, String host, String path, int noSockets, boolean isMaster, boolean killServer){
+    private boolean executeSSHcommand(String user, String password, String host, String path, int noSockets, boolean isMaster, boolean killServer, int machineNo){
         Log.w("LAU", "Start ssh with user " + user + " host " + host + " path " + path + " noSockets " + noSockets +
                 " isMaster " + isMaster + " killServer " + killServer);
         JSch jsch = new JSch();
@@ -1600,20 +1597,23 @@ public class SettingIP extends AppCompatActivity  {
 
 
 
-            String finalCommand = "cd " + projectDirToChange +"; "+
-                    "DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}');" +
-                    "WIDTH=$(echo $DIMENSIONS | head -n1 | awk '{print $1;}');" +
-                    "HEIGHT=$(echo $DIMENSIONS | head -n1 | awk '{print $2;}')" +
-                    ".google-chrome \"data:text/html,<html><body><script>window.moveTo(0,0);" +
-                    "window.resizeTo($(($WIDTH)),$HEIGHT);" +
-                    "window.location='http://" + ipAddressCode.get(0) + ":" + portCode  + "';" +
-                    "</script></body></html>;";
+            String finalCommand = "DIMENSIONS=$(DISPLAY=:0 xdpyinfo | grep dimensions: | awk '{print $2}');" +
+                    "  WIDTH=$(echo $DIMENSIONS | sed -E 's/x.*//'); " +
+                    "  HEIGHT=$(echo $DIMENSIONS | sed -E 's/.*x//'); " +
+                    "google-chrome \"data:text/html,<html><body><script>window.moveTo(0,0);"+
+                    "window.resizeTo($WIDTH,$HEIGHT);" +
+                    "window.location='http://" + ipAddressCode.get(0) + ":" +
+                    portCode + "';</script></body></html>\"";
+
+            //String finalCommand = "open http://" + ipAddressCode.get(0) + ":" + portCode+";";
             if(isMaster && killServer) {
                 finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -p " + portCode + " -d " + projectDir + " -b";
-            }else if(killServer && !isMaster) {
+            }else if(killServer && !isMaster && machineNo==0) {
                 finalCommand = "cd " + projectDirToChange + "; ./killServer.sh";
             } else if (!killServer && isMaster) {
                 finalCommand = "cd " + projectDirToChange +"; ./launch.sh -m -p " + portCode + " -n "+ noSockets + " -d " + projectDir;
+            } else if(killServer && machineNo>=1){
+                finalCommand = "";
             }
 
 
