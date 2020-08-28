@@ -207,6 +207,7 @@ public class SettingIP extends AppCompatActivity  {
 
             if(i==0){
                 final Button proj = new Button(this);
+                proj.setVisibility(View.GONE);
                 proj.setText("Demo");
 
                 proj.setId(Integer.parseInt(f));
@@ -480,6 +481,7 @@ public class SettingIP extends AppCompatActivity  {
             String f = it.next();
             if(i==0){
                 final Button proj = new Button(this);
+                proj.setVisibility(View.GONE);
                 proj.setText("Demo");
 
                 proj.setId(Integer.parseInt(f));
@@ -871,6 +873,7 @@ public class SettingIP extends AppCompatActivity  {
 
                 Log.i("APP", "Creating demo button");
                 final Button demo = new Button(this);
+                demo.setVisibility(View.GONE);
                 demo.setText("Demo");
                 String path=registerRepository.getText().toString();
 
@@ -976,6 +979,34 @@ public class SettingIP extends AppCompatActivity  {
 
                             lastProjectUsed = objects.getId();
                             launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(objects.getId()), noScreens.get(i), i==0, false, i);
+                        }
+                    }
+                });
+
+                Log.i("APP", "Creating terrain button");
+
+                final Button terrain = new Button(this);
+                terrain.setText("examples/terrain");
+
+                terrain.setId(path_projects.size());
+                if (path.endsWith("/")) {
+                    path_projects.add(path+"public/examples/terrain");
+                }else{
+                    path_projects.add(path+"/public/examples/terrain");
+                }
+                projects.add(terrain);
+                project_layout.addView(terrain);
+
+                terrain.setOnClickListener(new OnClickListener()
+                {
+                    @Override
+                    public void onClick(View v) {
+                        for(int i = 0; i< username.size(); i++){
+                            Log.i("APP", "Launching one server " + i + " from button " + path_projects.get(terrain.getId()));
+                            loading.setVisibility(View.VISIBLE);
+
+                            lastProjectUsed = terrain.getId();
+                            launchServer(username.get(i), password.get(i), ipAddressCode.get(i), path_projects.get(terrain.getId()), noScreens.get(i), i==0, false, i);
                         }
                     }
                 });

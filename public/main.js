@@ -107,24 +107,33 @@ function doNothing(){
 var angleTilted = 0;
 
 socket.on('moveUp', function(data) {
-    translateCamera(0, 0.5, 0)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(0, translationLinear(biggestCamera), 0)
 });
 socket.on('moveDown', function(data) {
-    translateCamera(0, -0.5, 0)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(0, -translationLinear(biggestCamera), 0)
 });
 socket.on('moveLeft', function(data) {
-    translateCamera(-0.5, 0, 0)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(- translationLinear(biggestCamera), 0, 0)
 });
 socket.on('moveRight', function(data) {
-    translateCamera(0.5, 0, 0)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(translationLinear(biggestCamera), 0, 0)
 });
 socket.on('moveForward', function(data) {
-    translateCamera(0, 0,-0.5)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(0, 0, - translationLinear(biggestCamera))
 });
 socket.on('moveBackwards', function(data) {
-    translateCamera(0, 0, 0.5)
+    var biggestCamera = Math.max(camera.position.x, camera.position.y, camera.position.z);
+    translateCamera(0, 0, translationLinear(biggestCamera))
 });
 
+function translationLinear(cameraParam){
+    return cameraParam*0.2;
+}
 socket.on('rotateZPos', function(data) {
     rotateCameraZ(3);
 });
@@ -551,34 +560,37 @@ function setTranslations(array){
     for(const object of array){
         // console.log(object)
         var obj = scene.getObjectById(object.id);
-        // console.log(obj)
-        originalPositionObject[object.id] = object.pos
-        toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
-        obj.position.x = toTranslation[0];
-        obj.position.y = toTranslation[1];
-        obj.position.z = toTranslation[2];
+        // if(obj != undefined){
 
-        originalRotationObject[object.id] = object.rot;
+            // console.log(obj)
+            originalPositionObject[object.id] = object.pos
+            toTranslation = executeTranslation([object.pos.x, object.pos.y, object.pos.z]); 
+            obj.position.x = toTranslation[0];
+            obj.position.y = toTranslation[1];
+            obj.position.z = toTranslation[2];
 
-        executeRotation(obj, object.rot.x, object.rot.y, object.rot.z);
+            originalRotationObject[object.id] = object.rot;
 
-        obj.scale.x = object.sca.x;
-        obj.scale.y = object.sca.y;
-        obj.scale.z = object.sca.z;
+            executeRotation(obj, object.rot.x, object.rot.y, object.rot.z);
 
-        if(obj.color != undefined){
-            obj.color.setHex(object.colHex)
-        }else if(obj.material.color != undefined){
-            obj.material.color.setHex(object.colHex)
-        }
-        if((obj instanceof THREE.Points) == true){
-            var positions = obj.geometry.attributes.position.array;
-            for(var i = 0; i<positions.length; i++){
-                positions[i] = object.geo[i]; 
+            obj.scale.x = object.sca.x;
+            obj.scale.y = object.sca.y;
+            obj.scale.z = object.sca.z;
+
+            if(obj.color != undefined){
+                obj.color.setHex(object.colHex)
+            }else if(obj.material.color != undefined){
+                obj.material.color.setHex(object.colHex)
             }
-            // obj.geometry.attributes.position.array = object.geo;
-            obj.geometry.attributes.position.needsUpdate = true;
-        }
+            if((obj instanceof THREE.Points) == true){
+                var positions = obj.geometry.attributes.position.array;
+                for(var i = 0; i<positions.length; i++){
+                    positions[i] = object.geo[i]; 
+                }
+                // obj.geometry.attributes.position.array = object.geo;
+                obj.geometry.attributes.position.needsUpdate = true;
+            }
+        // }
     }
 }
 

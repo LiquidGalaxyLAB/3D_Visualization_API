@@ -89,7 +89,9 @@ If you run the launch.sh script and you want to be able to kill the server to ru
 $ ./killServer.sh
 ```
 
-## How to create new project using this API
+## API
+
+### How to create new project using this API
 
 1. Create a file called 'index.html' insed the public folder of this repository.
 2. Include the following tags outside the head and the body of the htmls:
@@ -104,7 +106,8 @@ $ ./killServer.sh
 ```
 4. Any other JS files need to be in the public folder.
 
-## API reference
+
+### API reference
 
 * *var scene*
   * type → THREE.Scene
@@ -114,10 +117,15 @@ $ ./killServer.sh
   * type → THREE.OrthographicCamera or THREE.PerspectiveCamera 
   * Description → Camera of the animation scene
 
+* *var renderer*
+  * type → THREE.WebGLRenderer 
+  * Description → Displays scenes using WebGl
+  * The API already calls "renderer.setSize()"
+
 * *scale(object: Object3D, scaleX: Float, scaleY: Float, scaleZ:Float): void*
   * Description → It sets the object's local scale to ( x: scaleX, y: scaleY, z: scaleZ )
 
-* *setColor(object: Object3D, color: Integer, colorWrite: boolean, vertexColor: boolean)*
+* *setColor(object: Object3D, color: Integer, colorWrite: boolean, vertexColor: boolean): void*
   * Description → It sets the object's color to ( colorHex: color, colorWrite: colorWrite, vertexColor: vertexColor )
 
 * *translate(object: Object3D, translateX: Float, translateY: Float, translateZ: Float): void*
@@ -134,7 +142,37 @@ $ ./killServer.sh
 * *getOriginalRotationObject(object: Object3D): {x: object → rotationX, y: object → rotationY, z: object → rotationZ}*
   * Description → It returns the object's local rotation
 
-  
+* *degreesToRadians(degrees: number): number radians*
+  * To transform degrees to radians
+* *radiansToDegrees(radians: number): number degrees*
+  * To transform degrees to radians
+
+
+### Important rules using this API
+* Except with particle systems, do not create geometry based on randomness
+* It is better if you do not create an init() function, and instead create the objects in the beginning of the code
+* Do not create "initWindow" or "onWindowResize" functions, these are already handled in the API
+* Other functions that can not be created, or else they will me overwritten:
+  * *translationLinear()*
+  * *callSwtich2Camera()*
+  * *rotateCameraAngle()*
+  * *getTranslations()*
+  * *setTranslations()*
+  * *executeTranslation()*
+  * *executeRotation()*
+  * *setCamera()*
+  * *moveCamera()*
+  * *getOriginalPositionObject()*
+  * *getOriginalRotationObject()*
+  * *translateCamera()*
+  * *rotateCameraX()*
+  * *rotateCameraY()*
+  * *rotateCameraZ()*
+  * *rotateVectorInit()*
+  * *changeAngleCurrentToOriginalCamera()*
+  * *showHelp()*
+* In general, it is better if the field of view of the scene is not modified, so try not to change the camera, scene or renderer main parameters.
+
 ## Android app
 
 ### Prerequesites

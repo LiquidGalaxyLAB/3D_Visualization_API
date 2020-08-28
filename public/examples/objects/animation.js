@@ -1,7 +1,4 @@
 
-
-// 
-    // camera.position.z = 1800;
     scene.background = new THREE.Color( 0xffffff );
 
     var light = new THREE.DirectionalLight( 0xffffff );

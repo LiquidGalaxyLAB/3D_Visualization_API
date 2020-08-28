@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Graphical Liquid Galaxy API</title>
+      <style type="text/css">  
+         body { margin:0; }  
+     </style> 
+   </head>
+   <script src = "/socket.io/socket.io.js"></script>
+   <script src="https://threejs.org/build/three.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+   
+   <body>
+      <div id = "error-container"></div>
+      <script src="../../main.js"></script>
+      <script type="module" src="animation.js"></script>
+      <div id="help-message"
+        style="display: none;position: absolute;top: 5%;left: 5%;color: white;font-family: sans-serif;background-color: #1e1e1e91;padding: 2%;">
+        <p>w → moves forwards (translate camera negatively on the Z axis)</p>
+        <p>s → moves backwards (translate camera positively on the Z axis)</p>
+        <p>a → moves left (translate camera negatively on the X axis)</p>
+        <p>d → moves right (translate camera positively on the X axis)</p>
+        <p>space bar → moves up (translate camera positively on the Y axis)</p>
+        <p>x → moves down (translate camera negatively on the Y axis)</p>
+        <p>left/right key → rotates around Y axis</p>
+        <p>up/down key → rotates around X axis</p>
+        <p>q/e → rotates arounds Z axis</p>
+        <p>h → show/hide this help message</p>
+    </div>
+   </body>
+</html>
