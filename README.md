@@ -122,7 +122,11 @@ $ ./killServer.sh
 * *var renderer*
   * type → THREE.WebGLRenderer 
   * Description → Displays scenes using WebGl
-  * The API already calls "renderer.setSize()"
+  * The API already calls "renderer.setSize()" and "document.body.appendChild( renderer.domElement )"
+
+* *var aspectRatio*
+  * type → number
+  * Description → Aspect Ration of the browser
 
 * *scale(object: Object3D, scaleX: Float, scaleY: Float, scaleZ:Float): void*
   * Description → It sets the object's local scale to ( x: scaleX, y: scaleY, z: scaleZ )
@@ -152,27 +156,8 @@ $ ./killServer.sh
 
 ### Important rules using this API
 * Except with particle systems, do not create geometry based on randomness
-* It is better if you do not create an init() function, and instead create the objects in the beginning of the code
-* Do not create "initWindow" or "onWindowResize" functions, these are already handled in the API
-* Other functions that can not be created, or else they will me overwritten:
-  * *translationLinear()*
-  * *callSwtich2Camera()*
-  * *rotateCameraAngle()*
-  * *getTranslations()*
-  * *setTranslations()*
-  * *executeTranslation()*
-  * *executeRotation()*
-  * *setCamera()*
-  * *moveCamera()*
-  * *getOriginalPositionObject()*
-  * *getOriginalRotationObject()*
-  * *translateCamera()*
-  * *rotateCameraX()*
-  * *rotateCameraY()*
-  * *rotateCameraZ()*
-  * *rotateVectorInit()*
-  * *changeAngleCurrentToOriginalCamera()*
-  * *showHelp()*
+* If modifying the positiong of the camera, include it the "requestAnimationFrame" function
+* Do not name variables or functions that start with "API_"
 * In general, it is better if the field of view of the scene is not modified, so try not to change the camera, scene or renderer main parameters.
 
 ## Android app

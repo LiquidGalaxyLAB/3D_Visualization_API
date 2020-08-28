@@ -1,41 +1,42 @@
 
 import { ImprovedNoise } from './ImprovedNoise.js';
-
-
-var mesh, texture;
-
+var data
 var worldWidth = 256, worldDepth = 256,
-worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
+    worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
-
-scene.background = new THREE.Color( 0xbfd1e5 );
-
-var data = generateHeight( worldWidth, worldDepth );
-
-camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
-
-var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
-geometry.rotateX( - Math.PI / 2 );
-
-var vertices = geometry.attributes.position.array;
-
-for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
-
-    vertices[ j + 1 ] = data[ i ] * 10;
-
-}
-
-texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
-texture.wrapS = THREE.ClampToEdgeWrapping;
-texture.wrapT = THREE.ClampToEdgeWrapping;
-
-mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
-scene.add( mesh );
-
-renderer.setPixelRatio( window.devicePixelRatio );
-
+init();
 animate();
+function init(){
+    var mesh, texture;
 
+    
+    
+    
+    scene.background = new THREE.Color( 0xbfd1e5 );
+    
+    data = generateHeight( worldWidth, worldDepth );
+    
+    
+    var geometry = new THREE.PlaneBufferGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+    geometry.rotateX( - Math.PI / 2 );
+    
+    var vertices = geometry.attributes.position.array;
+    
+    for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
+    
+        vertices[ j + 1 ] = data[ i ] * 10;
+    
+    }
+    
+    texture = new THREE.CanvasTexture( generateTexture( data, worldWidth, worldDepth ) );
+    texture.wrapS = THREE.ClampToEdgeWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    
+    mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
+    scene.add( mesh );
+    
+    renderer.setPixelRatio( window.devicePixelRatio );
+}
 
 function generateHeight( width, height ) {
 
@@ -137,6 +138,7 @@ function animate() {
 
 function render() {
 
+    camera.position.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] * 10 + 500;
     renderer.render( scene, camera );
 
 }
